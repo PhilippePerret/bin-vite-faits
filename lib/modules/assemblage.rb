@@ -16,15 +16,34 @@ class ViteFait
 
   def exec_assemble
 
+    # On s'assure que les fichiers communs soient prêts (intro et final,
+    # en version .ts)
     self.class.prepare_assemblage
+
+    # On s'assure que les fichiers du tutoriel soient prêts (titre et
+    # capture des opérations, en ts)
+    prepare_assemblage
 
     # On doit vérifier si on possède bien les fichiers indispensables
     check_files_assemblage
 
-    # Produire le fichier ts du titre
+    # Le fichier final doit être détruit s'il existe
+    File.unlink(completed_path) if File.exists?(completed_path)
+    cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}|#{ts_path}|#{final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{completed_path}\""
+    # cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{completed_path}\""
+    # cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}\" -codec copy -bsf:a aac_adtstoasc \"#{completed_path}\""
+    puts "\n---- Commande finale : '#{cmd}'"
+    res = `#{cmd}`
 
 
+  end
 
+  def prepare_assemblage
+    if COMMAND.options[:force]
+      unlink_if_exists([ts_path, titre_mp4, titre_ts])
+    end
+    source_prepared? || prepare_source
+    titre_prepared? ||  prepare_titre
   end
 
   def check_files_assemblage
@@ -36,6 +55,46 @@ class ViteFait
     end
   end
 
+
+
+  def unlink_if_exists liste
+    liste.each do |pth|
+      File.unlink(pth) if File.exists?(pth)
+    end
+  end
+
+  def prepare_source
+    self.class.make_ts_file( mp4_path, ts_path )
+  end
+  def prepare_titre
+    puts "-> prepare_titre"
+    File.exists?(titre_mp4) || titre_to_mp4
+    self.class.make_ts_file(titre_mp4, titre_ts)
+    puts "<- prepare_titre"
+  end
+
+  def source_prepared?
+    File.exists?(ts_path)
+  end
+
+  def titre_prepared?
+    File.exists?(titre_ts)
+  end
+
+
+  def titre_ts
+    @titre_ts ||= File.join(work_folder_path,"Titre.ts")
+  end
+  def intro_ts
+    @intro_ts ||= self.class.intro_ts
+  end
+  def final_ts
+    @final_ts ||= self.class.final_ts
+  end
+
+  # ---------------------------------------------------------------------
+  #   CLASSE
+  # ---------------------------------------------------------------------
 
   class << self
 
@@ -50,6 +109,7 @@ class ViteFait
         raise("Le fichier son de la machine à écrire est introuvable (#{machine_a_ecrire_path}).")
       end
     end
+
 
     def prepare_intro
       make_ts_file( intro_mp4, intro_ts )
@@ -72,6 +132,8 @@ class ViteFait
     def final_prepared?
       File.exists?(final_ts)
     end
+
+
 
     def intro_ts
       @intro_ts ||= File.join(VITEFAIT_MATERIEL_FOLDER,"#{intro_affixe}.ts")

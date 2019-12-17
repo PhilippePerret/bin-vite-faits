@@ -181,6 +181,8 @@ class ViteFait
     File.unlink(titre_mp4) if File.exists?(titre_mp4)
 
     # ffmpeg -i video.avi -i audio.mp3 -codec copy -shortest output.avi
+    # cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\""
+    # cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -c:v libx264 -c:a libvorbis -shortest \"#{titre_mp4}\""
     cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\""
     COMMAND.options[:verbose] && cmd << ' 2> /dev/null'
     puts "\n\n---- Commande jouée : #{cmd}"
@@ -339,7 +341,8 @@ class ViteFait
   class << self
     def machine_a_ecrire_path
       # @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aiff')
-      @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.mp3')
+      # @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.mp3')
+      @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aac')
     end
   end #/ << self
 end
