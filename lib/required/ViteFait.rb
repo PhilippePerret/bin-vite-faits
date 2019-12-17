@@ -81,34 +81,55 @@ class ViteFait
 
   # Pour créer le vite-fait
   def create
-    if exists? && !COMMAND.options[:force]
+    if exists? && !(COMMAND.options[:force] || COMMAND.options[:lack])
       error "Ce projet existe déjà, je ne peux pas le créer."
+      error "Pour le reconstruire complètement, ajouter l'option -f/--force."
+      error "Pour actualiser son contenu (ajouter les fichiers manquant), ajouter -l/--lack."
     else
 
       if exists? && COMMAND.options[:force]
         FileUtils.rm_rf(work_folder_path)
       end
 
+      puts "\n\n"
+
       # Création du dossier
-      Dir.mkdir(work_folder_path)
-      notice "--> Dossier #{work_folder_path}"
+      if !exists?
+        Dir.mkdir(work_folder_path)
+        notice "--> Dossier #{work_folder_path} 👍"
+      end
 
       # Copie du fichier scrivener
-      src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Vite-Faits.scriv')
-      dst = File.join(work_folder_path, "#{name}.scriv")
-      FileUtils.copy_entry(src, dst)
-      src_x = File.join(work_folder_path,"#{name}.scriv",'Vite-Faits.scrivx')
-      dst_x = File.join(work_folder_path, "#{name}.scriv", "#{name}.scrivx")
-      FileUtils.move(src_x, dst_x)
-      notice "--> Scrivener : #{dst}"
+      unless File.exists?(scriv_file_path) # options --lack
+        src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Vite-Faits.scriv')
+        FileUtils.copy_entry(src, scriv_file_path)
+        src_x = File.join(scriv_file_path,'Vite-Faits.scrivx')
+        dst_x = File.join(scriv_file_path, "#{name}.scrivx")
+        FileUtils.move(src_x, dst_x)
+        notice "--> Scrivener : #{scriv_file_path} 👍"
+      end
+
+      # Copie du fichier Scrivener pour le titre
+      unless File.exists?(titre_path) # options --lack
+        src = File.join(VITEFAIT_MATERIEL_FOLDER,'Titre.scriv')
+        FileUtils.copy_entry(src, titre_path)
+        notice "--> Titrage : #{titre_path} 👍"
+      end
 
       # Copie du gabarit Screenflow
-      src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.screenflow')
-      dst = File.join(work_folder_path, "#{name}.screenflow")
-      FileUtils.copy_entry(src, dst)
-      notice "---> Screenflow : #{dst}"
+      unless File.exists?(screenflow_path)
+        src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.screenflow')
+        FileUtils.copy_entry(src, screenflow_path)
+        notice "---> Screenflow : #{screenflow_path} 👍"
+      end
 
-      notice "\n\n👍  Nouveau vite-fait créé avec succès"
+      notice (if COMMAND.options[:lack]
+        "\n👍  Dossier vite-fait actualisé avec succès"
+      elsif COMMAND.options[:force]
+        "\n👍  Dossier vite-fait reconstruit avec succès"
+      else
+        "\n👍  Nouveau vite-fait créé avec succès"
+      end)
       `open -a Finder "#{work_folder_path}"`
     end
   end
@@ -124,20 +145,21 @@ class ViteFait
   # Pour transformer le fichier capture en vidéo mp4
   def capture_to_mp4
     # On doit trouver la vidéo
-    capture_name = COMMAND.params[:name] || Dir["#{work_folder_path}/*.mov"].first
-    if capture_name.nil?
-      error "🖐  Je ne trouve aucun fichier .mov à traiter.\nSi le fichier est dans une autre extension, préciser explicement son nom avec :\n\t`vite-faits capture_to_mp4 #{name} name=nom_du_fichier.ext`."
-      return
-    end
-    capture_name = File.basename(capture_name)
-    capture_path = File.join(work_folder_path,capture_name)
     File.unlink(mp4_path) if File.exists?(mp4_path)
-    if !File.exists?(capture_path)
-      error "Le fichier '#{capture_path}' est introuvable…"
+    if !File.exists?(src_path)
+      error "Le fichier '#{src_path}' est introuvable…"
       error "🖐  Impossible de procéder au traitement."
     else
+      cmd = "ffmpeg -i \"#{src_path}\""
+      COMMAND.params[:speed] && begin
+        coef = {'2' => '0.5', '1.5' => '0.75'}[COMMAND.params[:speed]]
+        coef ||= COMMAND.params[:speed]
+        cmd << "-vf \"setpts=#{coef}*PTS\""
+      end
+      cmd << " \"#{mp4_path}\""
+      COMMAND.options[:verbose] && cmd << " 2> /dev/null"
       notice "\n* Fabrication du fichier .mp4. Merci de patienter…"
-      `ffmpeg -i "#{capture_path}" "#{mp4_path}" 2> /dev/null`
+      res = `#{cmd}`
       if File.exists?(mp4_path)
         notice "= 👍  Fichier mp4 fabriqué avec succès."
         notice "= Vous pouvez procéder à l'assemblage dans le fichier '#{name}.screenflow'"
@@ -145,6 +167,26 @@ class ViteFait
         error "= Le fichier '#{mp4_path}' n'a pas pu être fabriquer…"
       end
     end
+  end
+
+  # Méthode de transformation du titre en fichier mp4
+  def titre_to_mp4
+    unless File.exists?(titre_mov)
+      raise "🖐  Le fichier `Titre.mov` est introuvable. Il faut capturer le titre en se servant du fichier Titre.scriv"
+    end
+    unless File.exists?(machine_a_ecrire_path)
+      raise "🖐  Impossible de trouver le son de machine à écrire (#{machine_a_ecrire_path}). Or j'en ai besoin pour créer le titre."
+    end
+    cmd = "ffmpeg -i \"#{titre_mov}\" \"#{titre_mp4}\""
+    COMMAND.options[:verbose] && cmd << ' 2> /dev/null'
+
+    puts "commande qui sera jouée : #{cmd}"
+    exit
+    
+    res = `#{cmd}`
+    notice "= 👍  Fichier titre mp4 fabriqué avec succès."
+  rescue Exception => e
+    error "#{e.message}.\nJe ne peux pas faire le fichier .mp4 du titre"
   end
 
   # Pour ouvrir le fichier screenflow ou Premiere
@@ -158,6 +200,13 @@ class ViteFait
       return
     end
     notice "Bon montage ! 👍"
+  end
+
+  # Assemble la vidéo complète
+  # cf. le module 'assemblage.rb'
+  def assemble
+    require File.join(FOLDER_MODULES,'assemblage')
+    exec_assemble
   end
 
   # Pour "achever" le projet, c'est-à-dire le copier sur le disque et le
@@ -219,7 +268,19 @@ class ViteFait
   # ---------------------------------------------------------------------
 
   def src_path
-    @src_path ||= File.join(work_folder_path, "#{name}.mov")
+    @src_path ||= begin
+      src_name = COMMAND.params[:name] || Dir["#{work_folder_path}/*.mov"].first
+      if src_name.nil?
+        error "🖐  Je ne trouve aucun fichier .mov à traiter.\nSi le fichier est dans une autre extension, préciser explicement son nom avec :\n\t`vite-faits capture_to_mp4 #{name} name=nom_du_fichier.ext`."
+      else
+        @src_name = File.basename(src_name)
+        File.join(work_folder_path,src_name)
+      end
+    end
+  end
+  def src_name; @src_name end
+  def titre_path
+    @titre_path ||= File.join(work_folder_path, "Titre.scriv")
   end
   def mp4_path
     @mp4_path ||= File.join(work_folder_path, "#{name}.mp4")
@@ -238,6 +299,15 @@ class ViteFait
   end
   def premiere_path
     @premiere_path ||= File.join(work_folder_path, "#{name}.prproj")
+  end
+  def titre_mov
+    @titre_mov ||= File.join(work_folder_path, "Titre.mov")
+  end
+  def titre_mp4
+    @titre_mp4 ||= File.join(work_folder_path, "Titre.mp4")
+  end
+  def titre_ts
+    @titre_ts ||= File.join(work_folder_path, "Titre.ts")
   end
 
   # Chemin d'accès au dossier de travail (sur l'ordinateur)
@@ -259,4 +329,10 @@ class ViteFait
   def waiting_folder_path
     @waiting_folder_path ||= File.join(VITEFAIT_FOLDER_PROJECT_ON_DISK,name)
   end
+
+  class << self
+    def machine_a_ecrire_path
+      @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aiff')
+    end
+  end #/ << self
 end
