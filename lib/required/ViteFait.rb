@@ -206,12 +206,20 @@ class ViteFait
     `open -a Firefox "#{url_groupe_facebook}"`
   end
 
+  def forum_scrivener
+    `open -a Safari "#{url_forum_scrivener}"`
+  end
+
   def url_chaine
     @url_chaine ||= 'https://www.youtube.com/channel/UCWuW11zTGdNfoChranzBMxQ'
   end
 
   def url_groupe_facebook
     @url_groupe_facebook ||= 'https://www.facebook.com/groups/1893652697386562/'
+  end
+
+  def url_forum_scrivener
+    @url_forum_scrivener ||= 'https://www.literatureandlatte.com/forum/viewtopic.php?f=19&t=53105&hilit=tutoriels'
   end
 
   # ---------------------------------------------------------------------

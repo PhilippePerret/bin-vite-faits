@@ -40,6 +40,8 @@ when 'chaine_youtube'
   vitefait.chaine_youtube
 when 'groupe_facebook'
   vitefait.groupe_facebook
+when 'forum_scrivener'
+  vitefait.forum_scrivener
 else
   error "Impossible de traiter l'action #{COMMAND.action}"
 end
