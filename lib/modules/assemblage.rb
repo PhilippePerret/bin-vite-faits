@@ -73,7 +73,6 @@ class ViteFait
     File.exists?(titre_ts)
   end
 
-
   def intro_ts
     @intro_ts ||= self.class.intro_ts
   end

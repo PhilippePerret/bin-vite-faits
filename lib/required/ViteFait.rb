@@ -81,57 +81,8 @@ class ViteFait
 
   # Pour créer le vite-fait
   def create
-    if exists? && !(COMMAND.options[:force] || COMMAND.options[:lack])
-      error "Ce projet existe déjà, je ne peux pas le créer."
-      error "Pour le reconstruire complètement, ajouter l'option -f/--force."
-      error "Pour actualiser son contenu (ajouter les fichiers manquant), ajouter -l/--lack."
-    else
-
-      if exists? && COMMAND.options[:force]
-        FileUtils.rm_rf(work_folder_path)
-      end
-
-      puts "\n\n"
-
-      # Création du dossier
-      if !exists?
-        Dir.mkdir(work_folder_path)
-        notice "--> Dossier #{work_folder_path} 👍"
-      end
-
-      # Copie du fichier scrivener
-      unless File.exists?(scriv_file_path) # options --lack
-        src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Vite-Faits.scriv')
-        FileUtils.copy_entry(src, scriv_file_path)
-        src_x = File.join(scriv_file_path,'Vite-Faits.scrivx')
-        dst_x = File.join(scriv_file_path, "#{name}.scrivx")
-        FileUtils.move(src_x, dst_x)
-        notice "--> Scrivener : #{scriv_file_path} 👍"
-      end
-
-      # Copie du fichier Scrivener pour le titre
-      unless File.exists?(titre_path) # options --lack
-        src = File.join(VITEFAIT_MATERIEL_FOLDER,'Titre.scriv')
-        FileUtils.copy_entry(src, titre_path)
-        notice "--> Titrage : #{titre_path} 👍"
-      end
-
-      # Copie du gabarit Screenflow
-      unless File.exists?(screenflow_path)
-        src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.screenflow')
-        FileUtils.copy_entry(src, screenflow_path)
-        notice "---> Screenflow : #{screenflow_path} 👍"
-      end
-
-      notice (if COMMAND.options[:lack]
-        "\n👍  Dossier vite-fait actualisé avec succès"
-      elsif COMMAND.options[:force]
-        "\n👍  Dossier vite-fait reconstruit avec succès"
-      else
-        "\n👍  Nouveau vite-fait créé avec succès"
-      end)
-      `open -a Finder "#{work_folder_path}"`
-    end
+    require_module('create_vite_fait')
+    exec_create
   end
 
   # Pour afficher l'état du tutoriel
@@ -144,29 +95,8 @@ class ViteFait
 
   # Pour transformer le fichier capture en vidéo mp4
   def capture_to_mp4
-    # On doit trouver la vidéo
-    unlink_if_exist([mp4_path,ts_path])
-    if !File.exists?(src_path)
-      error "Le fichier '#{src_path}' est introuvable…"
-      error "🖐  Impossible de procéder au traitement."
-    else
-      cmd = "ffmpeg -i \"#{src_path}\""
-      COMMAND.params[:speed] && begin
-        coef = {'2' => '0.5', '1.5' => '0.75'}[COMMAND.params[:speed]]
-        coef ||= COMMAND.params[:speed]
-        cmd << "-vf \"setpts=#{coef}*PTS\""
-      end
-      cmd << " \"#{mp4_path}\""
-      COMMAND.options[:verbose] && cmd << " 2> /dev/null"
-      notice "\n* Fabrication du fichier .mp4. Merci de patienter…"
-      res = `#{cmd}`
-      if File.exists?(mp4_path)
-        notice "= 👍  Fichier mp4 fabriqué avec succès."
-        notice "= Vous pouvez procéder à l'assemblage dans le fichier '#{name}.screenflow'"
-      else
-        error "= Le fichier '#{mp4_path}' n'a pas pu être fabriquer…"
-      end
-    end
+    require_module('traite_capture_operations')
+    exec_capture_to_mp4
   end
 
   # Méthode de transformation du titre en fichier mp4
@@ -213,7 +143,7 @@ class ViteFait
   # Assemble la vidéo complète
   # cf. le module 'assemblage.rb'
   def assemble
-    require File.join(FOLDER_MODULES,'assemblage')
+    require_module('assemblage')
     exec_assemble
   end
 
@@ -259,6 +189,16 @@ class ViteFait
   # ---------------------------------------------------------------------
   #   Méthodes fonctionnelles
   # ---------------------------------------------------------------------
+
+
+  # Construit un dossier s'il n'existe pas
+  def mkdirs_if_not_exist liste
+    liste.each do |pth|
+      Dir.mkdir(pth)
+      notice "--> CREATE FOLDER #{pth} 👍"
+    end
+  end
+  # Détruit un fichier s'il existe
   def unlink_if_exist liste
     liste.each do |pth|
       if File.exists?(pth)
@@ -274,6 +214,10 @@ class ViteFait
     else
       error "    - fichier #{name}".ljust(26) + ' : non'
     end
+  end
+
+  def require_module module_name
+    require File.join(FOLDER_MODULES,module_name)
   end
 
   # ---------------------------------------------------------------------
@@ -307,9 +251,6 @@ class ViteFait
     end
   end
   def src_name; @src_name end
-  def titre_path
-    @titre_path ||= File.join(work_folder_path, "Titre.scriv")
-  end
   def mp4_path
     @mp4_path ||= File.join(work_folder_path, "#{name}.mp4")
   end
@@ -317,7 +258,7 @@ class ViteFait
     @ts_path ||= File.join(work_folder_path, "#{name}.ts")
   end
   def completed_path
-    @completed_path ||= File.join(work_folder_path, "#{name}_completed.mp4")
+    @completed_path ||= File.join(exports_folder, "#{name}_completed.mp4")
   end
   def scriv_file_path
     @scriv_file_path ||= File.join(work_folder_path, "#{name}.scriv")
@@ -328,20 +269,43 @@ class ViteFait
   def premiere_path
     @premiere_path ||= File.join(work_folder_path, "#{name}.prproj")
   end
+
+  # Éléments pour le titre
+  def titre_path
+    @titre_path ||= File.join(titre_folder, "Titre.scriv")
+  end
   def titre_mov
-    @titre_mov ||= File.join(work_folder_path, "Titre.mov")
+    @titre_mov ||= File.join(titre_folder, "Titre.mov")
   end
   def titre_mp4
-    @titre_mp4 ||= File.join(work_folder_path, "Titre.mp4")
+    @titre_mp4 ||= File.join(titre_folder, "Titre.mp4")
   end
   def titre_ts
-    @titre_ts ||= File.join(work_folder_path, "Titre.ts")
+    @titre_ts ||= File.join(titre_folder, "Titre.ts")
+  end
+  # Chemin d'accès au dossier titre
+  def titre_folder
+    @titre_folder ||= File.join(work_folder_path, "Titre")
+  end
+
+  def vignette_gimp
+    @vignette_gimp ||= File.join(vignette_folder, 'Vignette.xcf')
+  end
+  # Éléments pour la vignette
+  def vignette_folder
+    @vignette_folder ||= File.join(work_folder_path, "Vignette")
+  end
+
+  # Chemin d'accès au dossier des exports
+  def exports_folder
+    @exports_folder ||= File.join(work_folder_path, "Exports")
   end
 
   # Chemin d'accès au dossier de travail (sur l'ordinateur)
   def work_folder_path
     @work_folder_path ||= File.join(VITEFAIT_WORK_MAIN_FOLDER,name)
   end
+
 
   # Chemin d'accès au dossier sur le disque
   def completed_folder_path
