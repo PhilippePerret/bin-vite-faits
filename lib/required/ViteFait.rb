@@ -228,27 +228,47 @@ class ViteFait
   #   Tous les paths
   # ---------------------------------------------------------------------
 
+  # Le fichier .mov de la capture des opérations
+  # Noter que si on trouve un fichier .mov, il sera renommé par le
+  # nom par défaut, qui est "<nom-dossier-tuto>.mov"
   def src_path
     @src_path ||= begin
-      src_name = COMMAND.params[:name] || get_first_mov_file()
-      if src_name.nil?
-        error "🖐  Je ne trouve aucun fichier .mov à traiter.\nSi le fichier est dans une autre extension, préciser explicement son nom avec :\n\t`vite-faits capture_to_mp4 #{name} name=nom_du_fichier.ext`."
-        nil
+      if File.exists?(default_source_path)
+        @src_name = default_source_fname
+        default_source_path
       else
-        @src_name = File.basename(src_name)
-        File.join(work_folder_path,src_name)
+        src_name = COMMAND.params[:name] || get_first_mov_file()
+        if src_name.nil?
+          error "🖐  Je ne trouve aucun fichier .mov à traiter.\nSi le fichier est dans une autre extension, préciser explicement son nom avec :\n\t`vite-faits capture_to_mp4 #{name} name=nom_du_fichier.ext`."
+          nil
+        else
+          @src_name = File.basename(src_name)
+          File.join(work_folder_path,src_name)
+        end
       end
     end
   end
-  
+
   def get_first_mov_file
     Dir["#{work_folder_path}/*.mov"].each do |pth|
-      if File.basename(pth).downcase != 'titre.mov'
-        return File.basename(pth)
+      fname = File.basename(pth)
+      if fname === default_source_fname
+        return default_source_fname
+      elsif fname.downcase != 'titre.mov'
+        # On va renommer ce fichier pour qu'il porte le bon nom
+        FileUtils.move(pth,default_source_path)
+        return default_source_fname
       end
     end
   end
   def src_name; @src_name end
+
+  def default_source_fname
+    @default_source_fname ||= "#{name}.mov"
+  end
+  def default_source_path
+    @default_source_path ||= File.join(work_folder_path, default_source_fname)
+  end
   def mp4_path
     @mp4_path ||= File.join(work_folder_path, "#{name}.mp4")
   end
@@ -273,7 +293,20 @@ class ViteFait
     @titre_path ||= File.join(titre_folder, "Titre.scriv")
   end
   def titre_mov
-    @titre_mov ||= File.join(titre_folder, "Titre.mov")
+    @titre_mov ||= begin
+      default_path = File.join(titre_folder, "Titre.mov")
+      unless File.exists?(default_path)
+        # Il faut chercher le fichier mov dans le dossier
+        current_path = Dir["#{titre_folder}/*.mov"].first
+        if current_path.nil?
+          default_path = nil
+        else
+          # On renomme le fichier
+          FileUtils.move(current_path, default_path)
+        end
+      end
+      default_path
+    end
   end
   def titre_mp4
     @titre_mp4 ||= File.join(titre_folder, "Titre.mp4")
