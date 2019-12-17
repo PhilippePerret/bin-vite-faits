@@ -93,12 +93,6 @@ class ViteFait
     end
   end
 
-  # Pour transformer le fichier capture en vidéo mp4
-  def capture_to_mp4
-    require_module('traite_capture_operations')
-    exec_capture_to_mp4
-  end
-
   def open_vignette
     if File.exists?(vignette_gimp)
       `open -a Gimp "#{vignette_gimp}"`
@@ -117,32 +111,16 @@ class ViteFait
     end
   end
 
+  # Pour transformer le fichier capture en vidéo mp4
+  def capture_to_mp4
+    require_module('capture_to_mp4')
+    exec_capture_to_mp4
+  end
+
   # Méthode de transformation du titre en fichier mp4
   def titre_to_mp4
-    unless File.exists?(titre_mov)
-      raise "🖐  Le fichier `Titre.mov` est introuvable. Il faut capturer le titre en se servant du fichier Titre.scriv"
-    end
-    unless File.exists?(self.class.machine_a_ecrire_path)
-      raise "🖐  Impossible de trouver le son de machine à écrire (#{self.class.machine_a_ecrire_path}). Or j'en ai besoin pour créer le titre."
-    end
-
-    unlink_if_exist([titre_mp4, titre_ts])
-
-    # ffmpeg -i video.avi -i audio.mp3 -codec copy -shortest output.avi
-    # cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\""
-    # cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -c:v libx264 -c:a libvorbis -shortest \"#{titre_mp4}\""
-    cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\""
-    COMMAND.options[:verbose] && cmd << ' 2> /dev/null'
-    puts "\n\n---- Commande jouée : #{cmd}"
-    res = `#{cmd}`
-    if File.exists?(titre_mp4)
-      notice "= 👍  Fichier titre mp4 fabriqué avec succès."
-    else
-      error "Le fichier titre mp4 n'a pas pu être fabriqué…"
-    end
-
-  rescue Exception => e
-    error "#{e.message}.\nJe ne peux pas faire le fichier .mp4 du titre"
+    require_module('titre_to_mp4')
+    exec_titre_to_mp4
   end
 
   # Pour ouvrir le fichier screenflow ou Premiere
@@ -255,12 +233,14 @@ class ViteFait
       src_name = COMMAND.params[:name] || get_first_mov_file()
       if src_name.nil?
         error "🖐  Je ne trouve aucun fichier .mov à traiter.\nSi le fichier est dans une autre extension, préciser explicement son nom avec :\n\t`vite-faits capture_to_mp4 #{name} name=nom_du_fichier.ext`."
+        nil
       else
         @src_name = File.basename(src_name)
         File.join(work_folder_path,src_name)
       end
     end
   end
+  
   def get_first_mov_file
     Dir["#{work_folder_path}/*.mov"].each do |pth|
       if File.basename(pth).downcase != 'titre.mov'

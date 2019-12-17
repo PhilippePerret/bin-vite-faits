@@ -16,6 +16,10 @@ class ViteFait
 
   def exec_assemble
 
+    # Avant toute chose, on doit s'assure qu'il existe les fichiers
+    # minimum pour procéder à l'opération
+    fichiers_mini_exists? # raise en cas d'erreur
+
     # On s'assure que les fichiers communs soient prêts (intro et final,
     # en version .ts)
     self.class.prepare_assemblage
@@ -35,7 +39,17 @@ class ViteFait
     puts "\n---- Commande finale : '#{cmd}'"
     res = `#{cmd}`
 
+  rescue Exception => e
+    error e.message if e.message != ''
+    error "Je dois abandonner l'assemblage."
+  end
 
+
+  def fichiers_mini_exists?
+    # Le fichier capture des opérations, bien entendu
+    src_path.nil? && raise('')
+    # Le fichier contenant le titre du tutoriel
+    File.exists?(titre_mov) || raise("Le titre doit être enregistré, pour procéder à l'assemblage.\nUtiliser la commande `vite-faits open_titre #{name}` pour l'ouvrir et l'enregistrer.")
   end
 
   def prepare_assemblage
@@ -56,13 +70,12 @@ class ViteFait
   end
 
   def prepare_source
+    File.exists?(mp4_path) || capture_to_mp4
     self.class.make_ts_file( mp4_path, ts_path )
   end
   def prepare_titre
-    puts "-> prepare_titre"
     File.exists?(titre_mp4) || titre_to_mp4
     self.class.make_ts_file(titre_mp4, titre_ts)
-    puts "<- prepare_titre"
   end
 
   def source_prepared?
