@@ -147,6 +147,19 @@ class ViteFait
     end
   end
 
+  # Pour ouvrir le fichier screenflow ou Premiere
+  def open_montage
+    if File.exists?(screenflow_path)
+      `open -a ScreenFlow "#{screenflow_path}"`
+    elsif File.exists?(premiere_path)
+      `open "#{premiere_path}"`
+    else
+      error "🖐  Impossible de trouver un fichier de montage à ouvrir…"
+      return
+    end
+    notice "Bon montage ! 👍"
+  end
+
   # Pour "achever" le projet, c'est-à-dire le copier sur le disque et le
   # supprimer de l'ordinateur.
   def complete
@@ -222,6 +235,9 @@ class ViteFait
   end
   def screenflow_path
     @screenflow_path ||= File.join(work_folder_path, "#{name}.screenflow")
+  end
+  def premiere_path
+    @premiere_path ||= File.join(work_folder_path, "#{name}.prproj")
   end
 
   # Chemin d'accès au dossier de travail (sur l'ordinateur)

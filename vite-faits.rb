@@ -24,6 +24,8 @@ when 'rapport', 'report'
   vitefait.name_is_required || vitefait.write_rapport
 when 'capture_to_mp4'
   vitefait.name_is_required || vitefait.capture_to_mp4
+when 'montage'
+  vitefait.name_is_required || vitefait.open_montage
 else
   error "Impossible de traiter l'action #{COMMAND.action}"
 end
