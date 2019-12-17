@@ -99,6 +99,15 @@ class ViteFait
     exec_capture_to_mp4
   end
 
+  def open_vignette
+    if File.exists?(vignette_gimp)
+      `open -a Gimp "#{vignette_gimp}"`
+      notice "Modifie le titre puis export en jpg sous le nom 'Vignette.jpg'"
+    else
+      error "Le fichier vignette est introuvable\n#{vignette_gimp}"
+    end
+  end
+
   # Méthode de transformation du titre en fichier mp4
   def titre_to_mp4
     unless File.exists?(titre_mov)
