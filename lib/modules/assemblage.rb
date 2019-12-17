@@ -39,6 +39,25 @@ class ViteFait
     puts "\n---- Commande finale : '#{cmd}'"
     res = `#{cmd}`
 
+    # Message de fin
+    notice <<-EOT
+
+=== Assemblage effectué avec succès ===
+
+Avant d'uploader la vidéo, créer sa vignette en jouant :
+
+    vite-fait open_vignette #{name}
+
+Puis uploader la vidéo en jouant :
+
+    vite-faits upload #{name}
+
+Et enfin, mettez le dossier de côté à l'aide de :
+
+    vite-fait complete #{name}
+
+EOT
+
   rescue Exception => e
     error e.message if e.message != ''
     error "Je dois abandonner l'assemblage."

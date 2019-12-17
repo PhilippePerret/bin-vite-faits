@@ -143,6 +143,20 @@ class ViteFait
     exec_assemble
   end
 
+  # Méthode appelée pour uploader la vidéo sur YouTube
+  # En fait, ça ouvre l'interface pour le faire + le dossier contenant
+  # la vidéo à uploader
+  def upload
+    notice "\n\nJ'ouvre le dossier contenant la vidéo finale\n+ Safari sur la page d'upload de la chaine."
+    `open -a Safari "https://studio.youtube.com/channel/UCWuW11zTGdNfoChranzBMxQ/videos/upload?d=ud&filter=%5B%5D&sort=%7B%22columnType%22%3A%22date%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D"`
+    notice "Pour s'identifier, utiliser le compte Yahoo normal avec le mot de passe normal."
+    if File.exists?(exports_folder)
+      `open -a Finder "#{exports_folder}"`
+    else
+      error "Impossible de trouver le dossier des exports,\nje ne peux pas vous présenter la vidéo à uploader\n#{exports_folder}"
+    end
+  end
+
   # Pour "achever" le projet, c'est-à-dire le copier sur le disque et le
   # supprimer de l'ordinateur.
   def complete
@@ -181,6 +195,24 @@ class ViteFait
     end
   end
 
+  # ---------------------------------------------------------------------
+  #   Méthodes pour se rendre sur les lieux
+  # ---------------------------------------------------------------------
+  def chaine_youtube
+    `open -a Safari "#{url_chaine}"`
+  end
+
+  def groupe_facebook
+    `open -a Firefox "#{url_groupe_facebook}"`
+  end
+
+  def url_chaine
+    @url_chaine ||= 'https://www.youtube.com/channel/UCWuW11zTGdNfoChranzBMxQ'
+  end
+
+  def url_groupe_facebook
+    @url_groupe_facebook ||= 'https://www.facebook.com/groups/1893652697386562/'
+  end
 
   # ---------------------------------------------------------------------
   #   Méthodes fonctionnelles
