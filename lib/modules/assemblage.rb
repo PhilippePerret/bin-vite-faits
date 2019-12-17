@@ -40,7 +40,7 @@ class ViteFait
 
   def prepare_assemblage
     if COMMAND.options[:force]
-      unlink_if_exists([ts_path, titre_mp4, titre_ts])
+      unlink_if_exist([ts_path, titre_mp4, titre_ts])
     end
     source_prepared? || prepare_source
     titre_prepared? ||  prepare_titre
@@ -52,14 +52,6 @@ class ViteFait
     end
     unless File.exists?(titre_path)
       raise("Aucun fichier de titre n'a été trouvé (#{titre_path}). Il faut le créer.")
-    end
-  end
-
-
-
-  def unlink_if_exists liste
-    liste.each do |pth|
-      File.unlink(pth) if File.exists?(pth)
     end
   end
 
@@ -82,9 +74,6 @@ class ViteFait
   end
 
 
-  def titre_ts
-    @titre_ts ||= File.join(work_folder_path,"Titre.ts")
-  end
   def intro_ts
     @intro_ts ||= self.class.intro_ts
   end

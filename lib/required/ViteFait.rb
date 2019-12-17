@@ -145,7 +145,7 @@ class ViteFait
   # Pour transformer le fichier capture en vidéo mp4
   def capture_to_mp4
     # On doit trouver la vidéo
-    File.unlink(mp4_path) if File.exists?(mp4_path)
+    unlink_if_exist([mp4_path,ts_path])
     if !File.exists?(src_path)
       error "Le fichier '#{src_path}' est introuvable…"
       error "🖐  Impossible de procéder au traitement."
@@ -178,7 +178,7 @@ class ViteFait
       raise "🖐  Impossible de trouver le son de machine à écrire (#{self.class.machine_a_ecrire_path}). Or j'en ai besoin pour créer le titre."
     end
 
-    File.unlink(titre_mp4) if File.exists?(titre_mp4)
+    unlink_if_exist([titre_mp4, titre_ts])
 
     # ffmpeg -i video.avi -i audio.mp3 -codec copy -shortest output.avi
     # cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\""
@@ -255,6 +255,19 @@ class ViteFait
     end
   end
 
+
+  # ---------------------------------------------------------------------
+  #   Méthodes fonctionnelles
+  # ---------------------------------------------------------------------
+  def unlink_if_exist liste
+    liste.each do |pth|
+      if File.exists?(pth)
+        File.unlink(pth)
+        notice "---> Destruction de #{pth}"
+      end
+    end
+  end
+
   def line_exists_file path, name
     if File.exists?(path)
       notice "    - fichier #{name}".ljust(26) + ' : oui'
@@ -277,12 +290,19 @@ class ViteFait
 
   def src_path
     @src_path ||= begin
-      src_name = COMMAND.params[:name] || Dir["#{work_folder_path}/*.mov"].first
+      src_name = COMMAND.params[:name] || get_first_mov_file()
       if src_name.nil?
         error "🖐  Je ne trouve aucun fichier .mov à traiter.\nSi le fichier est dans une autre extension, préciser explicement son nom avec :\n\t`vite-faits capture_to_mp4 #{name} name=nom_du_fichier.ext`."
       else
         @src_name = File.basename(src_name)
         File.join(work_folder_path,src_name)
+      end
+    end
+  end
+  def get_first_mov_file
+    Dir["#{work_folder_path}/*.mov"].each do |pth|
+      if File.basename(pth).downcase != 'titre.mov'
+        return File.basename(pth)
       end
     end
   end
