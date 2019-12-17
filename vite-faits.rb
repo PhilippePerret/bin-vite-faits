@@ -32,6 +32,8 @@ when 'assemble'
   vitefait.name_is_required || vitefait.assemble
 when 'open_vignette'
   vitefait.name_is_required || vitefait.open_vignette
+when 'open_titre'
+  vitefait.name_is_required || vitefait.open_titre
 else
   error "Impossible de traiter l'action #{COMMAND.action}"
 end

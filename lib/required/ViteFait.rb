@@ -108,6 +108,15 @@ class ViteFait
     end
   end
 
+  def open_titre
+    if File.exists?(titre_path)
+      `open -a Scrivener "#{titre_path}"`
+      notice "Règle la largeur de la fenêtre pour avoir un beau titre\nEnregistre le titre en capturant son écriture,\nRécupère-le dans le dossier des captures,\nDéplace-le dans le dossier 'Titre' du dossier du tutoriel\nEt prépare-le si nécessaire avec la commande `vite-faits traite_titre #{name}.`"
+    else
+      error "Le fichier Titre.scriv est introuvable…\n#{titre_path}"
+    end
+  end
+
   # Méthode de transformation du titre en fichier mp4
   def titre_to_mp4
     unless File.exists?(titre_mov)
