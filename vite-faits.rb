@@ -22,9 +22,9 @@ when 'open'
   ViteFait.open(COMMAND.folder)
 when 'rapport', 'report'
   vitefait.name_is_required || vitefait.write_rapport
-when 'capture_to_mp4'
+when 'capture_to_mp4', 'traite_capture'
   vitefait.name_is_required || vitefait.capture_to_mp4
-when 'titre_to_mp4'
+when 'titre_to_mp4', 'traite_titre'
   vitefait.name_is_required || vitefait.titre_to_mp4
 when 'montage'
   vitefait.name_is_required || vitefait.open_montage

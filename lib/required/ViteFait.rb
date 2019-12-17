@@ -174,17 +174,23 @@ class ViteFait
     unless File.exists?(titre_mov)
       raise "🖐  Le fichier `Titre.mov` est introuvable. Il faut capturer le titre en se servant du fichier Titre.scriv"
     end
-    unless File.exists?(machine_a_ecrire_path)
-      raise "🖐  Impossible de trouver le son de machine à écrire (#{machine_a_ecrire_path}). Or j'en ai besoin pour créer le titre."
+    unless File.exists?(self.class.machine_a_ecrire_path)
+      raise "🖐  Impossible de trouver le son de machine à écrire (#{self.class.machine_a_ecrire_path}). Or j'en ai besoin pour créer le titre."
     end
-    cmd = "ffmpeg -i \"#{titre_mov}\" \"#{titre_mp4}\""
-    COMMAND.options[:verbose] && cmd << ' 2> /dev/null'
 
-    puts "commande qui sera jouée : #{cmd}"
-    exit
-    
+    File.unlink(titre_mp4) if File.exists?(titre_mp4)
+
+    # ffmpeg -i video.avi -i audio.mp3 -codec copy -shortest output.avi
+    cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\""
+    COMMAND.options[:verbose] && cmd << ' 2> /dev/null'
+    puts "\n\n---- Commande jouée : #{cmd}"
     res = `#{cmd}`
-    notice "= 👍  Fichier titre mp4 fabriqué avec succès."
+    if File.exists?(titre_mp4)
+      notice "= 👍  Fichier titre mp4 fabriqué avec succès."
+    else
+      error "Le fichier titre mp4 n'a pas pu être fabriqué…"
+    end
+
   rescue Exception => e
     error "#{e.message}.\nJe ne peux pas faire le fichier .mp4 du titre"
   end
@@ -332,7 +338,8 @@ class ViteFait
 
   class << self
     def machine_a_ecrire_path
-      @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aiff')
+      # @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aiff')
+      @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.mp3')
     end
   end #/ << self
 end
