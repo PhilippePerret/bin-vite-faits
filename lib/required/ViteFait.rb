@@ -108,7 +108,7 @@ class ViteFait
       FileUtils.copy_entry(src, dst)
       notice "---> Screenflow : #{dst}"
 
-      notice "\n\nNouveau vite-fait créé avec succès"
+      notice "\n\n👍  Nouveau vite-fait créé avec succès"
       `open -a Finder "#{work_folder_path}"`
     end
   end
@@ -121,6 +121,32 @@ class ViteFait
     end
   end
 
+  # Pour transformer le fichier capture en vidéo mp4
+  def capture_to_mp4
+    # On doit trouver la vidéo
+    capture_name = COMMAND.params[:name] || Dir["#{work_folder_path}/*.mov"].first
+    if capture_name.nil?
+      error "🖐  Je ne trouve aucun fichier .mov à traiter.\nSi le fichier est dans une autre extension, préciser explicement son nom avec :\n\t`vite-faits capture_to_mp4 #{name} name=nom_du_fichier.ext`."
+      return
+    end
+    capture_name = File.basename(capture_name)
+    capture_path = File.join(work_folder_path,capture_name)
+    File.unlink(mp4_path) if File.exists?(mp4_path)
+    if !File.exists?(capture_path)
+      error "Le fichier '#{capture_path}' est introuvable…"
+      error "🖐  Impossible de procéder au traitement."
+    else
+      notice "\n* Fabrication du fichier .mp4. Merci de patienter…"
+      `ffmpeg -i "#{capture_path}" "#{mp4_path}" 2> /dev/null`
+      if File.exists?(mp4_path)
+        notice "= 👍  Fichier mp4 fabriqué avec succès."
+        notice "= Vous pouvez procéder à l'assemblage dans le fichier '#{name}.screenflow'"
+      else
+        error "= Le fichier '#{mp4_path}' n'a pas pu être fabriquer…"
+      end
+    end
+  end
+
   # Pour "achever" le projet, c'est-à-dire le copier sur le disque et le
   # supprimer de l'ordinateur.
   def complete
@@ -129,7 +155,7 @@ class ViteFait
     notice "---> création du dossier '#{completed_folder_path}'"
     FileUtils.rm_rf(work_folder_path)
     notice "---> Destruction de '#{work_folder_path}'"
-    notice "\n=== Achèvement terminé du tutoriel vite-fait « #{name} »"
+    notice "\n=== 👍  Achèvement terminé du tutoriel vite-fait « #{name} »"
   end
 
 

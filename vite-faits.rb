@@ -21,7 +21,9 @@ when 'help'
 when 'open'
   ViteFait.open(COMMAND.folder)
 when 'rapport', 'report'
-  vitefait.write_rapport
+  vitefait.name_is_required || vitefait.write_rapport
+when 'capture_to_mp4'
+  vitefait.name_is_required || vitefait.capture_to_mp4
 else
   error "Impossible de traiter l'action #{COMMAND.action}"
 end
