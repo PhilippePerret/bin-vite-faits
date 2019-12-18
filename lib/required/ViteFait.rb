@@ -25,6 +25,21 @@ class ViteFait
       exec_open(folder)
     end
 
+    def open_folder_captures
+      if File.exists?(FOLDER_CAPTURES)
+        `open -a Finder "#{FOLDER_CAPTURES}"`
+      else
+        error "Le dossier capture est introuvable (#{FOLDER_CAPTURES})"
+        error "Il faut définir son path dans constants.rb (FOLDER_CAPTURES)"
+      end
+    end
+
+    # Pour lancer l'assistant de création
+    def assistant
+      require_module('assistant_creation')
+      create_with_assistant
+    end
+
   end
 
   # Le dossier de travail, donc sur l'ordinateur
@@ -98,6 +113,16 @@ class ViteFait
     exec_print_report
   end
 
+  # Ouvre le fichier Scrivener qui va permettre de jouer les
+  # opération.
+  def open_scrivener_file
+    if File.exists?(scriv_file_path)
+      `open -a Scrivener "#{scriv_file_path}"`
+    else
+      error "Impossible d'ouvrir le fichier Scrivener, il n'existe pas.\nà : #{scriv_file_path}"
+    end
+  end
+
   def open_vignette
     if File.exists?(vignette_gimp)
       `open -a Gimp "#{vignette_gimp}"`
@@ -107,10 +132,12 @@ class ViteFait
     end
   end
 
-  def open_titre
+  def open_titre(nomessage = false)
     if File.exists?(titre_path)
       `open -a Scrivener "#{titre_path}"`
-      notice "Règle la largeur de la fenêtre pour avoir un beau titre\nEnregistre le titre en capturant son écriture,\nRécupère-le dans le dossier des captures,\nDéplace-le dans le dossier 'Titre' du dossier du tutoriel\nEt prépare-le si nécessaire avec la commande `vite-faits traite_titre #{name}.`"
+      unless nomessage
+        notice "Règle la largeur de la fenêtre pour avoir un beau titre\nEnregistre le titre en capturant son écriture,\nRécupère-le dans le dossier des captures,\nDéplace-le dans le dossier 'Titre' du dossier du tutoriel\nEt prépare-le si nécessaire avec la commande `vite-faits traite_titre #{name}.`"
+      end
     else
       error "Le fichier Titre.scriv est introuvable…\n#{titre_path}"
     end
@@ -150,7 +177,7 @@ class ViteFait
     else
       # <= Une version précise est demandée
       # => On essaie de l'ouvrir si elle existe
-      case version
+      case version.to_s
       when 'chantier', 'en_chantier'
         open_if_exists(work_folder_path, version2hname(:chantier))
       when 'complete', 'completed'
@@ -219,9 +246,9 @@ class ViteFait
 
   # Assemble la vidéo complète
   # cf. le module 'assemblage.rb'
-  def assemble
+  def assemble nomessage = false
     require_module('assemblage')
-    exec_assemble
+    exec_assemble(nomessage)
   end
 
   def informations
@@ -363,7 +390,7 @@ class ViteFait
   # Le fichier .mov de la capture des opérations
   # Noter que si on trouve un fichier .mov, il sera renommé par le
   # nom par défaut, qui est "<nom-dossier-tuto>.mov"
-  def src_path
+  def src_path(no_alert = false)
     @src_path ||= begin
       if File.exists?(default_source_path)
         @src_name = default_source_fname
@@ -371,7 +398,9 @@ class ViteFait
       else
         src_name = COMMAND.params[:name] || get_first_mov_file()
         if src_name.nil?
-          error "🖐  Je ne trouve aucun fichier .mov à traiter.\nSi le fichier est dans une autre extension, préciser explicement son nom avec :\n\t`vite-faits capture_to_mp4 #{name} name=nom_du_fichier.ext`."
+          unless no_alert
+            error "🖐  Je ne trouve aucun fichier .mov à traiter.\nSi le fichier est dans une autre extension, préciser explicement son nom avec :\n\t`vite-faits capture_to_mp4 #{name} name=nom_du_fichier.ext`."
+          end
           nil
         else
           @src_name = File.basename(src_name)
@@ -392,6 +421,7 @@ class ViteFait
         return default_source_fname
       end
     end
+    return nil # non trouvé
   end
 
   # ---------------------------------------------------------------------

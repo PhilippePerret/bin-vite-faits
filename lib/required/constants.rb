@@ -18,6 +18,8 @@ DATA_VERSION = {
   waiting:    {hname:"en attente (sur le disque)"}
 }
 
+FOLDER_CAPTURES = File.join('/Volumes','MacOSCatalina','Captures')
+
 BIN_FOLDER      = File.expand_path(File.dirname(THISFOLDER))
 FOLDER_MODULES  = File.join(THISFOLDER,'modules')
 

@@ -14,7 +14,7 @@ class ViteFait
 
   end # / << self
 
-  def exec_assemble
+  def exec_assemble nomessage = false
 
     # Avant toute chose, on doit s'assure qu'il existe les fichiers
     # minimum pour procéder à l'opération
@@ -36,12 +36,15 @@ class ViteFait
     cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}|#{ts_path}|#{final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{completed_path}\""
     # cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{completed_path}\""
     # cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}\" -codec copy -bsf:a aac_adtstoasc \"#{completed_path}\""
-    puts "\n---- Commande finale : '#{cmd}'"
+    unless nomessage
+      puts "\n---- Commande finale : '#{cmd}'"
+    end
     res = `#{cmd}`
 
-    # Message de fin
-    notice <<-EOT
-
+    # Message de fin (si on n'est pas avec l'assistant)
+    unless nomessage
+      Command.clear_terminal
+      notice <<-EOT
 === Assemblage effectué avec succès ===
 
 Avant d'uploader la vidéo, créer sa vignette en jouant :
@@ -52,11 +55,25 @@ Puis uploader la vidéo en jouant :
 
     vite-faits upload #{name}
 
-Et enfin, mettez le dossier de côté à l'aide de :
+Récupérer l'identifiant YouTube et l'enregistrer avec :
+
+    vite-faits infos #{name} youtube_id="<youtube id>"
+
+S'assurer qu'il y a un titre, un titre anglais et une description ou jouer :
+
+    vite-faits infos #{name} titre="…" titre_en="…" description="…"
+
+Annoncer le nouveau tutoriel sur Facebook et le forum Scrivener :
+
+    vite-faits annonce pour=fb
+    vite-faits annonce pour=scriv
+
+Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
 
     vite-fait complete #{name}
 
-EOT
+      EOT
+    end #/si pas de no message
 
   rescue Exception => e
     error e.message if e.message != ''

@@ -65,8 +65,9 @@ class Informations
           titre_en:     {value:nil, editable:true, required:true},
           youtube_id:   {value:nil, editable:true, required:true},
           description:  {value:nil, editable:true, required:true},
-          annonce_forum_scrivener: {value:false, editable:false, required:false},
-          annonce_groupe_facebook: {value:false, editable:false, required:false},
+          uploaded_on_youtube:      {value:false, editable:false, required:false},
+          annonce_forum_scrivener:  {value:false, editable:false, required:false},
+          annonce_groupe_facebook:  {value:false, editable:false, required:false},
           updated_at:   {value:nil, editable:false, required:false},
           created_at:   {value:nil, editable:false, required:false}
         }

@@ -20,6 +20,8 @@ when 'help', 'manuel'
   ViteFait.open_help
 when 'open'
   ViteFait.open(COMMAND.folder)
+when 'assistant'
+  ViteFait.assistant
 when 'rapport', 'report'
   vitefait.name_is_required || vitefait.write_rapport
 when 'capture_to_mp4', 'traite_capture'
