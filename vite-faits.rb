@@ -38,6 +38,8 @@ when 'upload'
   vitefait.name_is_required || vitefait.upload
 when 'infos'
   vitefait.name_is_required || vitefait.informations.touch
+when 'annonce'
+  vitefait.name_is_required || vitefait.annonce
 when 'chaine_youtube'
   vitefait.chaine_youtube
 when 'groupe_facebook'

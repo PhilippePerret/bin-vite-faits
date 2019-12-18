@@ -16,7 +16,6 @@ class Informations
 
   # Méthode appelée dès qu'on joue `vite-faits infos <nom-dossier-tuto>`
   def touch
-    puts "Je vais jouer avec les informations"
     if COMMAND.params.keys.count > 0
       set(COMMAND.params)
     else
@@ -63,7 +62,9 @@ class Informations
       else
         {
           titre:        {value:nil, editable:true, required:true},
+          titre_en:     {value:nil, editable:true, required:true},
           youtube_id:   {value:nil, editable:true, required:true},
+          description:  {value:nil, editable:true, required:true},
           annonce_forum_scrivener: {value:false, editable:false, required:false},
           annonce_groupe_facebook: {value:false, editable:false, required:false},
           updated_at:   {value:nil, editable:false, required:false},

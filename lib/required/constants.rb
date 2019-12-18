@@ -8,6 +8,16 @@ MIN_OPT_TO_REAL_OPT = {
   'v' => 'verbose'
 }
 
+# Données pour les types de version de tutoriel qu'on peut trouver
+# TODO Mettre leurs dossier ici, pour pouvoir les modifier facilement et que
+# ça se répercute partout ailleurs.
+DATA_VERSION = {
+  chantier:   {hname:"en chantier sur l'ordi"},
+  complete:   {hname:"fini (sur le disque)"},
+  chantierd:  {hname:"en chantier, mais sur le disque"},
+  waiting:    {hname:"en attente (sur le disque)"}
+}
+
 FOLDER_MODULES = File.join(THISFOLDER,'modules')
 
 VITEFAIT_FOLDER_ON_LAPTOP = File.join(Dir.home,'Movies','Tutoriels','SCRIVENER','LES_VITE_FAITS')

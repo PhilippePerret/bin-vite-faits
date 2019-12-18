@@ -61,8 +61,17 @@ class ViteFait
     File.exists?(completed_path)
   end
 
-  def completed_folder_exists?
+  def en_chantier?
+    File.exists?(work_folder_path)
+  end
+  def en_chantier_on_disk?
+    File.exists?(work_folder_path_on_disk)
+  end
+  def completed?
     File.exists?(completed_folder_path)
+  end
+  def en_attente?
+    File.exists?(waiting_folder_path)
   end
 
   def work_folder_on_disk_exists?
@@ -85,7 +94,8 @@ class ViteFait
 
   # Pour afficher l'état du tutoriel
   def write_rapport
-    print_rapport_existence
+    require_module('report')
+    exec_print_report
   end
 
   def open_vignette
@@ -181,12 +191,6 @@ class ViteFait
     end
   end
 
-  DATA_VERSION = {
-    chantier:   {hname:"en chantier sur l'ordi"},
-    complete:   {hname:"fini (sur le disque)"},
-    chantierd:  {hname:"en chantier, mais sur le disque"},
-    waiting:    {hname:"en attente (sur le disque)"}
-  }
   # Retourne les informations absolues de la version d'identifiant
   # version_id (qui peut être :chantier, :complete, :waiting ou chantierd)
   def versionAbs version_id
@@ -212,20 +216,6 @@ class ViteFait
       end
     {path:path, hname:name}
   end
-
-  def en_chantier?
-    File.exists?(work_folder_path)
-  end
-  def en_chantier_on_disk?
-    File.exists?(work_folder_path_on_disk)
-  end
-  def completed?
-    File.exists?(completed_folder_path)
-  end
-  def en_attente?
-    File.exists?(waiting_folder_path)
-  end
-
 
   # Assemble la vidéo complète
   # cf. le module 'assemblage.rb'
@@ -268,31 +258,6 @@ class ViteFait
   end
 
 
-  # Écrit un rapport pour savoir où l'on en est de ce dossier vite-fait
-  def print_rapport_existence
-    if vitefait.defined?
-      if vitefait.exists?
-        notice "Dossier travail vite-fait : '#{vitefait.work_folder}'."
-        line_exists_file(screenflow_path, 'ScreenFlow')
-        line_exists_file(scriv_file_path, 'Scrivener')
-        line_exists_file(src_path, 'source')
-        line_exists_file(mp4_path, 'capture.mp4')
-        line_exists_file(ts_path, 'capture.ts')
-        line_exists_file(completed_path, 'VIDÉO FINALE')
-      else
-        if COMMAND.options[:check]
-          error "Le dossier travail vite-fait '#{vitefait.work_folder_path}' n'existe pas."
-          if vitefait.completed_folder_exists?
-            notice "Mais il existe en tant que dossier fini sur le disque."
-          elsif vitefait.work_folder_on_disk_exists?
-            notice "Mais il existe en tant que dossier en chantier sur le disque. Pour le mettre en dossier de travail sur l'ordinateur, utiliser la commande `./bin/vitefait.rb work #{vitefait.name}`"
-          elsif vitefait.waiting_folder_exists?
-            notice "Mais il existe en tant que dossier en projet sur le disque. Pour le mettre en dossier de travail sur l'ordinateur, utiliser la commande `./bin/vitefait.rb work #{vitefait.name}`"
-          end
-        end
-      end
-    end
-  end
 
   # ---------------------------------------------------------------------
   #   Méthodes pour se rendre sur les lieux
@@ -309,6 +274,12 @@ class ViteFait
     `open -a Safari "#{url_forum_scrivener}"`
   end
 
+  # Pour faire l'annonce du nouveau tutoriel
+  def annonce
+    require_module('annonces')
+    exec_annonce
+  end
+
   def url_chaine
     @url_chaine ||= 'https://www.youtube.com/channel/UCWuW11zTGdNfoChranzBMxQ'
   end
@@ -321,22 +292,9 @@ class ViteFait
     @url_forum_scrivener ||= 'https://www.literatureandlatte.com/forum/viewtopic.php?f=19&t=53105&hilit=tutoriels'
   end
 
-  def post_forum_scrivener(titre, youtube_id)
-    <<-EOT
-Dans la série des tutoriels les « Vite-faits », un nouveau venu de titre « #{titre} ».
-
-[url=https://www.youtube.com/watch?v=#{youtube_id}][attachment=0]Vignette.jpg[/attachment][/url]
-
-N'hésitez pas à liker, à laisser des commentaires et à me dire ce que vous espèreriez trouver comme autre tutoriel dans la même série.
-
-Bon visionnage à vous !
-
-Philippe Perret
-
-----
-A new tutorials serie untitled the « quick done ».
-
-    EOT
+  def post_forum_scrivener
+    require_module('annonce_forum_scrivener')
+    exec_annonce_forum_scrivener
   end
 
   # ---------------------------------------------------------------------
@@ -380,6 +338,23 @@ A new tutorials serie untitled the « quick done ».
   def name
     @name ||= work_folder
   end
+
+  # Les données dans le fichier information du tutoriel (définies ou non,
+  # mais ça renvoie toujours une donnée)
+  def titre
+    @titre ||= informations.data[:titre][:value]
+  end
+  def titre_en
+    @titre_en ||= informations.data[:titre_en][:value]
+  end
+  def youtube_id
+    @youtube_id ||= informations.data[:youtube_id][:value]
+  end
+  def description
+    @description ||= informations.data[:description][:value]
+  end
+
+
 
   # ---------------------------------------------------------------------
   #   Tous les paths
@@ -480,6 +455,11 @@ A new tutorials serie untitled the « quick done ».
   def titre_folder
     @titre_folder ||= pathof("Titre")
   end
+
+  def vignette_path
+    @vignette_path ||= File.join(vignette_folder, 'Vignette.jpg')
+  end
+  alias :vignette_jpeg :vignette_path
 
   def vignette_gimp
     @vignette_gimp ||= File.join(vignette_folder, 'Vignette.xcf')
