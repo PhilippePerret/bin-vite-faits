@@ -18,7 +18,8 @@ DATA_VERSION = {
   waiting:    {hname:"en attente (sur le disque)"}
 }
 
-FOLDER_MODULES = File.join(THISFOLDER,'modules')
+BIN_FOLDER      = File.expand_path(File.dirname(THISFOLDER))
+FOLDER_MODULES  = File.join(THISFOLDER,'modules')
 
 VITEFAIT_FOLDER_ON_LAPTOP = File.join(Dir.home,'Movies','Tutoriels','SCRIVENER','LES_VITE_FAITS')
 VITEFAIT_FOLDER_ON_DISK   = File.join('/Volumes','MacOSCatalina','Screencasts','SCRIVENER','LES_VITE_FAITS')

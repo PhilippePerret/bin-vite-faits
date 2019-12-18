@@ -8,7 +8,11 @@ class Command
       ARGV.each do |arg|
         if arg.start_with?('-')
           key = arg.start_with?('--') ? arg[2..-1] : MIN_OPT_TO_REAL_OPT[arg[1..-1]]
-          COMMAND.options.merge!(key.to_sym => true)
+          if key.nil?
+            error "L'option #{arg} est inconnue."
+          else
+            COMMAND.options.merge!(key.to_sym => true)
+          end
         elsif arg.include?('=')
           key, val = arg.split('=')
           COMMAND.params.merge!(key.to_sym => val)

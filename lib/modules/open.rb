@@ -6,6 +6,9 @@ class << self
       error "Il faut indiquer ce qu'il faut ouvrir…"
     else
       case folder
+      when 'bin', 'dev'
+        # Pour ouvrir le dossier bin dans Atom
+        `open -a Atom "#{BIN_FOLDER}"`
       when 'disk'
         `open -a Finder "#{VITEFAIT_FOLDER_ON_DISK}"`
       when 'laptop'
