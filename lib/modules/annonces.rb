@@ -31,36 +31,66 @@ class ViteFait
     elsif description.nil?
       return error "Il faut définir la description (en une ligne) du tutoriel :\n\n\tvite-faits infos #{name} description=\"DESCRIPTION\"\n\n"
     end
-    notice "ATTENTION ! Il faut charger la vignette (qui se trouve à l'adresse : #{vignette_path})"
 
-    # Mettre le message dans le presse-papier
-    # TODO
+    Clipboard.copy(temp_annonce_scrivener)
+    notice "Il suffit de coller ce message dans un nouveau post sur le forum."
 
+    Command.clear_terminal
     # Affichage du message
-    puts "Le message sera : \n\n#{temp_annonce_scrivener}\n\n"
-
+    puts "\n\n\nMessage :\n\n#{temp_annonce_scrivener}\n\n"
+    notice "Message copié dans le presse-papier !"
+    notice "ATTENTION ! Il faut charger la vignette avant de soumettre le message !\nElle se trouve à l'adresse : #{vignette_path}\n\n"
+    decompte("Ouverture du forum dans %{nombre_secondes}", 10)
     # Ouvrir la page du forum pour créer le nouveau post
-    # TODO
-
-    # Rappel
-    notice "ATTENTION ! Il faut charger la vignette (qui se trouve à l'adresse : #{vignette_path})"
+    forum_scrivener
   end
 
   def annonce_groupe_facebook
-    puts "Je dois produire l'annonce pour le groupe Facebook"
+    Command.clear_terminal
+    puts "\n\nMessage :\n#{temp_annonce_facebook}\n"
+    Clipboard.copy(temp_annonce_facebook)
+    notice "Message copié dans le presse-papier !"
+    notice "Il suffit de coller ce message dans un nouveau post sur le groupe."
+    notice "S'assurer que la vidéo à bien été placée.\n\n"
+    decompte("Ouverture du groupe Facebook dans %{nombre_secondes}…",10)
+    groupe_facebook
   end
 
 
+  def decompte phrase, fromValue
+    reste = fromValue
+    phrase += " " * 20 + "\r"
+    while reste > -1
+      # Revenir à la 20e colonne de la 4è ligne
+      # print "\033[4;24H"
+      # print "\033[;24H"
+      s = reste > 1 ? 's' : ''
+      phrase_finale = phrase % {nombre_secondes: "#{reste} seconde#{s}"}
+      print phrase_finale
+      # print "Ouverture du forum dans #{reste} seconde#{s}              \r"
+      sleep 1
+      reste -= 1
+    end
+    puts "\n\n\n"
+  end
+
+  def temp_annonce_facebook
+    @temp_annonce_facebook ||= begin
+      <<-EOT
+Je suis heureux de vous annoncer 📣 la diffusion d'un nouveau tutoriel “vite-fait” 🖥. Il s'intitule “#{titre}”#{f_description(:facebook)}. Bon visionnage à vous !
+https://www.youtube.com/watch?v=#{youtube_id}
+      EOT
+    end
+  end
+
   def temp_annonce_scrivener
-    fdescription =
-      if description.nil? then '' else
-        "\n“[i]#{description}[/i]”"
-      end
+    @temp_annonce_scrivener ||= begin
+      <<-EOT
+Bonjour à tous,
 
-    <<-EOT
-Dans la série des « Vite-faits », je suis heureux de vous annoncer un nouveau tutoriel !
+🥁 Dans la série des « Vite-faits », je suis heureux de vous annoncer un nouveau tutoriel ! 📣
 
-[url=https://www.youtube.com/watch?v=#{youtube_id}][size=150][b]#{titre}[/b][/size] [i](#{titre_en})[/i]#{fdescription}[/url]
+[url=https://www.youtube.com/watch?v=#{youtube_id}][size=150][b]#{titre}[/b][/size] [i](#{titre_en})[/i]#{f_description(:scrivener)}[/url]
 
 [url=https://www.youtube.com/watch?v=#{youtube_id}][attachment=0]Vignette.jpg[/attachment][/url]
 
@@ -70,6 +100,22 @@ Bon visionnage !
 
 Philippe Perret
 
-    EOT
+      EOT
+    end
   end
+
+  def f_description(pour)
+    @f_description ||= begin
+      if description.nil?
+        ''
+      else
+        if pour == :scrivener
+          "\n“[i]#{description}[/i]”"
+        elsif pour == :facebook
+          " (#{description})"
+        end
+      end
+    end
+  end
+
 end

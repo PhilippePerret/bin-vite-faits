@@ -24,7 +24,14 @@ class Command
       end
       # puts "COMMAND : #{COMMAND.options.inspect}"
     end
-  end
+
+
+    # Utiliser Command.clear_terminal
+    def clear_terminal
+      puts "\033c"
+    end
+
+  end #/<< self
 
   attr_accessor :action, :folder, :options, :params
 
