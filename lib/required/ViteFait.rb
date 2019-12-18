@@ -8,7 +8,11 @@ class ViteFait
   class << self
 
     def open_help
-      `open -a Typora "#{VITEFAIT_HELP_PATH}"`
+      if COMMAND.options[:edit] || !File.exists?(VITEFAIT_MANUAL_PATH)
+        `open -a Typora "#{VITEFAIT_HELP_PATH}"`
+      else
+        `open "#{VITEFAIT_MANUAL_PATH}"`
+      end
     end
 
     # Ouvrir quelque chose (dans le finder)
@@ -220,6 +224,24 @@ class ViteFait
 
   def url_forum_scrivener
     @url_forum_scrivener ||= 'https://www.literatureandlatte.com/forum/viewtopic.php?f=19&t=53105&hilit=tutoriels'
+  end
+
+  def post_forum_scrivener(titre, youtube_id)
+    <<-EOT
+Dans la série des tutoriels les « Vite-faits », un nouveau venu de titre « #{titre} ».
+
+[url=https://www.youtube.com/watch?v=#{youtube_id}][attachment=0]Vignette.jpg[/attachment][/url]
+
+N'hésitez pas à liker, à laisser des commentaires et à me dire ce que vous espèreriez trouver comme autre tutoriel dans la même série.
+
+Bon visionnage à vous !
+
+Philippe Perret
+
+----
+A new tutorials serie untitled the « quick done ».
+
+    EOT
   end
 
   # ---------------------------------------------------------------------

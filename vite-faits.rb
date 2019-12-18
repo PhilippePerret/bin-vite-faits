@@ -16,7 +16,7 @@ when 'complete'
   vitefait.name_is_required || vitefait.complete
 when 'create'
   vitefait.name_is_required || vitefait.create
-when 'help'
+when 'help', 'manuel'
   ViteFait.open_help
 when 'open'
   ViteFait.open(COMMAND.folder)
@@ -30,7 +30,7 @@ when 'montage'
   vitefait.name_is_required || vitefait.open_montage
 when 'assemble'
   vitefait.name_is_required || vitefait.assemble
-when 'open_vignette'
+when 'open_vignette', 'edit_vignette'
   vitefait.name_is_required || vitefait.open_vignette
 when 'open_titre'
   vitefait.name_is_required || vitefait.open_titre

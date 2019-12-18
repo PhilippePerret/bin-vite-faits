@@ -1,5 +1,6 @@
 
 MIN_OPT_TO_REAL_OPT = {
+  'e' => 'edit',
   'f' => 'force',
   'h' => 'help',
   'i' => 'infos',
@@ -31,6 +32,7 @@ VITEFAIT_FOLDER_COMPLETED_ON_DISK = File.join(VITEFAIT_MAIN_FOLDER,'3_Completed'
 VITEFAIT_FOLDER_WORKING_ON_DISK   = File.join(VITEFAIT_MAIN_FOLDER,'2_En_chantier')
 VITEFAIT_FOLDER_PROJECT_ON_DISK   = File.join(VITEFAIT_MAIN_FOLDER,'1_En_projet')
 
-VITEFAIT_HELP_PATH = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Manuel-les-vite-faits.md')
+VITEFAIT_HELP_PATH    = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.md')
+VITEFAIT_MANUAL_PATH  = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.pdf')
 
 VITEFAIT_MATERIEL_FOLDER = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel')
