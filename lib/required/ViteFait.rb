@@ -26,7 +26,11 @@ class ViteFait
         when 'laptop'
           `open -a Finder "#{VITEFAIT_FOLDER_ON_LAPTOP}"`
         else
-          error "Je ne sais pas couvrir '#{folder}'."
+          if new(folder).exists?
+            new(folder).open_in_finder
+          else
+            error "🖐  Je ne sais pas ouvrir '#{folder}'."
+          end
         end
       end
     end
@@ -92,9 +96,6 @@ class ViteFait
   # Pour afficher l'état du tutoriel
   def write_rapport
     print_rapport_existence
-    if completed?
-      notice "Ce tutoriel pourrait être déplacé vers le disque (`vite-faits complete #{name}`)."
-    end
   end
 
   def open_vignette
@@ -140,12 +141,58 @@ class ViteFait
     notice "Bon montage ! 👍"
   end
 
+  # Ouvrir le dossier du tutoriel où qu'il soit enregistré
+  def open_in_finder
+    dcurrent = current_best_folder
+    notice "Version ouverte : #{dcurrent[:hname]}"
+    `open -a Finder "#{dcurrent[:path]}"`
+  end
+
+  # Un tutoriel peut être placé à 4 endroits différents :
+  # Cette méthode retourne le "meilleur" endroit, c'est-à-dire l'endroit où
+  # l'on a des chances de rencontrer le dossier le plus à jour
+  def current_best_folder
+    path, name =
+      if en_chantier?
+        [work_folder_path, "en chantier sur l'ordi"]
+      elsif completed?
+        [completed_folder_path, "fini (sur le disque)"]
+      elsif en_chantier_on_disk?
+        [work_folder_path_on_disk, "en chantier, mais sur le disque"]
+      elsif waiting_folder_path
+        [waiting_folder_path, "en attente (sur le disque)"]
+      end
+    {path:path, hname:name}
+  end
+
+  def en_chantier?
+    File.exists?(work_folder_path)
+  end
+  def en_chantier_on_disk?
+    File.exists?(work_folder_path_on_disk)
+  end
+  def completed?
+    File.exists?(completed_folder_path)
+  end
+  def en_attente?
+    File.exists?(waiting_folder_path)
+  end
+
+
   # Assemble la vidéo complète
   # cf. le module 'assemblage.rb'
   def assemble
     require_module('assemblage')
     exec_assemble
   end
+
+  def informations
+    @informations ||= begin
+      require_module('informations')
+      Informations.new(self)
+    end
+  end
+  alias :infos :informations
 
   # Méthode appelée pour uploader la vidéo sur YouTube
   # En fait, ça ouvre l'interface pour le faire + le dossier contenant
@@ -305,7 +352,7 @@ A new tutorials serie untitled the « quick done ».
           nil
         else
           @src_name = File.basename(src_name)
-          File.join(work_folder_path,src_name)
+          pathof(src_name)
         end
       end
     end
@@ -323,31 +370,36 @@ A new tutorials serie untitled the « quick done ».
       end
     end
   end
+
+  # ---------------------------------------------------------------------
+  #   Paths
+  # ---------------------------------------------------------------------
+
   def src_name; @src_name end
 
   def default_source_fname
     @default_source_fname ||= "#{name}.mov"
   end
   def default_source_path
-    @default_source_path ||= File.join(work_folder_path, default_source_fname)
+    @default_source_path ||= pathof(default_source_fname)
   end
   def mp4_path
-    @mp4_path ||= File.join(work_folder_path, "#{name}.mp4")
+    @mp4_path ||= pathof("#{name}.mp4")
   end
   def ts_path
-    @ts_path ||= File.join(work_folder_path, "#{name}.ts")
+    @ts_path ||= pathof("#{name}.ts")
   end
   def completed_path
     @completed_path ||= File.join(exports_folder, "#{name}_completed.mp4")
   end
   def scriv_file_path
-    @scriv_file_path ||= File.join(work_folder_path, "#{name}.scriv")
+    @scriv_file_path ||= pathof("#{name}.scriv")
   end
   def screenflow_path
-    @screenflow_path ||= File.join(work_folder_path, "#{name}.screenflow")
+    @screenflow_path ||= pathof("#{name}.screenflow")
   end
   def premiere_path
-    @premiere_path ||= File.join(work_folder_path, "#{name}.prproj")
+    @premiere_path ||= pathof("#{name}.prproj")
   end
 
   # Éléments pour le titre
@@ -378,7 +430,7 @@ A new tutorials serie untitled the « quick done ».
   end
   # Chemin d'accès au dossier titre
   def titre_folder
-    @titre_folder ||= File.join(work_folder_path, "Titre")
+    @titre_folder ||= pathof("Titre")
   end
 
   def vignette_gimp
@@ -386,12 +438,18 @@ A new tutorials serie untitled the « quick done ».
   end
   # Éléments pour la vignette
   def vignette_folder
-    @vignette_folder ||= File.join(work_folder_path, "Vignette")
+    @vignette_folder ||= pathof("Vignette")
   end
 
   # Chemin d'accès au dossier des exports
   def exports_folder
-    @exports_folder ||= File.join(work_folder_path, "Exports")
+    @exports_folder ||= pathof("Exports")
+  end
+
+  # Retourne le chemin relatif au fichier/dossier se trouvant dans
+  # le tutoriel courant
+  def pathof relpath
+    File.join(work_folder_path,relpath)
   end
 
   # Chemin d'accès au dossier de travail (sur l'ordinateur)

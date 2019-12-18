@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require 'fileutils'
+require 'json'
 
 THISFOLDER = File.expand_path(File.dirname(__FILE__))
 

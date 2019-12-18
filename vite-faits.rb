@@ -36,6 +36,8 @@ when 'open_titre'
   vitefait.name_is_required || vitefait.open_titre
 when 'upload'
   vitefait.name_is_required || vitefait.upload
+when 'infos'
+  vitefait.name_is_required || vitefait.informations.touch
 when 'chaine_youtube'
   vitefait.chaine_youtube
 when 'groupe_facebook'
