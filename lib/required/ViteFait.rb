@@ -7,6 +7,10 @@ class ViteFait
 
   class << self
 
+    def require_module module_name
+      require File.join(FOLDER_MODULES,module_name)
+    end
+
     def open_help
       if COMMAND.options[:edit] || !File.exists?(VITEFAIT_MANUAL_PATH)
         `open -a Typora "#{VITEFAIT_HELP_PATH}"`
@@ -17,22 +21,8 @@ class ViteFait
 
     # Ouvrir quelque chose (dans le finder)
     def open folder
-      if folder.nil?
-        error "Il faut indiquer ce qu'il faut ouvrir…"
-      else
-        case folder
-        when 'disk'
-          `open -a Finder "#{VITEFAIT_FOLDER_ON_DISK}"`
-        when 'laptop'
-          `open -a Finder "#{VITEFAIT_FOLDER_ON_LAPTOP}"`
-        else
-          if new(folder).exists?
-            new(folder).open_in_finder
-          else
-            error "🖐  Je ne sais pas ouvrir '#{folder}'."
-          end
-        end
-      end
+      require_module('open')
+      exec_open(folder)
     end
 
   end
@@ -142,10 +132,68 @@ class ViteFait
   end
 
   # Ouvrir le dossier du tutoriel où qu'il soit enregistré
-  def open_in_finder
-    dcurrent = current_best_folder
-    notice "Version ouverte : #{dcurrent[:hname]}"
-    `open -a Finder "#{dcurrent[:path]}"`
+  def open_in_finder(version = nil)
+    if version.nil?
+      dcurrent = current_best_folder
+      notice "Version ouverte : #{dcurrent[:hname]}"
+      `open -a Finder "#{dcurrent[:path]}"`
+    else
+      # <= Une version précise est demandée
+      # => On essaie de l'ouvrir si elle existe
+      case version
+      when 'chantier', 'en_chantier'
+        open_if_exists(work_folder_path, version2hname(:chantier))
+      when 'complete', 'completed'
+        open_if_exists(completed_folder_path, version2hname(:complete))
+      when 'attente', 'en_attente'
+        open_if_exists(waiting_folder_path, version2hname(:waiting))
+      when 'chantier_disk', 'en_chantier_on_disk'
+        open_if_exists(work_folder_path_on_disk, version2hname(:chantierd))
+      end
+    end
+  end
+
+  def open_if_exists folder, version
+    if File.exists?(folder)
+      notice "Ouverture de la version #{version}"
+      `open -a Finder "#{folder}"`
+    else
+      error "La version #{version} n'existe pas."
+      versions_names = versions(:hname)
+      la_version = versions_names.count > 1 ? 'les versions : ' : 'la version'
+      notice "Ce projet possède seulement #{la_version} #{versions_names.join(', ')}."
+    end
+  end
+
+  # Retourne la table des versions existantes
+  # Si +key+ est définie, on retourne la liste de ces clés. Par exemple :hname
+  # pour obtenir les noms des versions seulement
+  def versions(key = nil)
+    @versions = []
+    en_chantier?          && @versions << :chantier
+    completed?            && @versions << :complete
+    en_chantier_on_disk?  && @versions << :chantierd
+    en_attente?           && @versions << :waiting
+    if key.nil?
+      @versions
+    else
+      @versions.collect{|version_id| versionAbs(version_id)[key]}
+    end
+  end
+
+  DATA_VERSION = {
+    chantier:   {hname:"en chantier sur l'ordi"},
+    complete:   {hname:"fini (sur le disque)"},
+    chantierd:  {hname:"en chantier, mais sur le disque"},
+    waiting:    {hname:"en attente (sur le disque)"}
+  }
+  # Retourne les informations absolues de la version d'identifiant
+  # version_id (qui peut être :chantier, :complete, :waiting ou chantierd)
+  def versionAbs version_id
+    DATA_VERSION[version_id]
+  end
+  def version2hname version
+    versionAbs(version)[:hname]
   end
 
   # Un tutoriel peut être placé à 4 endroits différents :
@@ -154,13 +202,13 @@ class ViteFait
   def current_best_folder
     path, name =
       if en_chantier?
-        [work_folder_path, "en chantier sur l'ordi"]
+        [work_folder_path, version2hname(:chantier)]
       elsif completed?
-        [completed_folder_path, "fini (sur le disque)"]
+        [completed_folder_path, version2hname(:complete)]
       elsif en_chantier_on_disk?
-        [work_folder_path_on_disk, "en chantier, mais sur le disque"]
-      elsif waiting_folder_path
-        [waiting_folder_path, "en attente (sur le disque)"]
+        [work_folder_path_on_disk, version2hname(:chantierd)]
+      elsif en_attente?
+        [waiting_folder_path, version2hname(:waiting)]
       end
     {path:path, hname:name}
   end
@@ -322,7 +370,7 @@ A new tutorials serie untitled the « quick done ».
   end
 
   def require_module module_name
-    require File.join(FOLDER_MODULES,module_name)
+    self.class.require_module(module_name)
   end
 
   # ---------------------------------------------------------------------
