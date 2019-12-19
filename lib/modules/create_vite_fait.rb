@@ -11,14 +11,14 @@ class ViteFait
       error "Pour actualiser son contenu (ajouter les fichiers manquant), ajouter -l/--lack."
     else
 
-      COMMAND.options[:silence] || puts "\n\n"
+      COMMAND.options[:silence] || puts("\n\n")
 
       if exists? && COMMAND.options[:force]
-        FileUtils.rm_rf(work_folder_path)
+        FileUtils.rm_rf(chantier_folder_path)
       end
 
       # Création des dossiers
-      mkdirs_if_not_exist([work_folder_path, exports_folder, titre_folder, operations_folder, vignette_folder])
+      mkdirs_if_not_exist([chantier_folder_path, exports_folder, titre_folder, operations_folder, vignette_folder])
 
       # Copie du fichier scrivener pour la capture des opérations
       unless File.exists?(scriv_file_path) # options --lack
@@ -51,14 +51,26 @@ class ViteFait
         notice "---> Screenflow : #{screenflow_path} 👍"
       end
 
+      # Le dossier final qu'il faudra ouvrir.
+      # Car l'utilisateur veut peut-être créer un fichier en attente
+      final_folder = chantier_folder_path
+
       notice (if COMMAND.options[:lack]
         "\n👍  Dossier vite-fait actualisé avec succès"
       elsif COMMAND.options[:force]
         "\n👍  Dossier vite-fait reconstruit avec succès"
       else
-        "\n👍  Nouveau vite-fait créé avec succès"
+        # Si l'option type est mise à 'attente' ou 'en_attente' ou 'waiting',
+        # on déplace le dossier créé
+        lieu = ''
+        if COMMAND.params[:type] == 'en_attente'
+          lieu = " dans le dossier des tutoriels en attente"
+          FileUtils.move(chantier_folder_path, attente_folder_path)
+          final_folder = attente_folder_path
+        end
+        "\n👍  Nouveau vite-fait créé avec succès#{lieu}"
       end)
-      `open -a Finder "#{work_folder_path}"`
+      `open -a Finder "#{final_folder}"`
     end
 
   end

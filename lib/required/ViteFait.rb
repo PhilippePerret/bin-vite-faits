@@ -69,11 +69,42 @@ class ViteFait
 
   def initialize folder
     self.work_folder = folder
+    check_tutoriel
   end
 
   # ---------------------------------------------------------------------
   #   Les méthodes test et d'état
   # ---------------------------------------------------------------------
+
+  # À l'instanciation du tutoriel, on vérifie s'il est
+  # valide. Noter qu'il peut, ici, ne pas encore exister
+  def check_tutoriel
+    @is_valid = true
+    # Le dossier du tutoriel ne doit pas être trouvé à
+    # deux endroits différents
+    lieux = []
+    folder_en_attente?    && lieux << {key: :attente}
+    folder_en_chantier?   && lieux << {key: :chantier}
+    en_chantier_on_disk?  && lieux << {key: :chantierd}
+    folder_completed?     && lieux << {key: :completed}
+    folder_published?     && lieux << {key: :published}
+
+    if lieux.count > 1
+      error "\n\nProblème avec ce tutoriel qu'on trouve dans plusieurs lieux (#{lieux.count})…"
+      error "Il ne faudrait garder qu'un seul de ces lieux :\n\n"
+      lieux = lieux.sort_by do |dlieu|
+        dlieu[:path]      = send("#{dlieu[:key]}_folder_path")
+        dlieu[:last_time] = File.stat(dlieu[:path]).mtime
+      end.reverse
+      lieux.each do |dlieu|
+        puts "\tDossier :#{(dlieu[:key]).to_s.ljust(12)} : #{dlieu[:last_time]}"
+      end
+      puts "\n\n(note : je les ai classés du plus récent au plus ancien,\ndonc le plus logique serait de garder le premier)"
+      error "\n\nPour corriger ce problème, jouer la commande :\n\n\tvite-faits keep_only #{name} lieu=<lieu>\n\n(où lieu est 'attente', 'chantier', 'chantierd', 'completed' ou 'published')"
+      @is_valid = false
+    end
+
+  end
 
   def name_is_required
     if self.defined?
@@ -133,13 +164,13 @@ class ViteFait
       # => On essaie de l'ouvrir si elle existe
       case version.to_s
       when 'chantier', 'en_chantier'
-        open_if_exists(work_folder_path, version2hname(:chantier))
+        open_if_exists(chantier_folder_path, version2hname(:chantier))
       when 'complete', 'completed'
         open_if_exists(completed_folder_path, version2hname(:complete))
       when 'attente', 'en_attente'
-        open_if_exists(waiting_folder_path, version2hname(:waiting))
+        open_if_exists(attente_folder_path, version2hname(:waiting))
       when 'chantier_disk', 'en_chantier_on_disk'
-        open_if_exists(work_folder_path_on_disk, version2hname(:chantierd))
+        open_if_exists(chantierd_folder_path, version2hname(:chantierd))
       end
     end
   end
@@ -241,6 +272,19 @@ class ViteFait
     exec_assemble_capture(nomessage)
   end
 
+  # Ne conserve qu'un seul dossier
+  # C'est le paramètre :lieu qui définit le lieu
+  def keep_only_folder
+    require_module('keep_only_folder')
+    exec_keep_only_folder
+  end
+
+  # Méthode appelée pour déplacer le tutoriel
+  def move
+    require_module('move')
+    exec_move
+  end
+
   # ---
   #   Autres méthodes
   # ---
@@ -270,10 +314,10 @@ class ViteFait
   # pour obtenir les noms des versions seulement
   def versions(key = nil)
     @versions = []
-    en_chantier?          && @versions << :chantier
-    completed?            && @versions << :complete
+    folder_en_chantier?          && @versions << :chantier
+    folder_completed?            && @versions << :complete
     en_chantier_on_disk?  && @versions << :chantierd
-    en_attente?           && @versions << :waiting
+    folder_en_attente?           && @versions << :waiting
     if key.nil?
       @versions
     else
@@ -284,7 +328,7 @@ class ViteFait
   # Retourne les informations absolues de la version d'identifiant
   # version_id (qui peut être :chantier, :complete, :waiting ou chantierd)
   def versionAbs version_id
-    DATA_VERSION[version_id]
+    DATA_LIEUX[version_id]
   end
   def version2hname version
     versionAbs(version)[:hname]
@@ -295,14 +339,14 @@ class ViteFait
   # l'on a des chances de rencontrer le dossier le plus à jour
   def current_best_folder
     path, name =
-      if en_chantier?
-        [work_folder_path, version2hname(:chantier)]
-      elsif completed?
+      if folder_en_chantier?
+        [chantier_folder_path, version2hname(:chantier)]
+      elsif folder_completed?
         [completed_folder_path, version2hname(:complete)]
       elsif en_chantier_on_disk?
-        [work_folder_path_on_disk, version2hname(:chantierd)]
-      elsif en_attente?
-        [waiting_folder_path, version2hname(:waiting)]
+        [chantierd_folder_path, version2hname(:chantierd)]
+      elsif folder_en_attente?
+        [attente_folder_path, version2hname(:waiting)]
       end
     {path:path, hname:name}
   end
@@ -333,10 +377,10 @@ class ViteFait
   # supprimer de l'ordinateur.
   def complete
     puts "\n\n*** Achèvement de #{name} demandé…"
-    FileUtils.copy_entry(work_folder_path, completed_folder_path)
+    FileUtils.copy_entry(chantier_folder_path, completed_folder_path)
     notice "---> création du dossier '#{completed_folder_path}'"
-    FileUtils.rm_rf(work_folder_path)
-    notice "---> Destruction de '#{work_folder_path}'"
+    FileUtils.rm_rf(chantier_folder_path)
+    notice "---> Destruction de '#{chantier_folder_path}'"
     notice "\n=== 👍  Achèvement terminé du tutoriel vite-fait « #{name} »"
   end
 
@@ -344,37 +388,48 @@ class ViteFait
   #   MÉTHODES D'ÉTATS
   # ---------------------------------------------------------------------
 
+  # Retourne TRUE si le tutoriel est valide, c'est-à-dire,
+  # principalement, s'il ne se trouve que dans un seul dossier,
+  # pas deux.
+  def valid?
+    !!@is_valid
+  end
+
+  # TRUE si le tutoriel définit son nom
+  # (et juste son nom, pas son existence, qui doit être
+  #  checkée avec exists?)
   def defined?
     self.work_folder != nil
   end
 
   def exists?
-    File.exists?(work_folder_path)
+    lieu != nil
   end
 
-  def completed?
-    File.exists?(completed_path)
+  # Lieu où on trouve ce tutoriel
+  def lieu
+    folder_en_attente?    && (return :attente)
+    folder_en_chantier?   && (return :chantier)
+    en_chantier_on_disk?  && (return :chantierd)
+    folder_completed?     && (return :complected)
+    folder_published?     && (return :published)
+    return nil
   end
 
-  def en_chantier?
-    File.exists?(work_folder_path)
+  def folder_en_attente?
+    File.exists?(attente_folder_path)
+  end
+  def folder_en_chantier?
+    File.exists?(chantier_folder_path)
   end
   def en_chantier_on_disk?
-    File.exists?(work_folder_path_on_disk)
+    File.exists?(chantierd_folder_path)
   end
-  def completed?
+  def folder_completed?
     File.exists?(completed_folder_path)
   end
-  def en_attente?
-    File.exists?(waiting_folder_path)
-  end
-
-  def work_folder_on_disk_exists?
-    File.exists?(work_folder_path_on_disk)
-  end
-
-  def waiting_folder_exists?
-    File.exists?(waiting_folder_path)
+  def folder_published?
+    File.exists?(published_folder_path)
   end
 
   def mp4_capture_exists?(required = false)
@@ -547,7 +602,7 @@ class ViteFait
   end
 
   def get_first_mov_file
-    Dir["#{work_folder_path}/*.mov"].each do |pth|
+    Dir["#{chantier_folder_path}/*.mov"].each do |pth|
       fname = File.basename(pth)
       if fname === default_source_fname
         return default_source_fname
@@ -662,12 +717,17 @@ class ViteFait
   # Retourne le chemin relatif au fichier/dossier se trouvant dans
   # le tutoriel courant
   def pathof relpath
-    File.join(work_folder_path,relpath)
+    File.join(chantier_folder_path,relpath)
+  end
+
+  # Chemin d'accès au dossier en attente (sur le disque)
+  def attente_folder_path
+    @attente_folder_path ||= File.join(VITEFAIT_FOLDER_PROJECT_ON_DISK,name)
   end
 
   # Chemin d'accès au dossier de travail (sur l'ordinateur)
-  def work_folder_path
-    @work_folder_path ||= File.join(VITEFAIT_WORK_MAIN_FOLDER,name)
+  def chantier_folder_path
+    @chantier_folder_path ||= File.join(VITEFAIT_WORK_MAIN_FOLDER,name)
   end
 
 
@@ -677,14 +737,15 @@ class ViteFait
   end
 
   # Chemin d'accès au dossier de travail sur le disque
-  def work_folder_path_on_disk
-    @work_folder_path_on_disk ||= File.join(VITEFAIT_FOLDER_WORKING_ON_DISK,name)
+  def chantierd_folder_path
+    @chantierd_folder_path ||= File.join(VITEFAIT_FOLDER_WORKING_ON_DISK,name)
   end
 
-  # Chemin d'accès au dossier en attente (sur le disque)
-  def waiting_folder_path
-    @waiting_folder_path ||= File.join(VITEFAIT_FOLDER_PROJECT_ON_DISK,name)
+  # Le dossier publié du tutoriel, s'il existe sur le disque
+  def published_folder_path
+    @published_folder_path ||= File.join(VITEFAIT_PUBLISHED_FOLDER_ON_DISK,name)
   end
+
 
   # ---------------------------------------------------------------------
   #   MÉTHODES FONCTIONNELLES

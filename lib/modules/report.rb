@@ -12,6 +12,11 @@ class ViteFait
 
   def exec_print_report
     # TODO Poursuivre
+
+    unless valid?
+      error "Désolé, mais ce tutoriel doit être fixé."
+      return
+    end
     puts "\n\n\n"
 
     if vitefait.defined?
@@ -25,12 +30,12 @@ class ViteFait
         line_exists_file(completed_path, 'VIDÉO FINALE')
       else
         if COMMAND.options[:check]
-          error "Le dossier travail vite-fait '#{vitefait.work_folder_path}' n'existe pas."
-          if vitefait.completed?
+          error "Le dossier travail vite-fait '#{vitefait.chantier_folder_path}' n'existe pas."
+          if vitefait.folder_completed?
             notice "Mais il existe en tant que dossier fini sur le disque."
-          elsif vitefait.work_folder_on_disk_exists?
+          elsif vitefait.en_chantier_on_disk?
             notice "Mais il existe en tant que dossier en chantier sur le disque. Pour le mettre en dossier de travail sur l'ordinateur, utiliser la commande `./bin/vitefait.rb work #{vitefait.name}`"
-          elsif vitefait.waiting_folder_exists?
+          elsif vitefait.folder_en_attente?
             notice "Mais il existe en tant que dossier en projet sur le disque. Pour le mettre en dossier de travail sur l'ordinateur, utiliser la commande `./bin/vitefait.rb work #{vitefait.name}`"
           end
         end

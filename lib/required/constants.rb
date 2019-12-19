@@ -8,14 +8,23 @@ MIN_OPT_TO_REAL_OPT = {
   'v' => 'verbose'
 }
 
+# Cette table permet d'utiliser plusieurs valeurs pour
+# les même paramètres. Par exemple, pour le 'type' à
+# la création, on peut mettre indifféremment 'attente',
+# 'en_attente' ou 'waiting'
+COMMAND_OTHER_PARAM_TO_REAL_PARAM = {
+  'attente' => 'en_attente',
+  'waiting' => 'en_attente'
+}
 # Données pour les types de version de tutoriel qu'on peut trouver
 # TODO Mettre leurs dossier ici, pour pouvoir les modifier facilement et que
 # ça se répercute partout ailleurs.
-DATA_VERSION = {
+DATA_LIEUX = {
   chantier:   {hname:"en chantier sur l'ordi"},
-  complete:   {hname:"fini (sur le disque)"},
+  completed:  {hname:"fini (sur le disque)"},
   chantierd:  {hname:"en chantier, mais sur le disque"},
-  waiting:    {hname:"en attente (sur le disque)"}
+  attente:    {hname:"en attente (sur le disque)"},
+  published:  {hname:"publié (sur le disque)"}
 }
 
 FOLDER_CAPTURES = File.join('/Volumes','MacOSCatalina','Captures')
@@ -43,6 +52,7 @@ unless File.exists?(VITEFAIT_FOLDER_ON_DISK)
   puts "ERROR : Le dossier '#{VITEFAIT_FOLDER_ON_DISK}' est introuvable…"
 end
 
+VITEFAIT_PUBLISHED_FOLDER_ON_DISK = File.join(VITEFAIT_MAIN_FOLDER,'4_Published')
 VITEFAIT_FOLDER_COMPLETED_ON_DISK = File.join(VITEFAIT_MAIN_FOLDER,'3_Completed')
 VITEFAIT_FOLDER_WORKING_ON_DISK   = File.join(VITEFAIT_MAIN_FOLDER,'2_En_chantier')
 VITEFAIT_FOLDER_PROJECT_ON_DISK   = File.join(VITEFAIT_MAIN_FOLDER,'1_En_projet')

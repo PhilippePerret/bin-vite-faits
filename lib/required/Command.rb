@@ -15,7 +15,8 @@ class Command
           end
         elsif arg.include?('=')
           key, val = arg.split('=')
-          COMMAND.params.merge!(key.to_sym => val)
+          real_key = COMMAND_OTHER_PARAM_TO_REAL_PARAM[key] || key
+          COMMAND.params.merge!(real_key.to_sym => val)
         elsif COMMAND.action.nil?
           COMMAND.action = arg
         elsif COMMAND.folder.nil?

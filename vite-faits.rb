@@ -20,6 +20,8 @@ when 'assistant'
   ViteFait.assistant
 when 'open_scrivener'
   vitefait.name_is_required || vitefait.open_scrivener_project
+when 'move','deplace', 'deplacer'
+  vitefait.name_is_required || vitefait.move
 when 'complete'
   vitefait.name_is_required || vitefait.complete
 when 'create'
@@ -44,6 +46,8 @@ when 'open_titre'
   vitefait.name_is_required || vitefait.open_titre
 when 'open_operations'
   vitefait.name_is_required || vitefait.open_operations_file
+when 'keep_only'
+  vitefait.name_is_required || vitefait.keep_only_folder
 when 'upload'
   vitefait.name_is_required || vitefait.upload
 when 'infos'
