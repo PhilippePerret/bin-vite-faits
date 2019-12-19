@@ -5,12 +5,12 @@
 =end
 class ViteFait
 
-  def exec_annonce
-    type = COMMAND.params[:pour] || COMMAND.params[:type]
+  def exec_annonce(pour = nil)
+    type = pour || COMMAND.params[:pour] || COMMAND.params[:type]
     if type.nil?
       error "Il faut définir le type de l'annonce à produire :\n\n\tvite-faits annonce #{name} pour=scrivener|scriv|facebook|fb\n\nscrivener/scriv : pour le forum Latte & Litterature\nfacebook/fb : pour le groupe ”Scrivener en français” sur Facebook"
     else
-      case type
+      case type.to_s
       when 'facebook', 'fb'
         annonce_groupe_facebook
       when 'scrivener', 'scriv'

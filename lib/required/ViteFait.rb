@@ -123,6 +123,17 @@ class ViteFait
     end
   end
 
+  # Pour lancer la lecture des opérations définies
+  def say_operations
+    if file_operations_exists?
+      require_module('operations')
+      exec_say_operations
+    else
+      error "Aucune opération n'est définie. Je ne peux pas les lire pour t'accompagner."
+      error "Crée le fichier des opérations ou demande à être accompagner en jouant `vite-faits assistant #{name} for=operations`"
+    end
+  end
+
   def open_vignette
     if File.exists?(vignette_gimp)
       `open -a Gimp "#{vignette_gimp}"`
@@ -285,6 +296,21 @@ class ViteFait
   end
 
 
+  # ---------------------------------------------------------------------
+  #   MÉTHODES D'ÉTATS
+  # ---------------------------------------------------------------------
+
+  # Retourne TRUE s'il existe un fichier des opérations à lire
+  # Ce fichier s'appelle 'operations.yaml' et se trouve à la
+  # racine du dossier du tutoriel
+  def file_operations_exists?
+    File.exists?(operations_path)
+  end
+
+  # True s'il existe un fichier vocal séparé
+  def voice_capture_exists?
+    File.exists?(vocal_capture_path)
+  end
 
   # ---------------------------------------------------------------------
   #   Méthodes pour se rendre sur les lieux
@@ -302,9 +328,9 @@ class ViteFait
   end
 
   # Pour faire l'annonce du nouveau tutoriel
-  def annonce
+  def annonce(pour = nil)
     require_module('annonces')
-    exec_annonce
+    exec_annonce(pour)
   end
 
   def url_chaine
@@ -384,7 +410,7 @@ class ViteFait
 
 
   # ---------------------------------------------------------------------
-  #   Tous les paths
+  #   Paths
   # ---------------------------------------------------------------------
 
   # Le fichier .mov de la capture des opérations
@@ -424,10 +450,6 @@ class ViteFait
     return nil # non trouvé
   end
 
-  # ---------------------------------------------------------------------
-  #   Paths
-  # ---------------------------------------------------------------------
-
   def src_name; @src_name end
 
   def default_source_fname
@@ -436,6 +458,13 @@ class ViteFait
   def default_source_path
     @default_source_path ||= pathof(default_source_fname)
   end
+
+  # Chemin d'accès au fichier contenant peut-être les opérations
+  # à dire tout haut pour créer plus facilement le programme
+  def operations_path
+    @operations_path ||= File.join(operations_folder,'operations.yaml')
+  end
+
   def mp4_path
     @mp4_path ||= pathof("#{name}.mp4")
   end
@@ -485,6 +514,16 @@ class ViteFait
   def titre_folder
     @titre_folder ||= pathof("Titre")
   end
+
+  def operations_folder
+    @operations_folder ||= pathof('Operations')
+  end
+
+  # Le fichiers final de la voix, si elle est utilisée
+  def vocal_capture_path
+    @vocal_capture_path ||= File.join(operations_folder,'vocal_capture.aac')
+  end
+
 
   def vignette_path
     @vignette_path ||= File.join(vignette_folder, 'Vignette.jpg')

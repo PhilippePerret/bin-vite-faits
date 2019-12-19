@@ -15,7 +15,7 @@ class ViteFait
       end
 
       # Création des dossiers
-      mkdirs_if_not_exist([work_folder_path, exports_folder, titre_folder, vignette_folder])
+      mkdirs_if_not_exist([work_folder_path, exports_folder, titre_folder, operations_folder, vignette_folder])
 
       # Copie du fichier scrivener pour la capture des opérations
       unless File.exists?(scriv_file_path) # options --lack

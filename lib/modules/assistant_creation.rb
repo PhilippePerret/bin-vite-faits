@@ -14,14 +14,14 @@ class << self
     # On demande le nom
     tuto_name = ask_for_tuto_name || return
 
-    # On crée une instance, ça sera plus facile
+    # On crée une instance, le traitement sera plus facile
     tuto = new(tuto_name)
 
     # Si le tutoriel est déjà achevé est annoncé, rien à faire
     if tuto.completed_and_published?
       if COMMAND.options[:force]
         error "Désolé, je ne sais pas encore forcer l'assistant à traiter une création forcée."
-        return
+        return error "Vous pouvez, en attenand, détruire certains éléments manuellement."
       else
         notice "Le tutoriel “#{tuto.titre}” est déjà achevé et publié. Il n'y a plus rien à faire dessus…"
         puts "Si vraiment, tu veux recommencer utilise l'option `--force` avec l'assistant."
@@ -30,23 +30,20 @@ class << self
     end
 
     if tuto.exists?
-      if yesNo("Ce tutoriel existe déjà. Dois-je en poursuivre la création ?")
-        puts "Poursuite de la création de #{tuto.name}. Faisons le point…"
-      else
-        return
-      end
+      yesOrStop("Ce tutoriel existe déjà. Dois-je en poursuivre la création ?")
+      puts "Poursuite de la création de #{tuto.name}. Faisons le point…"
     else
-      notice "Je crée le dossier et tout le tralala du tutoriel…"
       tuto.create
     end
 
-    if tuto.assiste_creation
-      notice "\nTerminé !"
-    else
-      notice "\n\nOK, on s'arrête là."
-      notice "Tu pourras reprendre n'importe quand on tapant à nouveau le nom du dossier '#{tuto.name}'"
-    end
+    tuto.assiste_creation
+    notice "\nTerminé !"
 
+  rescue NotAnError > e
+    # Interruption de la création
+    error e.message if e.message
+    notice "\n\nOK, on s'arrête là."
+    notice "Tu pourras reprendre n'importe quand on tapant à nouveau le nom du dossier '#{tuto.name}'"
   ensure
     print "\n\n\n"
   end
@@ -59,9 +56,7 @@ class << self
     begin
       tuto_name = prompt("Nom du tutoriel")
       if tuto_name.nil?
-        if yesNo("Voulez-vous vraiment arrêter ?")
-          return nil
-        end
+        yesOrStop('Voulez-vous vraiment arrêter ?')
       end
       if tuto_name.gsub(/[a-z\-]/,'') != ''
         error "Un nom de tutoriel ne doit comporter que des lettres minuscules et le signe moins."
@@ -72,6 +67,12 @@ class << self
     return tuto_name
   end
 
+  def yerOrStop(question)
+    unless yesNo(question)
+      raise NotAnError.new
+    end
+  end
+
 end #/<<self
 
 
@@ -80,10 +81,37 @@ end #/<<self
   # ---------------------------------------------------------------------
 
   def assiste_creation
+
+    ask_for_generales_informations
+
+    ask_for_titre_recorded  unless titre_is_recorded?
+    convert_titre_final     unless titre_final_converted?
+
+    ask_for_vignette_jpeg   unless vignette_finale_existe?
+
+    ask_for_main_capture    unless capture_is_recorded?
+
+    ask_for_record_voice    unless voice_capture_exists?
+
+    proceed_assemblage      unless video_finale_existe?
+
+    ask_for_upload_video    unless video_uploaded_on_youtube?
+    ask_for_youtube_id      unless youtube_id_defined?
+
+    ask_for_annonce_facebook  unless annonce_facebook_deposed?
+    ask_for_annonce_scrivener unless annonce_forum_scrivener_deposed?
+
+    finale_message
+
+  end #/ assistant de l'instance
+
+  # --- LES SOUS-MÉTHODES D'ASSISTANCE ---
+
+  def ask_for_generales_informations
+    # Les informations générales dont on a besoin
     ask_for_titre        unless titre
     ask_for_titre_en     unless titre_en
     ask_for_description  unless description
-
     # On enregistre les informations
     if titre || titre_en || description
       informations.set({titre: titre, titre_en:titre_en, description:description})
@@ -91,154 +119,171 @@ end #/<<self
     else
       notice "Aucune information pour le moment. Il faudra penser à les rentrer."
     end
+  end #/ask_for_generales_informations
 
-    unless titre_is_recorded?
-      clear
-      notice "Nous devons enregistrer LE TITRE ANIMÉ"
-      puts <<-EOT
+
+  # Pour l'enregistrement du titre animé
+  def ask_for_titre_recorded
+    clear
+    notice "Nous devons enregistrer LE TITRE ANIMÉ"
+    puts <<-EOT
 
 Je vais ouvrir le modèle, il te suffira alors de :
-  - régler la largeur de fenêtre et de faire un essai
-  - régler l'enregistrement (Cmd+Maj+5), sans son.
-  - s'assurer que c'est tout l'écran qui est capturé
-  - lancer l'enregistrement et taper aussitôt le titre
-  - arrêter la capture assez vite
-  - déplacer le fichier capturé dans le dossier Titre.
+
+- régler la largeur de fenêtre et de faire un essai
+- régler l'enregistrement (Cmd+Maj+5), sans son.
+- t'assurer que c'est tout l'écran qui est capturé
+- lancer l'enregistrement et taper aussitôt le titre
+- arrêter la capture assez vite
+- déplacer le fichier capturé dans le dossier Titre.
 EOT
-      if yesNo("Clique 'y' pour que j'ouvre le titre modèle.")
-        open_titre(nomessage = true)
-        # Ouvrir aussi le dossier des captures et le dossier du tutoriel
-        ViteFait.open_folder_captures
-        open_in_finder(:chantier)
-        if !yesNo("Tape 'y' lorsque tu auras fini, pour que je puisse finaliser le titre.")
-          return false
-        end
-        unless titre_is_recorded?
-          if !yesNo("As-tu bien déplacé le fichier .mov dans le dossier 'Titre' ?\nSinon, ne tape rien, fais-le — sans changer le nom —\net reviens taper 'y'.")
-            return false
-          end
-        end
-      else
-        return false
-      end
-
-      unless titre_is_recorded?
-        error "Tu n'as pas enregistré le titre. je dois renoncer."
-        return false
-      end
+    yesOrStop("Clique 'y' pour que j'ouvre le titre modèle.")
+    open_titre(nomessage = true)
+    # Ouvrir aussi le dossier des captures et le dossier du tutoriel
+    ViteFait.open_folder_captures
+    open_in_finder(:chantier)
+    yesOrStop("Tape 'y' lorsque tu auras fini, pour que je puisse finaliser le titre.")
+    unless titre_is_recorded?
+      yesOrStop("As-tu bien déplacé le fichier .mov dans le dossier 'Titre' ?\nSinon, ne tape rien, fais-le — sans changer le nom —\net reviens taper 'y'.")
     end
+    unless titre_is_recorded?
+      raise NotAError.new("Tu n'as pas enregistré le titre. je dois renoncer.")
+    end
+  end #/ask_for_titre_recorded
 
+
+  # Convertir le titre final
+  def convert_titre_final
+    notice "* Conversion du titre.mov en titre.mp4…"
+    sleep 4
+    titre_to_mp4
     unless titre_final_converted?
-      notice "Conversion du titre.mov en titre.mp4…"
-      sleep 4
-      titre_to_mp4
-      unless titre_final_converted?
-        error "Bizarrement, le titre n'a pas pu être converti…"
-        return error "Je dois m'arrêter là."
-      end
+      error "Bizarrement, le titre n'a pas pu être converti…"
+      raise NotAError.new("Je dois m'arrêter là.")
     end
+  end #/convert_titre_final
 
-    unless vignette_finale_existe?
-      clear
-      notice "Nous devons créer LA VIGNETTE"
-      puts <<-EOT
+
+  # Assister la fabrication de la vignette finale
+  def ask_for_vignette_jpeg
+    clear
+    notice "Nous devons créer LA VIGNETTE"
+    puts <<-EOT
 
 Cette vignette sera utile dans YouTube et sur le forum Scrivener
-Je vais ouvrir le modèle. Il suffira que :
-  - tu règles le titre,
-  - tu exportes au format JPEG.
+Je vais ouvrir le modèle. Il suffira de :
+
+- régler le titre,
+- exporter l'image au format JPEG.
 
 Noter que ce fichier Gimp est une copie de l'original.
-Vous pouvez donc le modifier et l'enregistrer sans souci.
-      EOT
-      if yesNo("Ouvrir le modèle ?")
-        open_vignette
-        if !yesNo("Tape 'y' lorsque tu auras fini, pour que nous puissions poursuivre.")
-          return false
-        end
-      else
-        return false
-      end
+On peut donc le modifier et l'enregistrer sans souci.
+    EOT
 
-      unless vignette_finale_existe?
-        return error "Tu n'as pas créé la vignette finale… Je dois renoncer."
-      end
+    yesOrStop("Ouvrir le modèle ?")
+    open_vignette
+    yesOrStop("Tape 'y' lorsque tu auras fini, pour que nous puissions poursuivre.")
+
+    unless vignette_finale_existe?
+      raise NotAnError.new("Tu n'as pas créé la vignette finale… Je dois renoncer.")
     end
 
+  end #/ask_for_vignette_jpeg
 
-    unless capture_is_recorded?
-      clear
-      notice "Enregistrement des OPÉRATIONS"
-      puts <<-EOT
+  # Assistance de l'enregistrement de la capture principale des opérations
+  def ask_for_main_capture
+    clear
+    notice "Enregistrement des OPÉRATIONS"
+    puts <<-EOT
 
 Voilà le gros morceau ! Il s'agit de produire le fichier .mov qui
-va contenir toutes les opérations à exécuter.
+va contenir toutes les opérations capturées en vidéo.
 
-Voilà la procédure :
+Il faut :
 
-    - préparer le fichier Scrivener (que je vais ouvrir),
-    - brancher ton casque iPhone pour enregistrer la voix,
-    - Cmd+Alt+H pour masquer les autres applications,
-    - taper Cmd+Maj+5 pour demander la capture,
-    - s'assurer que tout l'écran soit capturé
-    - régler l'enregistrement du son (même si aucune voix, obligatoire)
-    - lancer la capture,
-    - exécuter les opérations.
-    - arrêter la capture à la fin des opérations.
+  - préparer le projet Scrivener (que je vais ouvrir),
+  - peut-être définir noir sur blanc les opérations,
+    (pour les faire lire par l'ordinateur),
+  - brancher ton casque iPhone pour enregistrer la voix,
+  - taper Cmd+Alt+H pour masquer les autres applications,
+  - taper Cmd+Maj+5 pour demander la capture,
+  - s'assurer que tout l'écran est capturé
+  - s'assurer que l'enregistrement du son est activé
+    (même si aucune voix n'est enregistrée),
+  - lancer la capture,
+  - exécuter les opérations,
+  - arrêter la capture à la fin des opérations.
 
 Après la capture :
-    - glisser le fichier capturé (le dossier des captures est ouvert)
-      dans le dossier du tutoriel (qui est ouvert aussi)
-    - revenir ici pour cliquer 'y' et poursuivre,
-    - Ouf !
+  - glisser le fichier capturé (le dossier des captures est ouvert)
+    dans le dossier du tutoriel (qui est ouvert aussi)
+  - revenir ici pour cliquer 'y' et poursuivre,
+  - Ouf !
 
-      EOT
+    EOT
 
-      unless yesNo("Tape 'y' dès que tu es prêt et j'ouvre le fichier Scrivener.")
-        return false
-      end
-      ViteFait.open_folder_captures
-      open_in_finder(:chantier)
-      open_scrivener_file
-
-      unless yesNo("Tout est prêt ? La capture a été faite ? Nous pouvons poursuivre ?")
-        return false
-      end
-
-      if src_path(noalert=true).nil?
-        error "[NON FATAL] Je ne trouve pas le fichier .mov dans le dossier du tutoriel."
-        unless yesNo("As-tu pensé à le glisser depuis le dossier capture jusqu'au dossier de #{name} ? (tel quel, sans changer de nom).\nSinon ne tape rien, fais-le et reviens taper 'y' ici.")
-          return false
-        end
-        if src_path.nil?
-          return error "[FATAL] Je ne trouve toujours pas le fichier… Je dois renoncer."
-        end
-      end
+    @lire_les_operations = false
+    if file_operations_exists?
+      @lire_les_operations = yesNo("Dois-je lire le fichier des opérations ?")
+    else
+      puts "-- Pas de fichiers opérations à lire."
     end
 
-    # On peut enfin procéder à l'assemblage
-    unless video_finale_existe?
-      clear
-      notice "Je vais procéder à l'assemblage. Il faudra atten-\ndre un peu."
-      puts "\nC'est assez long, pendant ce temps, tu peux vaquer\nà d'autres occupations."
-      sleep 5
-      assemble(nomessage = true)
+    yesOrStop("Tape 'y' dès que tu es prêt et j'ouvre le fichier Scrivener.")
 
-      clear
-      puts <<-EOT
+    ViteFait.open_folder_captures
+    open_in_finder(:chantier)
+    open_scrivener_file
+
+    if @lire_les_operations
+      yesOrStop("Tape 'y' dès que tu es prêt pour que je lise les opérations (après 5 secondes)")
+      sleep 5
+      say_operations
+    end
+
+    yesOrStop("Tout est prêt ? La capture a été faite ? Nous pouvons poursuivre ?")
+
+    if src_path(noalert=true).nil?
+      error "[NON FATAL] Je ne trouve pas le fichier .mov dans le dossier du tutoriel."
+      yesOrStop("As-tu pensé à le glisser depuis le dossier capture jusqu'au dossier de #{name} ? (tel quel, sans changer de nom).\nSinon ne tape rien, fais-le et reviens taper 'y' ici.")
+      if src_path(noalert=true).nil?
+        raise NotAnError.new("[FATAL] Je ne trouve toujours pas le fichier… Je dois renoncer.")
+      end
+    end
+  end #/ask_for_main_capture
+
+  # Méthode qui assiste à l'enregistrement de la voix si
+  # nécessaire
+  def ask_for_record_voice
+    yesOrNo("Veux-tu procéder à l'enregistrement séparé de la voix ?") || return
+    # S'il existe un fichier avec les opérations, on va écrire le texte à
+    # l'écran, ou le faire défiler progressivement.
+    notice "TODO: Mettre en place l'enregistrement de la voix"
+  end
+
+  # Méthode qui procède à l'assemblage final des éléments
+  def proceed_assemblage
+    clear
+    notice "Je vais procéder à l'assemblage. Il faudra atten-\ndre un peu."
+    puts "\nC'est assez long, pendant ce temps, tu peux vaquer\nà d'autres occupations."
+    sleep 5
+    assemble(nomessage = true)
+
+    clear
+    puts <<-EOT
 L'assemblage a été effecuté avec succès, mais peut-être faut-il le
 modifier dans ScreenFlow.
 
-      EOT
-      unless yesNo("Prêt à poursuivre ?")
-        return false
-      end
-    end
+    EOT
+    yesOrStop("Prêt à poursuivre ?")
+  end #/proceed_assemblage
 
-    unless video_uploaded_on_youtube?
-      clear
-      notice "Tu dois procéder à l'UPLOAD SUR YOUTUBE."
-      puts <<-EOT
+
+  # Assiste à l'upload de la vidéo sur YouTube
+  def ask_for_upload_video
+    clear
+    notice "Tu dois procéder à l'UPLOAD SUR YOUTUBE."
+    puts <<-EOT
 Je vais ouvrir ta chaine et il te suffira de déposer la vidéo.
 
 Tu pourras mettre en description :
@@ -247,59 +292,56 @@ Dans la série des vites-faits, un tutoriel #{description}
 Si tu n'as pas le bon compte, celui de cette chaine est avec le compte
 yahoo et le code normal.
 
-      EOT
-      yesNo("Es-tu prêt ?") || (return false)
-      chaine_youtube
-      yesNo("La vidéo est uploadée ? Prêt à poursuivre ?") || (return false)
-      unless video_uploaded_on_youtube?
-        informations.set(uploaded_on_youtube: true)
-      end
+    EOT
+    yesOrStop("Es-tu prêt ?")
+    chaine_youtube
+    yesOrStop("La vidéo est uploadée ? Prêt à poursuivre ?")
+    unless video_uploaded_on_youtube?
+      informations.set(uploaded_on_youtube: true)
     end
+  end #/ask_for_upload_video
 
-    unless youtube_id_defined?
-      clear
-      notice "Nous devons définir l'ID YOUTUBE de la vidéo."
+
+  # Demande l'identifiant de la vidéo YouTube
+  def ask_for_youtube_id
+    clear
+    notice "Nous devons définir l'ID YOUTUBE de la vidéo."
+    begin
       yid = prompt("ID youtube")
-      yid || (return false)
-      informations.set(youtube_id: yid)
-    end
-
-    unless annonce_facebook_deposed?
-      clear
-      notice "Nous allons procéder à l'annonce sur FB."
-      unless yesNo("Prêt ?")
-        return false
+      if yid.nil?
+        yesOrStop("Il faut entrer l'ID de la vidéo. Dois-je poursuivre ?")
       end
-      COMMAND.params.merge!(pour: 'facebook')
-      annonce
-      yesNo("Prêt à poursuivre ?") || (return false)
-    end
+    end while yid.nil?
+    informations.set(youtube_id: yid)
+  end #/ask_for_youtube_id
 
-    unless annonce_forum_scrivener_deposed?
-      clear
-      notice "Nous allons procéder à l'annonce sur le forum Scrivener."
-      unless yesNo("Prêt ?")
-        return false
-      end
-      COMMAND.params.merge!(pour: 'scrivener')
-      annonce
-      unless yesNo("Prêt à poursuivre ?")
-        return false
-      end
-    end
 
+  # Assistant pour l'annonce du tutoriel sur FaceBook
+  def ask_for_annonce_facebook
+    clear
+    notice "Nous allons procéder à l'annonce sur FB."
+    yesOrStop("Prêt ?")
+    annonce(:facebook)
+    yesOrStop("Prêt à poursuivre ?")
+  end #/ask_for_annonce_facebook
+
+
+  # Assistant pour l'annonce sur le forum Scrivener
+  def ask_for_annonce_scrivener
+    clear
+    notice "Nous allons procéder à l'annonce sur le forum Scrivener."
+    yesOrStop("Prêt ?")
+    annonce(:scrivener)
+    yesOrStop("Prêt à poursuivre ?")
+  end #/ask_for_annonce_scrivener
+
+
+  def finale_message
     clear
     notice "Nous en avons terminé avec ce tutoriel !"
     notice "Bravo ! 👏 👏 👏"
-    notice "À quand le prochain ?"
-
-    unless infos_existent?
-      input_infos
-    end
-
-    return true
-  end #/ assistant de l'instance
-
+    notice "À quand le prochain ?\n\n"
+  end #/finale_message
 
   # --- STATES ---
 
@@ -396,5 +438,8 @@ yahoo et le code normal.
     puts "\n\n"
     Command.clear_terminal
   end
+
+  # Raccourci
+  def yesOrStop(question); self.class.yesOrStop(question) end
 
 end #/ViteFait
