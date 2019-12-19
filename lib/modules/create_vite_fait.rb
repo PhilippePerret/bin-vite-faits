@@ -1,14 +1,17 @@
 # encoding: UTF-8
 class ViteFait
 
-  def exec_create
+  def exec_create(nomessage = false)
+    if nomessage
+      COMMAND.options.merge!(silence: true)
+    end
     if exists? && !(COMMAND.options[:force] || COMMAND.options[:lack])
       error "Ce projet existe déjà, je ne peux pas le créer."
       error "Pour le reconstruire complètement, ajouter l'option -f/--force."
       error "Pour actualiser son contenu (ajouter les fichiers manquant), ajouter -l/--lack."
     else
 
-      puts "\n\n"
+      COMMAND.options[:silence] || puts "\n\n"
 
       if exists? && COMMAND.options[:force]
         FileUtils.rm_rf(work_folder_path)

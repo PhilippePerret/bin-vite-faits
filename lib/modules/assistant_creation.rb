@@ -33,13 +33,14 @@ class << self
       yesOrStop("Ce tutoriel existe déjà. Dois-je en poursuivre la création ?")
       puts "Poursuite de la création de #{tuto.name}. Faisons le point…"
     else
-      tuto.create
+      tuto.create(nomessage = true)
+      COMMAND.options.merge!(silence: false)
     end
 
     tuto.assiste_creation
     notice "\nTerminé !"
 
-  rescue NotAnError > e
+  rescue NotAnError => e
     # Interruption de la création
     error e.message if e.message
     notice "\n\nOK, on s'arrête là."
@@ -67,11 +68,6 @@ class << self
     return tuto_name
   end
 
-  def yerOrStop(question)
-    unless yesNo(question)
-      raise NotAnError.new
-    end
-  end
 
 end #/<<self
 
@@ -136,9 +132,12 @@ Je vais ouvrir le modèle, il te suffira alors de :
 - lancer l'enregistrement et taper aussitôt le titre
 - arrêter la capture assez vite
 - déplacer le fichier capturé dans le dossier Titre.
+
+Le titre à écrire est : « #{titre} ».
 EOT
     yesOrStop("Clique 'y' pour que j'ouvre le titre modèle.")
     open_titre(nomessage = true)
+    COMMAND.options.merge!(silence: false)
     # Ouvrir aussi le dossier des captures et le dossier du tutoriel
     ViteFait.open_folder_captures
     open_in_finder(:chantier)
@@ -178,6 +177,9 @@ Je vais ouvrir le modèle. Il suffira de :
 
 Noter que ce fichier Gimp est une copie de l'original.
 On peut donc le modifier et l'enregistrer sans souci.
+
+Le titre à écrire est : « #{titre} ».
+
     EOT
 
     yesOrStop("Ouvrir le modèle ?")
@@ -198,12 +200,32 @@ On peut donc le modifier et l'enregistrer sans souci.
 
 Voilà le gros morceau ! Il s'agit de produire le fichier .mov qui
 va contenir toutes les opérations capturées en vidéo.
+    EOT
+
+    unless file_operations_exists?
+      notice <<-EOT
+
+Il n'existe pas de fichiers opérations. S'il y en avait un, je
+pourrais lire les opérations à exécuter en même temps, ce qui
+faciliterait le travail.
+
+Pour le faire, interrompt la procédure en répondant 'y' à la
+question suivante, puis revient ici en mettant le même titre
+("#{name}")
+      EOT
+      if yesNo("Veux-tu produire le fichier des opérations ?")
+        create_file_operations
+        return
+      else
+        # On poursuit normalement
+      end
+    end
+
+    puts <<-EOT
 
 Il faut :
 
   - préparer le projet Scrivener (que je vais ouvrir),
-  - peut-être définir noir sur blanc les opérations,
-    (pour les faire lire par l'ordinateur),
   - brancher ton casque iPhone pour enregistrer la voix,
   - taper Cmd+Alt+H pour masquer les autres applications,
   - taper Cmd+Maj+5 pour demander la capture,
@@ -236,9 +258,9 @@ Après la capture :
     open_scrivener_file
 
     if @lire_les_operations
-      yesOrStop("Tape 'y' dès que tu es prêt pour que je lise les opérations (après 5 secondes)")
-      sleep 5
+      COMMAND.options.merge!(silence: true)
       say_operations
+      COMMAND.options.merge!(silence: false)
     end
 
     yesOrStop("Tout est prêt ? La capture a été faite ? Nous pouvons poursuivre ?")
@@ -255,10 +277,10 @@ Après la capture :
   # Méthode qui assiste à l'enregistrement de la voix si
   # nécessaire
   def ask_for_record_voice
-    yesOrNo("Veux-tu procéder à l'enregistrement séparé de la voix ?") || return
+    yesNo("Veux-tu procéder à l'enregistrement séparé de la voix ?") || return
     # S'il existe un fichier avec les opérations, on va écrire le texte à
     # l'écran, ou le faire défiler progressivement.
-    notice "TODO: Mettre en place l'enregistrement de la voix"
+    assistant_voix_finale
   end
 
   # Méthode qui procède à l'assemblage final des éléments
@@ -432,11 +454,6 @@ yahoo et le code normal.
     else
       @description = res
     end
-  end
-
-  def clear
-    puts "\n\n"
-    Command.clear_terminal
   end
 
   # Raccourci

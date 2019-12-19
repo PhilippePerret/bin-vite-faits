@@ -2,6 +2,7 @@
 require 'fileutils'
 require 'json'
 require 'clipboard'
+require 'yaml'
 
 THISFOLDER = File.expand_path(File.dirname(__FILE__))
 

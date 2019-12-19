@@ -3,7 +3,7 @@ def error msg, options = {}
   return false
 end
 def notice msg, options = {}
-  puts "\033[1;32m#{msg}\033[0m"
+  COMMAND.options[:silence] || puts("\033[1;32m#{msg}\033[0m")
 end
 
 def write_green msg

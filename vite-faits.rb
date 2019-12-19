@@ -24,6 +24,8 @@ when 'assistant'
   ViteFait.assistant
 when 'rapport', 'report'
   vitefait.name_is_required || vitefait.write_rapport
+when 'lire_operations'
+  vitefait.name_is_required || vitefait.say_operations
 when 'capture_to_mp4', 'traite_capture'
   vitefait.name_is_required || vitefait.capture_to_mp4
 when 'titre_to_mp4', 'traite_titre'
@@ -36,6 +38,8 @@ when 'open_vignette', 'edit_vignette'
   vitefait.name_is_required || vitefait.open_vignette
 when 'open_titre'
   vitefait.name_is_required || vitefait.open_titre
+when 'open_operations'
+  vitefait.name_is_required || vitefait.open_operations_file
 when 'upload'
   vitefait.name_is_required || vitefait.upload
 when 'infos'

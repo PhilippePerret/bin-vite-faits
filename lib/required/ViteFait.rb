@@ -34,13 +34,34 @@ class ViteFait
       end
     end
 
-    # Pour lancer l'assistant de création
+    # Pour lancer les assistants de création ou d'accompagnement
+    # On parle ici de l'assistant général, permettant de construire tout
+    # le tutoriel aussi bien que les assistants qui permettent d'accompagner
+    # l'enregistrement de la voix ou de lire les opérations à exécuter.
     def assistant
-      require_module('assistant_creation')
-      create_with_assistant
+      case COMMAND.params[:pour]
+      when 'operations'
+        vitefait.name_is_required || vitefait.create_file_operations
+      when 'voice'
+        vitefait.name_is_required || vitefait.assistant_voix_finale
+      else
+        require_module('assistant_creation')
+        create_with_assistant
+      end
     end
 
-  end
+    def clear
+      puts "\n\n" # pour certaines méthodes
+      Command.clear_terminal
+    end
+
+  end # /<< self
+
+  # ---------------------------------------------------------------------
+  #
+  #   INSTANCE
+  #
+  # ---------------------------------------------------------------------
 
   # Le dossier de travail, donc sur l'ordinateur
   # (par opposition au dossier de conservation qui se trouve sur le
@@ -102,9 +123,9 @@ class ViteFait
   # ---------------------------------------------------------------------
 
   # Pour créer le vite-fait
-  def create
+  def create(nomessage = false)
     require_module('create_vite_fait')
-    exec_create
+    exec_create(nomessage)
   end
 
   # Pour afficher l'état du tutoriel
@@ -123,15 +144,28 @@ class ViteFait
     end
   end
 
+  # Pour créer le fichier des opérations de façon assistées
+  def create_file_operations
+    require_module('assistant_operations')
+    assistant_creation_file
+  end
+
   # Pour lancer la lecture des opérations définies
   def say_operations
     if file_operations_exists?
-      require_module('operations')
-      exec_say_operations
+      require_module('assistant_operations')
+      exec_lecture_operations
     else
       error "Aucune opération n'est définie. Je ne peux pas les lire pour t'accompagner."
-      error "Crée le fichier des opérations ou demande à être accompagner en jouant `vite-faits assistant #{name} for=operations`"
+      error "Crée le fichier des opérations ou demande à être accompagner en jouant :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
     end
+  end
+
+  # Pour assister la fabrication finale de la voix du tutoriel
+  # en affichant le texte défini dans le fichier des opérations.
+  def assistant_voix_finale
+    require_module('assistant_operations')
+    exec_assistant_voix_finale
   end
 
   def open_vignette
@@ -295,6 +329,11 @@ class ViteFait
     notice "\n=== 👍  Achèvement terminé du tutoriel vite-fait « #{name} »"
   end
 
+  # Pour ouvrir le fichier des opérations
+  def open_operations_file
+    file_operations_exists?(required=true) || return
+    puts "Joue la commande :\n\n\tvim \"#{operations_path}\""
+  end
 
   # ---------------------------------------------------------------------
   #   MÉTHODES D'ÉTATS
@@ -303,8 +342,15 @@ class ViteFait
   # Retourne TRUE s'il existe un fichier des opérations à lire
   # Ce fichier s'appelle 'operations.yaml' et se trouve à la
   # racine du dossier du tutoriel
-  def file_operations_exists?
-    File.exists?(operations_path)
+  # Mettre +required+ à true pour générer une alerte ne cas d'absence
+  # avec le message d'aide. Utilisation :
+  #   file_operations_exists?(true) || return
+  def file_operations_exists?(required = false)
+    existe = File.exists?(operations_path)
+    if !existe && required
+      return error "Le fichier des opérations n'existe pas. Pour le créer, consulter le mode d'emploi ou jouer :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
+    end
+    return existe
   end
 
   # True s'il existe un fichier vocal séparé
@@ -570,7 +616,54 @@ class ViteFait
     @waiting_folder_path ||= File.join(VITEFAIT_FOLDER_PROJECT_ON_DISK,name)
   end
 
+  # ---------------------------------------------------------------------
+  #   MÉTHODES FONCTIONNELLES
+  # ---------------------------------------------------------------------
+
+  # Pour effacer l'écran du terminal
+  def clear; self.class.clear end
+
+  def yesOrStop(question)
+    self.class.yesOrStop(question)
+  end
+
+  def decompte phrase, fromValue
+    reste = fromValue
+    phrase += " " * 20 + "\r"
+    while reste > -1
+      # Revenir à la 20e colonne de la 4è ligne
+      # print "\033[4;24H"
+      # print "\033[;24H"
+      s = reste > 1 ? 's' : ''
+      phrase_finale = phrase % {nombre_secondes: "#{reste} seconde#{s}"}
+      print phrase_finale
+      # print "Ouverture du forum dans #{reste} seconde#{s}              \r"
+      sleep 1
+      reste -= 1
+    end
+    puts "\n\n\n"
+  end
+
+  # Pour faire dire un texte
+  def dire text
+    `say -v Audrey "#{text}" `
+  end
+
   class << self
+
+    # Pour poser une question et produire une erreur en cas d'autre réponse
+    # que 'y'
+    # Pour fonctionner, la méthode (ou la sous-méthode) qui utilise cette
+    # formule doit se terminer par :
+    #     rescue NotAnError => e
+    #       error e.message if e.message
+    #     end
+    def yesOrStop(question)
+      unless yesNo(question)
+        raise NotAnError.new
+      end
+    end
+
     def machine_a_ecrire_path
       # @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aiff')
       # @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.mp3')

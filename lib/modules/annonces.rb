@@ -56,24 +56,6 @@ class ViteFait
     groupe_facebook
   end
 
-
-  def decompte phrase, fromValue
-    reste = fromValue
-    phrase += " " * 20 + "\r"
-    while reste > -1
-      # Revenir à la 20e colonne de la 4è ligne
-      # print "\033[4;24H"
-      # print "\033[;24H"
-      s = reste > 1 ? 's' : ''
-      phrase_finale = phrase % {nombre_secondes: "#{reste} seconde#{s}"}
-      print phrase_finale
-      # print "Ouverture du forum dans #{reste} seconde#{s}              \r"
-      sleep 1
-      reste -= 1
-    end
-    puts "\n\n\n"
-  end
-
   def temp_annonce_facebook
     @temp_annonce_facebook ||= begin
       <<-EOT
