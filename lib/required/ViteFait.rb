@@ -5,57 +5,56 @@ end
 
 class ViteFait
 
-  class << self
+  def self.require_module module_name
+    require File.join(FOLDER_MODULES,module_name)
+  end
 
-    def require_module module_name
-      require File.join(FOLDER_MODULES,module_name)
+  def self.open_help
+    if COMMAND.options[:edit] || !File.exists?(VITEFAIT_MANUAL_PATH)
+      `open -a Typora "#{VITEFAIT_HELP_PATH}"`
+    else
+      `open "#{VITEFAIT_MANUAL_PATH}"`
     end
+  end
 
-    def open_help
-      if COMMAND.options[:edit] || !File.exists?(VITEFAIT_MANUAL_PATH)
-        `open -a Typora "#{VITEFAIT_HELP_PATH}"`
-      else
-        `open "#{VITEFAIT_MANUAL_PATH}"`
-      end
+  # Ouvrir quelque chose (dans le finder)
+  def self.open folder
+    require_module('open')
+    exec_open(folder)
+  end
+
+  # Ouvrir le dossier des captures (qui doit être défini dans les
+  # constantes constants.rb)
+  def self.open_folder_captures
+    if File.exists?(FOLDER_CAPTURES)
+      `open -a Finder "#{FOLDER_CAPTURES}"`
+    else
+      error "Le dossier capture est introuvable (#{FOLDER_CAPTURES})"
+      error "Il faut définir son path dans constants.rb (FOLDER_CAPTURES)"
     end
+  end
 
-    # Ouvrir quelque chose (dans le finder)
-    def open folder
-      require_module('open')
-      exec_open(folder)
+  # Pour lancer les assistants de création ou d'accompagnement
+  # On parle ici de l'assistant général, permettant de construire tout
+  # le tutoriel aussi bien que les assistants qui permettent d'accompagner
+  # l'enregistrement de la voix ou de lire les opérations à exécuter.
+  def self.assistant
+    case COMMAND.params[:pour]
+    when 'operations'
+      vitefait.name_is_required || vitefait.create_file_operations
+    when 'voice'
+      vitefait.name_is_required || vitefait.assistant_voix_finale
+    else
+      require_module('assistant_creation')
+      create_with_assistant
     end
+  end
 
-    def open_folder_captures
-      if File.exists?(FOLDER_CAPTURES)
-        `open -a Finder "#{FOLDER_CAPTURES}"`
-      else
-        error "Le dossier capture est introuvable (#{FOLDER_CAPTURES})"
-        error "Il faut définir son path dans constants.rb (FOLDER_CAPTURES)"
-      end
-    end
+  def self.clear
+    puts "\n\n" # pour certaines méthodes
+    Command.clear_terminal
+  end
 
-    # Pour lancer les assistants de création ou d'accompagnement
-    # On parle ici de l'assistant général, permettant de construire tout
-    # le tutoriel aussi bien que les assistants qui permettent d'accompagner
-    # l'enregistrement de la voix ou de lire les opérations à exécuter.
-    def assistant
-      case COMMAND.params[:pour]
-      when 'operations'
-        vitefait.name_is_required || vitefait.create_file_operations
-      when 'voice'
-        vitefait.name_is_required || vitefait.assistant_voix_finale
-      else
-        require_module('assistant_creation')
-        create_with_assistant
-      end
-    end
-
-    def clear
-      puts "\n\n" # pour certaines méthodes
-      Command.clear_terminal
-    end
-
-  end # /<< self
 
   # ---------------------------------------------------------------------
   #
@@ -85,63 +84,20 @@ class ViteFait
     end
   end
 
-  def defined?
-    self.work_folder != nil
-  end
-
-  def exists?
-    File.exists?(work_folder_path)
-  end
-
-  def completed?
-    File.exists?(completed_path)
-  end
-
-  def en_chantier?
-    File.exists?(work_folder_path)
-  end
-  def en_chantier_on_disk?
-    File.exists?(work_folder_path_on_disk)
-  end
-  def completed?
-    File.exists?(completed_folder_path)
-  end
-  def en_attente?
-    File.exists?(waiting_folder_path)
-  end
-
-  def work_folder_on_disk_exists?
-    File.exists?(work_folder_path_on_disk)
-  end
-
-  def waiting_folder_exists?
-    File.exists?(waiting_folder_path)
-  end
 
   # ---------------------------------------------------------------------
   #   Les actions
   # ---------------------------------------------------------------------
 
+
+  # ---
+  #   Méthodes de création
+  # ---
+
   # Pour créer le vite-fait
   def create(nomessage = false)
     require_module('create_vite_fait')
     exec_create(nomessage)
-  end
-
-  # Pour afficher l'état du tutoriel
-  def write_rapport
-    require_module('report')
-    exec_print_report
-  end
-
-  # Ouvre le fichier Scrivener qui va permettre de jouer les
-  # opération.
-  def open_scrivener_file
-    if File.exists?(scriv_file_path)
-      `open -a Scrivener "#{scriv_file_path}"`
-    else
-      error "Impossible d'ouvrir le fichier Scrivener, il n'existe pas.\nà : #{scriv_file_path}"
-    end
   end
 
   # Pour créer le fichier des opérations de façon assistées
@@ -150,68 +106,21 @@ class ViteFait
     assistant_creation_file
   end
 
-  # Pour lancer la lecture des opérations définies
-  def say_operations
-    if file_operations_exists?
-      require_module('assistant_operations')
-      exec_lecture_operations
-    else
-      error "Aucune opération n'est définie. Je ne peux pas les lire pour t'accompagner."
-      error "Crée le fichier des opérations ou demande à être accompagner en jouant :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
-    end
+
+  # ---
+  #   Méthodes d'écriture
+  # ---
+
+  # Pour afficher l'état du tutoriel
+  def write_rapport
+    require_module('report')
+    exec_print_report
   end
 
-  # Pour assister la fabrication finale de la voix du tutoriel
-  # en affichant le texte défini dans le fichier des opérations.
-  def assistant_voix_finale
-    require_module('assistant_operations')
-    exec_assistant_voix_finale
-  end
+  # ---
+  #   Méthodes d'ouverture
+  # ---
 
-  def open_vignette
-    if File.exists?(vignette_gimp)
-      `open -a Gimp "#{vignette_gimp}"`
-      notice "Modifie le titre puis export en jpg sous le nom 'Vignette.jpg'"
-    else
-      error "Le fichier vignette est introuvable\n#{vignette_gimp}"
-    end
-  end
-
-  def open_titre(nomessage = false)
-    if File.exists?(titre_path)
-      `open -a Scrivener "#{titre_path}"`
-      unless nomessage
-        notice "Règle la largeur de la fenêtre pour avoir un beau titre\nEnregistre le titre en capturant son écriture,\nRécupère-le dans le dossier des captures,\nDéplace-le dans le dossier 'Titre' du dossier du tutoriel\nEt prépare-le si nécessaire avec la commande `vite-faits traite_titre #{name}.`"
-      end
-    else
-      error "Le fichier Titre.scriv est introuvable…\n#{titre_path}"
-    end
-  end
-
-  # Pour transformer le fichier capture en vidéo mp4
-  def capture_to_mp4
-    require_module('capture_to_mp4')
-    exec_capture_to_mp4
-  end
-
-  # Méthode de transformation du titre en fichier mp4
-  def titre_to_mp4
-    require_module('titre_to_mp4')
-    exec_titre_to_mp4
-  end
-
-  # Pour ouvrir le fichier screenflow ou Premiere
-  def open_montage
-    if File.exists?(screenflow_path)
-      `open -a ScreenFlow "#{screenflow_path}"`
-    elsif File.exists?(premiere_path)
-      `open "#{premiere_path}"`
-    else
-      error "🖐  Impossible de trouver un fichier de montage à ouvrir…"
-      return
-    end
-    notice "Bon montage ! 👍"
-  end
 
   # Ouvrir le dossier du tutoriel où qu'il soit enregistré
   def open_in_finder(version = nil)
@@ -235,6 +144,31 @@ class ViteFait
     end
   end
 
+  # Pour ouvrir le projet scrivener du tutoriel
+  def open_scrivener_project
+    project_scrivener_exists?(required=true) || return
+    `open -a Scrivener "#{scriv_file_path}"`
+  end
+  
+  # Pour ouvrir le fichier des opérations
+  def open_operations_file
+    file_operations_exists?(required=true) || return
+    puts "Joue la commande :\n\n\tvim \"#{operations_path}\""
+  end
+
+  # Pour ouvrir le fichier screenflow ou Premiere
+  def open_montage
+    if File.exists?(screenflow_path)
+      `open -a ScreenFlow "#{screenflow_path}"`
+    elsif File.exists?(premiere_path)
+      `open "#{premiere_path}"`
+    else
+      error "🖐  Impossible de trouver un fichier de montage à ouvrir…"
+      return
+    end
+    notice "Bon montage ! 👍"
+  end
+
   def open_if_exists folder, version
     if File.exists?(folder)
       notice "Ouverture de la version #{version}"
@@ -246,6 +180,83 @@ class ViteFait
       notice "Ce projet possède seulement #{la_version} #{versions_names.join(', ')}."
     end
   end
+
+  # Ouvre le fichier Scrivener qui va permettre de jouer les
+  # opération.
+  def open_scrivener_file
+    if File.exists?(scriv_file_path)
+      `open -a Scrivener "#{scriv_file_path}"`
+    else
+      error "Impossible d'ouvrir le fichier Scrivener, il n'existe pas.\nà : #{scriv_file_path}"
+    end
+  end
+
+  def open_vignette
+    if File.exists?(vignette_gimp)
+      `open -a Gimp "#{vignette_gimp}"`
+      notice "Modifie le titre puis export en jpg sous le nom 'Vignette.jpg'"
+    else
+      error "Le fichier vignette est introuvable\n#{vignette_gimp}"
+    end
+  end
+
+  def open_titre(nomessage = false)
+    if File.exists?(titre_path)
+      `open -a Scrivener "#{titre_path}"`
+      unless nomessage
+        notice "Règle la largeur de la fenêtre pour avoir un beau titre\nEnregistre le titre en capturant son écriture,\nRécupère-le dans le dossier des captures,\nDéplace-le dans le dossier 'Titre' du dossier du tutoriel\nEt prépare-le si nécessaire avec la commande `vite-faits traite_titre #{name}.`"
+      end
+    else
+      error "Le fichier Titre.scriv est introuvable…\n#{titre_path}"
+    end
+  end
+
+  # ---
+  #   Méthodes de conversion
+  # ---
+
+  # Pour transformer le fichier capture en vidéo mp4
+  def capture_to_mp4
+    require_module('capture_to_mp4')
+    exec_capture_to_mp4
+  end
+
+  # Méthode de transformation du titre en fichier mp4
+  def titre_to_mp4
+    require_module('titre_to_mp4')
+    exec_titre_to_mp4
+  end
+
+  # Assemble la vidéo complète
+  # cf. le module 'assemblage.rb'
+  def assemble nomessage = false
+    require_module('assemblage')
+    exec_assemble(nomessage)
+  end
+
+  # ---
+  #   Autres méthodes
+  # ---
+
+  # Pour lancer la lecture des opérations définies
+  def say_operations
+    if file_operations_exists?
+      require_module('assistant_operations')
+      exec_lecture_operations
+    else
+      error "Aucune opération n'est définie. Je ne peux pas les lire pour t'accompagner."
+      error "Crée le fichier des opérations ou demande à être accompagner en jouant :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
+    end
+  end
+
+  # Pour assister la fabrication finale de la voix du tutoriel
+  # en affichant le texte défini dans le fichier des opérations.
+  def assistant_voix_finale
+    require_module('assistant_operations')
+    exec_assistant_voix_finale
+  end
+
+
 
   # Retourne la table des versions existantes
   # Si +key+ est définie, on retourne la liste de ces clés. Par exemple :hname
@@ -289,13 +300,6 @@ class ViteFait
     {path:path, hname:name}
   end
 
-  # Assemble la vidéo complète
-  # cf. le module 'assemblage.rb'
-  def assemble nomessage = false
-    require_module('assemblage')
-    exec_assemble(nomessage)
-  end
-
   def informations
     @informations ||= begin
       require_module('informations')
@@ -329,15 +333,56 @@ class ViteFait
     notice "\n=== 👍  Achèvement terminé du tutoriel vite-fait « #{name} »"
   end
 
-  # Pour ouvrir le fichier des opérations
-  def open_operations_file
-    file_operations_exists?(required=true) || return
-    puts "Joue la commande :\n\n\tvim \"#{operations_path}\""
-  end
-
   # ---------------------------------------------------------------------
   #   MÉTHODES D'ÉTATS
   # ---------------------------------------------------------------------
+
+  def defined?
+    self.work_folder != nil
+  end
+
+  def exists?
+    File.exists?(work_folder_path)
+  end
+
+  def completed?
+    File.exists?(completed_path)
+  end
+
+  def en_chantier?
+    File.exists?(work_folder_path)
+  end
+  def en_chantier_on_disk?
+    File.exists?(work_folder_path_on_disk)
+  end
+  def completed?
+    File.exists?(completed_folder_path)
+  end
+  def en_attente?
+    File.exists?(waiting_folder_path)
+  end
+
+  def work_folder_on_disk_exists?
+    File.exists?(work_folder_path_on_disk)
+  end
+
+  def waiting_folder_exists?
+    File.exists?(waiting_folder_path)
+  end
+
+  # Retourne TRUE s'il existe un fichier scrivener pour
+  # ce tutoriel.
+  # Mettre +required+ à true pour générer une alerte en cas d'absence
+  # du fichier. Meilleure tournure :
+  #   project_scrivener_exists?(true) || return
+  #
+  def project_scrivener_exists?(required = false)
+    existe = File.exists?(scriv_file_path)
+    if !existe && required
+      error "Impossible de trouver le fichier Project Scrivener du tutoriel…\nà : #{scriv_file_path}"
+    end
+    existe
+  end
 
   # Retourne TRUE s'il existe un fichier des opérations à lire
   # Ce fichier s'appelle 'operations.yaml' et se trouve à la

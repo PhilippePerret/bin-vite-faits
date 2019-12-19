@@ -12,16 +12,18 @@ if COMMAND.options[:help] && COMMAND.action.nil?
 end
 
 case COMMAND.action
-when 'complete'
-  vitefait.name_is_required || vitefait.complete
-when 'create'
-  vitefait.name_is_required || vitefait.create
 when 'help', 'manuel'
   ViteFait.open_help
 when 'open'
   ViteFait.open(COMMAND.folder)
 when 'assistant'
   ViteFait.assistant
+when 'open_scrivener'
+  vitefait.name_is_required || vitefait.open_scrivener_project
+when 'complete'
+  vitefait.name_is_required || vitefait.complete
+when 'create'
+  vitefait.name_is_required || vitefait.create
 when 'rapport', 'report'
   vitefait.name_is_required || vitefait.write_rapport
 when 'lire_operations'
