@@ -15,9 +15,21 @@ def yesNo(question)
   return IOConsole.yesNo(question)
 end
 
+def getChar(question)
+  IOConsole.getChar(question)
+end
+
+# Méthode qui retourne TRUE si on presse la
+# barre espace ou rien dans le cas contraire,
+# sauf si c'est 'q'
+def SPACEOrQuit(question)
+  return IOConsole.waitForSpaceOrQuit(question)
+end
+
 class IOConsole
 class << self
-  def getChar
+  def getChar(question = nil)
+    print "#{question} " if question
     old_state = `stty -g`
     system "stty raw -echo"
     char = STDIN.getc.chr
@@ -28,8 +40,20 @@ class << self
     system "stty #{old_state}"
   end
 
+  def waitForSpaceOrQuit(question)
+    print "\n#{question} (SPACE ou 'q' pour quitter) "
+    begin
+      char = getChar
+    end while char != 'q' && char != ' '
+    if char == 'q'
+      return nil
+    else
+      return true
+    end
+  end
+
   def yesNo(question)
-    print "\n#{question} (y/n/q) : "
+    print "\n#{question} (y/n/q) "
     begin
       char = getChar
     end while char != 'y' && char != 'n' && char != 'q'

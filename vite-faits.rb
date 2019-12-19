@@ -36,6 +36,8 @@ when 'montage'
   vitefait.name_is_required || vitefait.open_montage
 when 'assemble'
   vitefait.name_is_required || vitefait.assemble
+when 'assemble_capture'
+  vitefait.name_is_required || vitefait.assemble_capture
 when 'open_vignette', 'edit_vignette'
   vitefait.name_is_required || vitefait.open_vignette
 when 'open_titre'

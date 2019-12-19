@@ -12,6 +12,7 @@ class << self
     notice "Note : on peut aussi reprendre la création là où on s'est arrêté."
 
     # On demande le nom
+    tuto = nil
     tuto_name = ask_for_tuto_name || return
 
     # On crée une instance, le traitement sera plus facile
@@ -42,9 +43,11 @@ class << self
 
   rescue NotAnError => e
     # Interruption de la création
-    error e.message if e.message
+    error e.message if e.message != ''
     notice "\n\nOK, on s'arrête là."
-    notice "Tu pourras reprendre n'importe quand on tapant à nouveau le nom du dossier '#{tuto.name}'"
+    unless tuto.nil?
+      notice "Tu pourras reprendre n'importe quand on tapant à nouveau le nom du dossier '#{tuto.name}'"
+    end
   ensure
     print "\n\n\n"
   end
@@ -57,7 +60,9 @@ class << self
     begin
       tuto_name = prompt("Nom du tutoriel")
       if tuto_name.nil?
-        yesOrStop('Voulez-vous vraiment arrêter ?')
+        if yesNo('Voulez-vous vraiment arrêter ?')
+          raise NotAnError.new(nil)
+        end
       end
       if tuto_name.gsub(/[a-z\-]/,'') != ''
         error "Un nom de tutoriel ne doit comporter que des lettres minuscules et le signe moins."

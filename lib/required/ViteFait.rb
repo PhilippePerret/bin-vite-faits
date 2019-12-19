@@ -42,7 +42,7 @@ class ViteFait
     case COMMAND.params[:pour]
     when 'operations'
       vitefait.name_is_required || vitefait.create_file_operations
-    when 'voice'
+    when 'voice', 'voix', 'texte'
       vitefait.name_is_required || vitefait.assistant_voix_finale
     else
       require_module('assistant_creation')
@@ -149,7 +149,7 @@ class ViteFait
     project_scrivener_exists?(required=true) || return
     `open -a Scrivener "#{scriv_file_path}"`
   end
-  
+
   # Pour ouvrir le fichier des opérations
   def open_operations_file
     file_operations_exists?(required=true) || return
@@ -227,11 +227,18 @@ class ViteFait
     exec_titre_to_mp4
   end
 
+
   # Assemble la vidéo complète
   # cf. le module 'assemblage.rb'
   def assemble nomessage = false
     require_module('assemblage')
     exec_assemble(nomessage)
+  end
+
+  # Assemble la vidéo de la capture et la voix
+  def assemble_capture nomessage = false
+    require_module('assemblage_capture')
+    exec_assemble_capture(nomessage)
   end
 
   # ---
@@ -370,6 +377,14 @@ class ViteFait
     File.exists?(waiting_folder_path)
   end
 
+  def mp4_capture_exists?(required = false)
+    existe = File.exists?(mp4_path)
+    if !existe && required
+      error "Impossible de trouver le fichier mp4 de la capture…\nVous devez au préalable :\n\n\t- Enregistrer le fichier .mov de la capture\n\n\t- le convertir en fichier .mp4\n\n"
+    end
+    existe
+  end
+
   # Retourne TRUE s'il existe un fichier scrivener pour
   # ce tutoriel.
   # Mettre +required+ à true pour générer une alerte en cas d'absence
@@ -399,8 +414,12 @@ class ViteFait
   end
 
   # True s'il existe un fichier vocal séparé
-  def voice_capture_exists?
-    File.exists?(vocal_capture_path)
+  def voice_capture_exists?(required=false)
+    existe = File.exists?(vocal_capture_path)
+    if !existe && required
+      error "Le fichier voix est requis. Pour le produire de façon assistée, utiliser :\n\n\tvite-faits assistant #{name} pour=voix\n\n"
+    end
+    return existe
   end
 
   # ---------------------------------------------------------------------
@@ -611,8 +630,14 @@ class ViteFait
   end
 
   # Le fichiers final de la voix, si elle est utilisée
+  # mp4 car éditable par Audacity
   def vocal_capture_path
-    @vocal_capture_path ||= File.join(operations_folder,'vocal_capture.aac')
+    @vocal_capture_path ||= pathof('voice.mp4')
+  end
+  # Le fichiers pour l'assemblage
+  # aac car assemblable
+  def voice_aac
+    @voice_aac ||= pathof('voice.aac')
   end
 
 

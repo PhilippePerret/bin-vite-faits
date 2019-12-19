@@ -23,6 +23,8 @@ FOLDER_CAPTURES = File.join('/Volumes','MacOSCatalina','Captures')
 BIN_FOLDER      = File.expand_path(File.dirname(THISFOLDER))
 FOLDER_MODULES  = File.join(THISFOLDER,'modules')
 
+VOICE_RECORDER_PATH = File.join(BIN_FOLDER,'voice_recorder.sh')
+
 VITEFAIT_FOLDER_ON_LAPTOP = File.join(Dir.home,'Movies','Tutoriels','SCRIVENER','LES_VITE_FAITS')
 VITEFAIT_FOLDER_ON_DISK   = File.join('/Volumes','MacOSCatalina','Screencasts','SCRIVENER','LES_VITE_FAITS')
 VITEFAIT_MAIN_FOLDER = VITEFAIT_FOLDER_ON_DISK
