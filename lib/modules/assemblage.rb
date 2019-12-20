@@ -65,12 +65,16 @@ S'assurer qu'il y a un titre, un titre anglais et une description ou jouer :
 
 Annoncer le nouveau tutoriel sur Facebook et le forum Scrivener :
 
-    vite-faits annonce pour=fb
-    vite-faits annonce pour=scriv
+    vite-faits annonce #{name} pour=fb
+    vite-faits annonce #{name} pour=scriv
+    # Ou pour les deux en même temps :
+    vite-faits annonces #{name}
 
 Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
 
-    vite-fait complete #{name}
+    vite-faits move #{name} vers=published
+    # Ou, si pas d'annonce :
+    vite-faits move #{name} vers=completed
 
       EOT
     end #/si pas de no message
