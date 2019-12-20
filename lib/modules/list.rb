@@ -4,21 +4,23 @@ class ViteFait
 
     # Retourne le nom de tutoriel le plus proche de +name+
     def get_nearer_from_name(name)
-      candidats_bon_start = []
-      candidats_bad_start = []
+      candidats = []
+      # puts "Items : #{items.inspect}"
       items.each do |item, ditem|
         ditem[:levenstein] = String.levenshtein_beween(name, items)
         if item.start_with?(name)
-          candidats_bon_start << ditem
+          ditem[:presence] = 3
+        elsif item.include?(name)
+          ditem[:presence] = 2
         else
-          candidats_bad_start << ditem
+          ditem[:presence] = 0
         end
+        candidats << ditem
       end
 
-      candidats = candidats_bon_start.count ? candidats_bon_start : candidats_bad_start
-      candidat = candidats.sort_by{|ditem| -ditem[:levenstein] }.first
+      candidats = candidats.sort_by{|ditem| -((ditem[:presence] * 1000) - ditem[:levenstein]) }
+      candidat = candidats.first
 
-      # puts "Candidat trouvé : #{candidat}"
       return candidat
     end
 

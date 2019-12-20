@@ -27,11 +27,11 @@ end
 # TODO Mettre leurs dossier ici, pour pouvoir les modifier facilement et que
 # ça se répercute partout ailleurs.
 DATA_LIEUX = {
-  chantier:   {hname:"en chantier sur l'ordi"},
-  completed:  {hname:"fini (sur le disque)"},
-  chantierd:  {hname:"en chantier, mais sur le disque"},
-  attente:    {hname:"en attente (sur le disque)"},
-  published:  {hname:"publié (sur le disque)"}
+  chantier:   {folder_name:'2_En_chantier', place:'laptop', hname:"en chantier sur l'ordi"},
+  completed:  {folder_name:'3_Completed',   place:'disk',   hname:"fini (sur le disque)"},
+  chantierd:  {folder_name:'2_En_chantier', place:'disk',   hname:"en chantier, mais sur le disque"},
+  attente:    {folder_name:'1_En_attente',  place:'disk',   hname:"en attente (sur le disque)"},
+  published:  {folder_name:'4_Published',   place:'disk',   hname:"publié (sur le disque)"}
 }
 
 FOLDER_CAPTURES = File.join('/Volumes','MacOSCatalina','Captures')
@@ -45,7 +45,9 @@ VITEFAIT_FOLDER_ON_LAPTOP = File.join(Dir.home,'Movies','Tutoriels','SCRIVENER',
 VITEFAIT_FOLDER_ON_DISK   = File.join('/Volumes','MacOSCatalina','Screencasts','SCRIVENER','LES_VITE_FAITS')
 VITEFAIT_MAIN_FOLDER = VITEFAIT_FOLDER_ON_DISK
 
-VITEFAIT_CHANTIER_FOLDER = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'2_En_chantier')
+DATA_LIEUX.each do |klieu, dlieu|
+  eval("VITEFAIT_#{klieu.to_s.upcase}_FOLDER = File.join(VITEFAIT_FOLDER_ON_#{dlieu[:place].to_s.upcase}, dlieu[:folder_name])")
+end
 
 if File.exists?(VITEFAIT_FOLDER_ON_LAPTOP)
   unless File.exists?(VITEFAIT_CHANTIER_FOLDER)
@@ -58,11 +60,6 @@ end
 unless File.exists?(VITEFAIT_FOLDER_ON_DISK)
   puts "ERROR : Le dossier '#{VITEFAIT_FOLDER_ON_DISK}' est introuvable…"
 end
-
-VITEFAIT_PUBLISHED_FOLDER = File.join(VITEFAIT_MAIN_FOLDER,'4_Published')
-VITEFAIT_COMPLETED_FOLDER = File.join(VITEFAIT_MAIN_FOLDER,'3_Completed')
-VITEFAIT_CHANTIERD_FOLDER   = File.join(VITEFAIT_MAIN_FOLDER,'2_En_chantier')
-VITEFAIT_ATTENTE_FOLDER   = File.join(VITEFAIT_MAIN_FOLDER,'1_En_projet')
 
 VITEFAIT_HELP_PATH    = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.md')
 VITEFAIT_MANUAL_PATH  = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.pdf')

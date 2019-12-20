@@ -135,6 +135,9 @@ class ViteFait
       return true
     elsif self.defined?
       candidat = self.class.get_nearer_from_name(name)
+      if candidat.nil?
+        return error "Je n'ai trouvé aucun tutoriel de ce nom ou proche de ce nom. Je dois renoncer.\n\n"
+      end
       yesNo("Je n'ai pas trouvé ce tutoriel…\nS'agit-il du tutoriel '#{candidat[:name]}' ? (si c'est un nouveau, tape 'n')") || return
       instance_variables.each do |prop|
         instance_variable_set("#{prop}", nil)
