@@ -112,10 +112,31 @@ class ViteFait
     file_operations_exists?(true) || return
     operations = get_operations
     clear
+    puts "\n\n"
     notice "Je vais lire les opérations à exécuter"
-    puts "Tu peux interrompre à tout moment avec CTRL-C."
-    yesNo("Es-tu prêt ? (j'attendrai 5 secondes avant de commencer)") || return
-    decompte("Démarrage dans %{nombre_secondes}", 5)
+    puts <<-EOT
+Nous allons :
+  - activer Scrivener
+  - masquer les autres application (CMD+ALT+H)
+  - régler les paramètres de la capture
+
+Ne panique pas, je vais t'accompagner au cours de toutes ces opérations.
+
+À tout moment, si ça ne se passe pas bien, tu peux interrompre
+la capture à l'aide de CTRL-C.
+
+    EOT
+
+    `open -a Terminal`
+    yesNo("Es-tu prêt à me suivre ?…") || return
+    dire("Active Scrivener et masque les autres applications")
+    sleep 3
+    dire("Règle la capture (plein écran, du son, démarrage immédiat)")
+    sleep 4
+    dire("Démarrage dans 10 secondes")
+    decompte("Démarrage dans %{nombre_secondes}", 4)
+    dire("Démarrage dans 5 secondes")
+    decompte("Démarrage dans %{nombre_secondes}", 4, 'Audrey')
     dire("C'est parti ! Mets en route la capture !")
     operations.each do |operation|
       if operation[:duration]
@@ -124,14 +145,17 @@ class ViteFait
       `say -v Thomas -r 140 "#{operation[:assistant]}"`
       if operation[:duration]
         sleep_reste = end_sleep_time - Time.now.to_i
+        sleep_reste < 0 && sleep_reste = 0
       else
         sleep_reste = 1
       end
       sleep sleep_reste
     end
 
+    sleep 3
+
     unless COMMAND.options[:silence]
-      dire "C'est fini ! Tu peux revenir dans le terminal"
+      dire "C'est fini. Tu peux arrêter la capture et revenir dans le terminal"
       puts "\n\nPense bien à déplacer la capture dans le dossier du tutoriel (je peux ouvrir les deux)"
       notice "Tu peux enregistrer la voix finale avec :\n\n\tvite-faits assistant #{name} pour=voice\n"
       notice "Tu peux demander l'assemblage avec :\n\n\tvite-faits assemble #{name}\n"
@@ -143,6 +167,8 @@ class ViteFait
       end
       notice "Bonne continuation !\n\n"
     end
+
+    return true # pour poursuivre
   end
 
   # Assistant pour l'enregistrement de la voix finale
@@ -163,6 +189,20 @@ RÉFLEXION
       File.unlink(vocal_capture_path)
     end
 
+    # Précaution : le fichier capture.mp4 doit impérativement
+    # exister
+    unless File.exists?(mp4_path)
+      unless src_path(noalert=true).nil?
+        notice "Je dois fabriquer le mp4 de la capture des opérations."
+        capture_to_mp4
+      else
+        error("Il faut capturer les opérations au préalable !")
+        puts "\n\nTu peux le faire à l'aide de la commande :\n\n\tvite-faits assistant #{name} pour=capture"
+        puts "\n\n"
+        return false
+      end
+    end
+
     clear
     notice "Nous allons enregistrer la voix finale"
     puts <<-EOF
@@ -174,6 +214,8 @@ Solution A : enregistrer la voix sans la vidéo, en la lisant au
 
 Solution B : enregistrer la voix en suivant la vidéo, en passant
              aux textes suivant par une touche clavier.
+
+Note : pour le moment, seule la solution B est utilisable.
 
     EOF
     case (getChar("Quelle solution choisis-tu ?")||'').downcase
@@ -249,25 +291,29 @@ Si tu veux refaire cette voix, relance la même commande.
 
 Nous allons commencer par nous installer :
 
-  - nous allons spliter l'écran pour avoir la vidéo d'un côté
-    et cette console de l'autre
-    - tiens cliqué le bouton vert de QuickTime jusqu'à ce que
-      l'écran change d'aspect.
-    - place la vidéo à gauche
-    - place de la même manière le Terminal à droite
+  - vérifier l'entrée du microphone intégré,
+  - nous allons spliter l'écran pour avoir la vidéo
+    d'un côté et cette console de l'autre :
+    • tiens cliqué le bouton vert de QuickTime jusqu'à
+      ce que l'écran change d'aspect.
+    • place la vidéo à gauche
+    • place de la même manière le Terminal à droite
+    • ajuste les tailles pour être confortable
+      (augmente par exemple la taille de QuickTime s'il
+      faut voir des choses précises à l'écran).
 
-  C'est moi qui vais lancer l'enregistrement, au bout du décompte.
+  C'est moi qui vais lancer l'enregistrement et la
+  vidéo, au bout du décompte.
 
 À la fin du décompte, tu dois :
 
-  - lancer la lecture de la vidéo,
-  - réactiver cette fenêtre,
-  - [A] dire le premier texte,
-  - [B] CLIQUER SUR LA BARRE ESPACE pour passer au texte suivant,
-  - répéter les opérations [A] et [B] jusqu'à la fin.
+  - dire le premier texte,
+  - CLIQUER SUR LA BARRE ESPACE pour passer au texte
+    suivant,
+  - répéter ces deux opérations jusqu'à la fin.
 
-Noter qu'il s'agit de cliquer sur la BARRE ESPACE pour passer à
-l'étape suivante.
+Noter qu'il s'agit de cliquer sur la BARRE ESPACE
+pour passer à l'étape suivante.
 
     EOT
 
@@ -308,6 +354,8 @@ EOS`
        end
       SPACEOrQuit("Passer au texte suivant ?")
     end
+
+    notice "\n\nLa voix a été enregistrée dans le fichier ./Voix/voice.mp4."
     return true
   end
 
@@ -321,4 +369,5 @@ EOS`
     error("Mettre l'id à 'q' pour renoncer.")
     return true
   end
+
 end #/ViteFait

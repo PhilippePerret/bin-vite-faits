@@ -5,6 +5,13 @@ class ViteFait
     if nomessage
       COMMAND.options.merge!(silence: true)
     end
+
+    # Si le tutoriel n'existe pas, on met tout de suite son lieu, pour
+    # savoir où le créer.
+    unless exists?
+      @lieu = :chantier
+    end
+
     if exists? && !(COMMAND.options[:force] || COMMAND.options[:lack])
       error "Ce projet existe déjà, je ne peux pas le créer."
       error "Pour le reconstruire complètement, ajouter l'option -f/--force."
@@ -18,7 +25,7 @@ class ViteFait
       end
 
       # Création des dossiers
-      mkdirs_if_not_exist([chantier_folder_path, exports_folder, titre_folder, operations_folder, vignette_folder])
+      mkdirs_if_not_exist([chantier_folder_path, exports_folder, titre_folder, operations_folder, vignette_folder, voice_folder])
 
       # Copie du fichier scrivener pour la capture des opérations
       unless File.exists?(scriv_file_path) # options --lack
@@ -27,28 +34,28 @@ class ViteFait
         src_x = File.join(scriv_file_path,'Vite-Faits.scrivx')
         dst_x = File.join(scriv_file_path, "#{name}.scrivx")
         FileUtils.move(src_x, dst_x)
-        notice "--> Scrivener : #{scriv_file_path} 👍"
+        notice "--> Scrivener : #{scriv_file_name} 👍"
       end
 
       # Copie du fichier Scrivener pour le titre
       unless File.exists?(titre_path) # options --lack
         src = File.join(VITEFAIT_MATERIEL_FOLDER,'Titre.scriv')
         FileUtils.copy_entry(src, titre_path)
-        notice "--> TITRAGE : #{titre_path} 👍"
+        notice "--> TITRAGE : ./Titre/Titre.scriv 👍"
       end
 
       # Copie du fichier Gimp pour la vignette
       unless File.exists?(vignette_gimp)
         src = File.join(VITEFAIT_MATERIEL_FOLDER,'Vignette.xcf')
         FileUtils.copy(src, vignette_gimp)
-        notice "--> VIGNETTE : #{vignette_gimp} 👍"
+        notice "--> VIGNETTE : ./Vignette/Vignette.xcf 👍"
       end
 
       # Copie du gabarit Screenflow
       unless File.exists?(screenflow_path)
         src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.screenflow')
         FileUtils.copy_entry(src, screenflow_path)
-        notice "---> Screenflow : #{screenflow_path} 👍"
+        notice "---> Screenflow : ./Montage.screenflow 👍"
       end
 
       # Le dossier final qu'il faudra ouvrir.
@@ -71,7 +78,9 @@ class ViteFait
         "\n👍  Nouveau vite-fait créé avec succès#{lieu}"
       end)
       `open -a Finder "#{final_folder}"`
+      puts "\n\n"
     end
 
-  end
+  end #/exec_create
+
 end #/ViteFait

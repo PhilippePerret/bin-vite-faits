@@ -43,7 +43,9 @@ class << self
 
   rescue NotAnError => e
     # Interruption de la création
-    error e.message if e.message != ''
+    if e.message && e.message != '' && e.message != 'NotAnError'
+      error e.message
+    end
     notice "\n\nOK, on s'arrête là."
     unless tuto.nil?
       notice "Tu pourras reprendre n'importe quand on tapant à nouveau le nom du dossier '#{tuto.name}'"
@@ -64,7 +66,7 @@ class << self
           raise NotAnError.new(nil)
         end
       end
-      if tuto_name.gsub(/[a-z\-]/,'') != ''
+      if (tuto_name||'').gsub(/[a-z\-]/,'') != ''
         error "Un nom de tutoriel ne doit comporter que des lettres minuscules et le signe moins."
         tuto_name = nil
       end
@@ -90,7 +92,10 @@ end #/<<self
 
     ask_for_vignette_jpeg   unless vignette_finale_existe?
 
-    ask_for_main_capture    unless capture_is_recorded?
+    unless capture_is_recorded?
+      # Attention, cette méthode peut être appelée toute seule
+      ask_for_main_capture || return
+    end
 
     ask_for_record_voice    unless voice_capture_exists?
 
@@ -198,7 +203,14 @@ Le titre à écrire est : « #{titre} ».
   end #/ask_for_vignette_jpeg
 
   # Assistance de l'enregistrement de la capture principale des opérations
-  def ask_for_main_capture
+  #
+  # Attention, cette méthode peut être appelée toute seule
+  # Dans ce cas-là, direct est mis à true
+  #
+  def ask_for_main_capture(direct = false)
+
+    ops_exists = file_operations_exists?
+
     clear
     notice "Enregistrement des OPÉRATIONS"
     puts <<-EOT
@@ -218,6 +230,7 @@ Pour le faire, interrompt la procédure en répondant 'y' à la
 question suivante, puis revient ici en mettant le même titre
 ("#{name}")
       EOT
+
       if yesNo("Veux-tu produire le fichier des opérations ?")
         create_file_operations
         return
@@ -238,14 +251,8 @@ Il faut :
   - s'assurer que l'enregistrement du son est activé
     (même si aucune voix n'est enregistrée),
   - lancer la capture,
-  - exécuter les opérations,
+  - exécuter les opérations#{ops_exists && ' (dirigé par l’assistant)'},
   - arrêter la capture à la fin des opérations.
-
-Après la capture :
-  - glisser le fichier capturé (le dossier des captures est ouvert)
-    dans le dossier du tutoriel (qui est ouvert aussi)
-  - revenir ici pour cliquer 'y' et poursuivre,
-  - Ouf !
 
     EOT
 
@@ -256,19 +263,26 @@ Après la capture :
       puts "-- Pas de fichiers opérations à lire."
     end
 
-    yesOrStop("Tape 'y' dès que tu es prêt et j'ouvre le fichier Scrivener.")
+    yesOrStop("Tape 'y' dès que tu seras prêt et j'ouvre le fichier Scrivener.")
 
     ViteFait.open_folder_captures
     open_in_finder(:chantier)
     open_scrivener_file
+    `open -a Scrivener`
 
     if @lire_les_operations
-      COMMAND.options.merge!(silence: true)
-      say_operations
-      COMMAND.options.merge!(silence: false)
+      direct || COMMAND.options.merge!(silence: true)
+      say_operations || return
+      direct || COMMAND.options.merge!(silence: false)
     end
 
-    yesOrStop("Tout est prêt ? La capture a été faite ? Nous pouvons poursuivre ?")
+    if direct
+      # Quand on est dans l'assistant juste pour la capture
+      yesNo("Puis-je transformer le nom du fichier MOV de la capture ?")
+    else
+      # Quand on est dans l'assistant complet
+      yesOrStop("Tout est prêt ? La capture a été faite et déplacée ? Nous pouvons poursuivre ?")
+    end
 
     if src_path(noalert=true).nil?
       error "[NON FATAL] Je ne trouve pas le fichier .mov dans le dossier du tutoriel."
@@ -277,6 +291,17 @@ Après la capture :
         raise NotAnError.new("[FATAL] Je ne trouve toujours pas le fichier… Je dois renoncer.")
       end
     end
+
+    if direct
+      notice "La capture s'est bien déroulée comme un charme…\n\n"
+    end
+  rescue NotAnError => e
+    if e.message && e.message != '' && e.message != 'NotAnError'
+      error e.message
+    end
+    return false
+  else
+    return true
   end #/ask_for_main_capture
 
   # Méthode qui assiste à l'enregistrement de la voix si

@@ -11,7 +11,7 @@ class ViteFait
 
     unlink_if_exist([titre_mp4, titre_ts])
 
-    cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\""
+    cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\" 2> /dev/null"
     COMMAND.options[:verbose] && cmd << ' 2> /dev/null'
     # puts "\n\n---- Commande jouée : #{cmd}"
     res = `#{cmd}`

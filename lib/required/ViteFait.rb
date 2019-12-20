@@ -53,20 +53,18 @@ class ViteFait
   def self.assistant
     case COMMAND.params[:pour]
     when 'operations'
-      vitefait.name_is_required || vitefait.create_file_operations
+      vitefait.is_required && vitefait.create_file_operations
+    when 'capture'
+      vitefait.is_required && vitefait.create_file_capture
+    when 'titre', 'title'
+      vitefait.is_required && vitefait.open_titre
     when 'voice', 'voix', 'texte'
       vitefait.name_is_required || vitefait.assistant_voix_finale
     else
-      require_module('assistant_creation')
+      require_module('creation_assistant')
       create_with_assistant
     end
   end
-
-  def self.clear
-    puts "\n\n" # pour certaines méthodes
-    Command.clear_terminal
-  end
-
 
   # ---------------------------------------------------------------------
   #
@@ -92,6 +90,12 @@ class ViteFait
   # valide. Noter qu'il peut, ici, ne pas encore exister
   def check_tutoriel
     @is_valid = true
+
+    if name.nil?
+      @is_valid = false
+      return
+    end
+
     # Le dossier du tutoriel ne doit pas être trouvé à
     # deux endroits différents
     lieux = []
@@ -131,6 +135,7 @@ class ViteFait
   # utiliser une certaine commande. Ici, il faut que son dossier
   # existe, qu'il soit valide (un seul lieu).
   def is_required
+    name_is_required && (return false)
     if self.defined? && self.exists? && self.valid?
       return true
     elsif self.defined?
@@ -173,6 +178,11 @@ class ViteFait
     assistant_creation_file
   end
 
+  def create_file_capture
+    require_module('creation_assistant')
+    ask_for_main_capture(direct = true)
+  end
+
   # ---
   #   Méthodes d'écriture
   # ---
@@ -197,16 +207,15 @@ class ViteFait
     else
       # <= Une version précise est demandée
       # => On essaie de l'ouvrir si elle existe
-      case version.to_s
-      when 'chantier', 'en_chantier'
-        open_if_exists(chantier_folder_path, version2hname(:chantier))
-      when 'complete', 'completed'
-        open_if_exists(completed_folder_path, version2hname(:complete))
-      when 'attente', 'en_attente'
-        open_if_exists(attente_folder_path, version2hname(:waiting))
-      when 'chantier_disk', 'en_chantier_on_disk'
-        open_if_exists(chantierd_folder_path, version2hname(:chantierd))
-      end
+      open_if_exists(send("#{version}_folder_path"), version2hname(version))
+    end
+  end
+
+  def open_current_folder
+    if File.exists?(current_folder)
+      `open -a Finder "#{current_folder}"`
+    else
+      error "Impossible d'ouvrir le dossier courant (*), il n'existe pas…\n(*) #{current_folder}"
     end
   end
 
@@ -271,6 +280,11 @@ class ViteFait
       `open -a Scrivener "#{titre_path}"`
       unless nomessage
         notice "Règle la largeur de la fenêtre pour avoir un beau titre\nEnregistre le titre en capturant son écriture,\nRécupère-le dans le dossier des captures,\nDéplace-le dans le dossier 'Titre' du dossier du tutoriel\nEt prépare-le si nécessaire avec la commande `vite-faits traite_titre #{name}.`"
+        if yesNo("Dois-je ouvrir le dossier des captures ?")
+          ViteFait.open_folder_captures
+          open_current_folder
+          notice "Glisse le dernier fichier du dossier Captures dans le dossier '#{name}/Titre/'"
+        end
       end
     else
       error "Le fichier Titre.scriv est introuvable…\n#{titre_path}"
@@ -337,7 +351,7 @@ class ViteFait
 
   # Pour assister la fabrication finale de la voix du tutoriel
   # en affichant le texte défini dans le fichier des opérations.
-  def assistant_voix_finale
+      def assistant_voix_finale
     require_module('operations_assistant')
     exec_assistant_voix_finale
   end
@@ -363,10 +377,15 @@ class ViteFait
   # Retourne les informations absolues de la version d'identifiant
   # version_id (qui peut être :chantier, :complete, :waiting ou chantierd)
   def versionAbs version_id
-    DATA_LIEUX[version_id]
+    DATA_LIEUX[version_id.to_sym]
   end
   def version2hname version
-    versionAbs(version)[:hname]
+    dversion = versionAbs(version)
+    if dversion.nil?
+      error "Impossible de trouver le lieu #{version}…"
+    else
+      dversion[:hname]
+    end
   end
 
   # Un tutoriel peut être placé à 4 endroits différents :
@@ -438,7 +457,7 @@ class ViteFait
   end
 
   def exists?
-    lieu != nil
+    lieu && File.exists?(current_folder)
   end
 
   # True si le titre, le titre anglais et la description du tutoriel
@@ -448,7 +467,13 @@ class ViteFait
   end
 
   # Lieu où on trouve ce tutoriel
+  #
+  # Attention : doit vraiment retourner NIL en cas d'absence, car c'est
+  # comme ça qu'on sait si le projet a été créé.
   def lieu
+    @lieu ||= getLieu
+  end
+  def getLieu
     folder_en_attente?    && (return :attente)
     folder_en_chantier?   && (return :chantier)
     en_chantier_on_disk?  && (return :chantierd)
@@ -532,6 +557,8 @@ class ViteFait
   # ---------------------------------------------------------------------
   def chaine_youtube
     `open -a Safari "#{url_chaine}"`
+    sleep 2
+    `open -a Terminal`
   end
 
   def groupe_facebook
@@ -574,7 +601,7 @@ class ViteFait
   def mkdirs_if_not_exist liste
     liste.each do |pth|
       Dir.mkdir(pth)
-      notice "--> CREATE FOLDER #{pth} 👍"
+      notice "--> CREATE FOLDER #{relative_pathof(pth)} 👍"
     end
   end
   # Détruit un fichier s'il existe
@@ -582,7 +609,7 @@ class ViteFait
     liste.each do |pth|
       if File.exists?(pth)
         File.unlink(pth)
-        notice "---> Destruction de #{pth}"
+        notice "---> Destruction de ./#{relative_pathof(pth)}"
       end
     end
   end
@@ -652,13 +679,13 @@ class ViteFait
   end
 
   def get_first_mov_file
-    Dir["#{chantier_folder_path}/*.mov"].each do |pth|
+    Dir["#{operations_folder}/*.mov"].each do |pth|
       fname = File.basename(pth)
       if fname === default_source_fname
         return default_source_fname
       elsif fname.downcase != 'titre.mov'
         # On va renommer ce fichier pour qu'il porte le bon nom
-        FileUtils.move(pth,default_source_path)
+        FileUtils.move(pth, default_source_path)
         return default_source_fname
       end
     end
@@ -668,10 +695,10 @@ class ViteFait
   def src_name; @src_name end
 
   def default_source_fname
-    @default_source_fname ||= "#{name}.mov"
+    @default_source_fname ||= "capture.mov"
   end
   def default_source_path
-    @default_source_path ||= pathof(default_source_fname)
+    @default_source_path ||= File.join(operations_folder, default_source_fname)
   end
 
   # Chemin d'accès au fichier contenant peut-être les opérations
@@ -681,22 +708,25 @@ class ViteFait
   end
 
   def mp4_path
-    @mp4_path ||= pathof("#{name}.mp4")
+    @mp4_path ||= File.join(operations_folder, "capture.mp4")
   end
   def ts_path
-    @ts_path ||= pathof("#{name}.ts")
+    @ts_path ||= File.join(operations_folder, "capture.ts")
   end
   def completed_path
     @completed_path ||= File.join(exports_folder, "#{name}_completed.mp4")
   end
   def scriv_file_path
-    @scriv_file_path ||= pathof("#{name}.scriv")
+    @scriv_file_path ||= pathof(scriv_file_name)
+  end
+  def scriv_file_name
+    @scriv_file_name ||= "#{name}.scriv"
   end
   def screenflow_path
     @screenflow_path ||= pathof("Montage.screenflow")
   end
   def premiere_path
-    @premiere_path ||= pathof("#{name}.prproj")
+    @premiere_path ||= pathof("Montage.prproj")
   end
   # Éléments pour le titre
   def titre_path
@@ -736,12 +766,16 @@ class ViteFait
   # Le fichiers final de la voix, si elle est utilisée
   # mp4 car éditable par Audacity
   def vocal_capture_path
-    @vocal_capture_path ||= pathof('voice.mp4')
+    @vocal_capture_path ||= File.join(voice_folder,'voice.mp4')
   end
   # Le fichiers pour l'assemblage
   # aac car assemblable
   def voice_aac
-    @voice_aac ||= pathof('voice.aac')
+    @voice_aac ||= File.join(voice_folder,'voice.aac')
+  end
+  # Le dossier voix
+  def voice_folder
+    @voice_folder ||= pathof('Voix')
   end
 
 
@@ -770,8 +804,13 @@ class ViteFait
   def pathof relpath
     File.join(current_folder,relpath)
   end
+  def relative_pathof(path)
+    path.gsub(/^#{Regexp.escape(current_folder)}/,'.')
+  end
 
   # Retourne le vrai dossier actuel du tutoriel
+  # S'il n'est pas défini, comme c'est le cas à la création d'un nouveau
+  # tutoriel, on met le lieu à 'chantier'
   def current_folder
     @current_folder || send("#{lieu}_folder_path")
   end
@@ -811,7 +850,9 @@ class ViteFait
     self.class.yesOrStop(question)
   end
 
-  def decompte phrase, fromValue
+  # Si +voix_dernier est défini, on dit les dernières
+  # valeurs avec cette voix (5, 4, 3, 2, 1)
+  def decompte phrase, fromValue, voix_dernier = false
     reste = fromValue
     phrase += " " * 20 + "\r"
     while reste > -1
@@ -823,6 +864,9 @@ class ViteFait
       print phrase_finale
       # print "Ouverture du forum dans #{reste} seconde#{s}              \r"
       sleep 1
+      if voix_dernier && reste < 6
+        `say -v #{voix_dernier} "#{reste}"`
+      end
       reste -= 1
     end
     puts "\n\n\n"
@@ -843,9 +887,7 @@ class ViteFait
     #       error e.message if e.message
     #     end
     def yesOrStop(question)
-      unless yesNo(question)
-        raise NotAnError.new
-      end
+      yesNo(question) || raise(NotAnError.new)
     end
 
     def machine_a_ecrire_path

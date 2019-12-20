@@ -3,9 +3,9 @@ class ViteFait
   def exec_keep_only_folder
     lelieu = COMMAND.params[:lieu]
     lelieu || raise("Il faut indiquer le lieu du dossier à conserver (avec le paramètre 'lieu=...')")
+    self.respond_to?("#{lelieu}_folder_path") || raise("Le lieu '#{lelieu}' est inconnu. Désolé (utiliser #{DATA_LIEUX.keys.join(', ')}).")
     path = send("#{lelieu}_folder_path")
-    path || raise("Le lieu '#{lelieu}' est inconnu. Désolé (utiliser 'attente','chantier','chantierd', 'completed' ou 'published').")
-    File.exists?(path) || raise("Le dossier '#{lelieu}' n'existe pas, je ne peux pas garder celui-là.")
+    File.exists?(path) || raise("Le tutoriel n'existe pas dans le lieu indiqué, je ne peux pas ne garder que celui-là.")
 
     # C'est OK, on détruit les dossiers autre part
     lelieu = lelieu.to_sym
@@ -41,7 +41,7 @@ class ViteFait
         end
       end # s'il y a des lieux à supprimer
     else
-      notice "Le tutoriel ne se trouve que dans le lieu #{lelieu.inspect}."
+      notice "Le tutoriel ne se trouve que dans le lieu #{lelieu.inspect}. 👍"
     end
   rescue Exception => e
     return error e.message

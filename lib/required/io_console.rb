@@ -20,6 +20,7 @@ def getChar(question)
 end
 
 def clear
+  puts "\n\n" # pour certaines méthodes
   Command.clear_terminal
 end
 

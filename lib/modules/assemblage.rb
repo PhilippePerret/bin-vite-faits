@@ -34,10 +34,11 @@ class ViteFait
     # Le fichier final doit être détruit s'il existe
     File.unlink(completed_path) if File.exists?(completed_path)
     cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}|#{ts_path}|#{final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{completed_path}\""
-    # cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{completed_path}\""
-    # cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}\" -codec copy -bsf:a aac_adtstoasc \"#{completed_path}\""
-    unless nomessage
+    COMMAND.options[:verbose] || cmd << " 2> /dev/null"
+    if COMMAND.options[:verbose] && !nomessage
       puts "\n---- Commande finale : '#{cmd}'"
+    else
+      notice "🔧  Assemblage final, merci de patienter…"
     end
     res = `#{cmd}`
 

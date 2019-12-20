@@ -16,13 +16,13 @@ class ViteFait
       end
       cmd << " \"#{mp4_path}\""
       COMMAND.options[:verbose] && cmd << " 2> /dev/null"
-      notice "\n* Fabrication du fichier .mp4. Merci de patienter…"
+      notice "\n* Fabrication du fichier ./Operations/capture.mp4. Merci de patienter…"
       res = `#{cmd}`
       if File.exists?(mp4_path)
         notice "= 👍  Fichier mp4 fabriqué avec succès."
         notice "= Vous pouvez procéder à l'assemblage dans le fichier '#{name}.screenflow'"
       else
-        error "= Le fichier '#{mp4_path}' n'a pas pu être fabriquer…"
+        error "= Le fichier '#{mp4_path}' n'a pas pu être fabriqué…"
       end
     end
   end

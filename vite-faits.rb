@@ -58,7 +58,7 @@ when 'annonce'
   vitefait.is_required && vitefait.annonce
 when 'annonces'
   vitefait.is_required && vitefait.annonce(:both)
-when 'chaine_youtube'
+when 'chaine_youtube', 'open_youtube'
   vitefait.chaine_youtube
 when 'groupe_facebook'
   vitefait.groupe_facebook
