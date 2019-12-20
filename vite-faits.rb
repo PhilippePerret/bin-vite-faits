@@ -54,6 +54,8 @@ when 'infos'
   vitefait.is_required && vitefait.informations.touch
 when 'annonce'
   vitefait.is_required && vitefait.annonce
+when 'annonces'
+  vitefait.is_required && vitefait.annonce(:both)
 when 'chaine_youtube'
   vitefait.chaine_youtube
 when 'groupe_facebook'

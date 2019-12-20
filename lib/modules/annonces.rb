@@ -18,14 +18,19 @@ class ViteFait
     type = pour || COMMAND.params[:pour] || COMMAND.params[:type]
     type || raise(NotAnError.new(MSG(:type_is_required)))
     infos_defined? || raise(NotAnError.new(MSG(:infos_required)))
+
     case type.to_s
     when 'facebook', 'fb'
       annonce_FB
     when 'scrivener', 'scriv'
       annonce_Scriv
+    when 'both'
+      annonce_FB
+      annonce_Scriv
     else
       error "Je ne connais pas le type d'annonce '#{type}'…"
     end
+    puts "\n\n\n"
   rescue NotAnError => e
     error e.message
   end
