@@ -69,7 +69,7 @@ class << self
     end
   end
   def wait_for_string question
-    print "\n#{question} : "
+    print "#{question} : "
     str = STDIN.gets
     str = str.strip
     if str == 'q' || str == ""

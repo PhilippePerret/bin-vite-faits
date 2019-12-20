@@ -64,10 +64,12 @@ class ViteFait
     operations_ids = {}
     operations.each { |op| operations_ids.merge!( op[:id] => true ) }
 
+    clear
+    notice "=== Définition des opérations ==="
     while true
       # identifiant de l'opération
       begin
-        operation_id = prompt("Identifiant la nouvelle opération (rien pour arrêter)")
+        operation_id = prompt("\nID nouvelle opération (rien pour interrompre)")
         if operation_id.nil? || operation_id == 'q'
           return operations
         end
@@ -76,17 +78,17 @@ class ViteFait
 
       # Manipulation à opérer
       begin
-        operation_assistant = prompt("Message à dire par l'assistant ('q' pour interrompre)")
+        operation_assistant = prompt("Message à DIRE par l'assistant")
       end while operation_assistant.nil?
       raise NotAnError.new() if operation_assistant == 'q'
 
       # Texte de la voix finale
       begin
-        operation_voice = prompt("Texte à dire par la voix finale ('q' pour interrompre)")
+        operation_voice = prompt("TEXTE de la voix finale du tutoriel")
       end while operation_voice.nil?
       raise NotAnError.new() if operation_voice == 'q'
 
-      operation_duration = prompt("Durée forcée en seconde, ou vide ('q' pour interrompre)")
+      operation_duration = prompt("DURÉE forcée en seconde")
       raise NotAnError.new() if operation_duration == 'q'
       operation_duration.nil? || operation_duration = operation_duration.to_i
 
