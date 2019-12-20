@@ -11,10 +11,27 @@ class ViteFait
 
     unlink_if_exist([titre_mp4, titre_ts])
 
-    cmd = "ffmpeg -i \"#{titre_mov}\" -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\" 2> /dev/null"
-    COMMAND.options[:verbose] && cmd << ' 2> /dev/null'
-    # puts "\n\n---- Commande jouée : #{cmd}"
+    cmd = "ffmpeg -i \"#{titre_mov}\" -i "
+
+    # On doit la raccourcir
+    unless COMMAND.options[:no_crop]
+      # Pour raccourcir la vidéo (ne pas voir l'arrêt)
+      duree_raccourcie = (Video.dureeOf(src_path) - 1).to_i.as_horloge
+      cmd << " -ss 00:00:00 -t #{duree_raccourcie}"
+    end
+
+    cmd << "\"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\""
+    # Pas d'option verbose, ici, il faut obligatoirement envoyer à /dev/null
+    # lorsqu'on assemble du son
+    cmd << " 2> /dev/null"
+
+    if COMMAND.options[:verbose]
+      puts "\n\n---- Commande jouée : #{cmd}"
+    end
+
+    # Jouer la commande
     res = `#{cmd}`
+    
     if File.exists?(titre_mp4)
       notice "= 👍  Fichier titre mp4 fabriqué avec succès."
     else
