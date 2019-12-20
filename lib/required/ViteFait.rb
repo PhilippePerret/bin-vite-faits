@@ -41,6 +41,11 @@ class ViteFait
       List.new
     end
   end
+
+  # Recherche le nom le plus proche de +name+
+  def self.get_nearer_from_name(name)
+    self.list.get_nearer_from_name(name)
+  end
   # Pour lancer les assistants de création ou d'accompagnement
   # On parle ici de l'assistant général, permettant de construire tout
   # le tutoriel aussi bien que les assistants qui permettent d'accompagner
@@ -127,6 +132,16 @@ class ViteFait
   # existe, qu'il soit valide (un seul lieu).
   def is_required
     if self.defined? && self.exists? && self.valid?
+      return true
+    elsif self.defined?
+      candidat = self.class.get_nearer_from_name(name)
+      yesNo("Je n'ai pas trouvé ce tutoriel…\nS'agit-il du tutoriel '#{candidat[:name]}' ? (si c'est un nouveau, tape 'n')") || return
+      instance_variables.each do |prop|
+        instance_variable_set("#{prop}", nil)
+      end
+      COMMAND.folder = self.work_folder = @name = candidat[:name]
+      @vitefait = nil
+      check_tutoriel
       return true
     else
       error "Un tutoriel existant et valide est requis pour cette opération.\nJe dois m'arrêter là."

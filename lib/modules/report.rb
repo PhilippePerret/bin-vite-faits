@@ -40,8 +40,8 @@ class ViteFait
     else
       puts "Lieu actuel    : aucun — le dossier n'est pas créé"
     end
-    if vitefait.defined?
-      if vitefait.exists?
+    if self.defined?
+      if self.exists?
         puts "\nFichiers de travail"
         puts "-------------------\n"
         line_exists_file(informations.path, 'Informations')

@@ -20,24 +20,24 @@ when 'open'
   ViteFait.open(COMMAND.folder)
 when 'assistant'
   ViteFait.assistant
-when 'open_scrivener'
-  vitefait.name_is_required || vitefait.open_scrivener_project
-when 'move','deplace', 'deplacer'
-  vitefait.name_is_required || vitefait.move
-when 'complete'
-  vitefait.name_is_required || vitefait.complete
 when 'create'
   vitefait.name_is_required || vitefait.create
+when 'open_scrivener'
+  vitefait.is_required && vitefait.open_scrivener_project
+when 'move','deplace', 'deplacer'
+  vitefait.is_required && vitefait.move
+when 'complete'
+  vitefait.is_required && vitefait.complete
 when 'rapport', 'report'
-  vitefait.name_is_required || vitefait.write_rapport
+  vitefait.is_required && vitefait.write_rapport
 when 'lire_operations'
-  vitefait.name_is_required || vitefait.say_operations
+  vitefait.is_required && vitefait.say_operations
 when 'capture_to_mp4', 'traite_capture'
-  vitefait.name_is_required || vitefait.capture_to_mp4
+  vitefait.is_required && vitefait.capture_to_mp4
 when 'titre_to_mp4', 'traite_titre'
-  vitefait.name_is_required || vitefait.titre_to_mp4
+  vitefait.is_required && vitefait.titre_to_mp4
 when 'montage'
-  vitefait.name_is_required || vitefait.open_montage
+  vitefait.is_required && vitefait.open_montage
 when 'assemble'
   vitefait.is_required && vitefait.assemble
 when 'assemble_capture'

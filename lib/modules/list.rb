@@ -1,6 +1,27 @@
 # encoding: UTF-8
 class ViteFait
   class List
+
+    # Retourne le nom de tutoriel le plus proche de +name+
+    def get_nearer_from_name(name)
+      candidats_bon_start = []
+      candidats_bad_start = []
+      items.each do |item, ditem|
+        ditem[:levenstein] = String.levenshtein_beween(name, items)
+        if item.start_with?(name)
+          candidats_bon_start << ditem
+        else
+          candidats_bad_start << ditem
+        end
+      end
+
+      candidats = candidats_bon_start.count ? candidats_bon_start : candidats_bad_start
+      candidat = candidats.sort_by{|ditem| -ditem[:levenstein] }.first
+
+      # puts "Candidat trouvé : #{candidat}"
+      return candidat
+    end
+
     # Retourne la liste complète des tutoriels
     # C'est une table avec en clé le nom du dossier
     def items
