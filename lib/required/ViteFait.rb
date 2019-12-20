@@ -416,6 +416,12 @@ class ViteFait
     lieu != nil
   end
 
+  # True si le titre, le titre anglais et la description du tutoriel
+  # sont définis
+  def infos_defined?
+    !!(titre && titre_en && description)
+  end
+
   # Lieu où on trouve ce tutoriel
   def lieu
     folder_en_attente?    && (return :attente)
@@ -570,16 +576,16 @@ class ViteFait
   # Les données dans le fichier information du tutoriel (définies ou non,
   # mais ça renvoie toujours une donnée)
   def titre
-    @titre ||= informations.data[:titre][:value]
+    @titre ||= informations[:titre]
   end
   def titre_en
-    @titre_en ||= informations.data[:titre_en][:value]
+    @titre_en ||= informations[:titre_en]
   end
   def youtube_id
-    @youtube_id ||= informations.data[:youtube_id][:value]
+    @youtube_id ||= informations[:youtube_id]
   end
   def description
-    @description ||= informations.data[:description][:value]
+    @description ||= informations[:description]
   end
 
 
@@ -726,8 +732,15 @@ class ViteFait
 
   # Retourne le chemin relatif au fichier/dossier se trouvant dans
   # le tutoriel courant
+  # Attention : maintenant, la méthode est beaucoup plus complexe et
+  # retourne le chemin en fonction du lieu où se trouve le projet.
   def pathof relpath
-    File.join(chantier_folder_path,relpath)
+    File.join(current_folder,relpath)
+  end
+
+  # Retourne le vrai dossier actuel du tutoriel
+  def current_folder
+    @current_folder || send("#{lieu}_folder_path")
   end
 
   # Chemin d'accès au dossier en attente (sur le disque)

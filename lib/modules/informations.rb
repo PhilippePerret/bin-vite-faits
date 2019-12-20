@@ -21,11 +21,22 @@ class Informations
     created_at:     {value:nil,   editable:false, required:false}
   }
 
-
   attr_reader :vitefait
 
   def initialize vitefait
     @vitefait = vitefait
+  end
+
+  # Retourne la valeur de l'information de clé +key+
+  #
+  # Pour pouvoir utiliser la formule <ViteFait>#informations[key]
+  def [] key
+    data[key][:value]
+  end
+
+  # Pour définir la valeur de l'information +key+ avec +value+
+  def []= key, value
+    set({key => value})
   end
 
   # Méthode appelée dès qu'on joue `vite-faits infos <nom-dossier-tuto>`

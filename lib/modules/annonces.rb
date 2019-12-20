@@ -8,30 +8,35 @@ class ViteFait
   MSG(
     {
       type_is_required:"Il faut définir le type de l'annonce à produire :\n\n\tvite-faits annonce %{name} pour=scrivener|scriv|facebook|fb\n\nscrivener/scriv : pour le forum Latte & Litterature\nfacebook/fb : pour le groupe ”Scrivener en français” sur Facebook",
-      already_facebook:"L'annonce sur le groupe Facebook a déjà été faite. Dois-je recommencer ?"
+      already_facebook:"L'annonce sur le groupe Facebook a déjà été faite. Dois-je recommencer ?",
+      already_scrivener:"L'annonce sur le forum Scrivener a déjà été faite. Dois-je recommencer ?",
+      infos_required: "Les informations complètes (titre, titre anglais, description) sont requises pour faire les annonces.\nPour les définir, utilisez :\n\n\tvite-faits infos %{name} titre=\"...\" titre_en=\"...\" description=\"...\"\n\n"
     }
   )
 
   def exec_annonce(pour = nil)
     type = pour || COMMAND.params[:pour] || COMMAND.params[:type]
-    if type.nil?
-      error MSG(:type_is_required)
+    type || raise(NotAnError.new(MSG(:type_is_required)))
+    infos_defined? || raise(NotAnError.new(MSG(:infos_required)))
+    case type.to_s
+    when 'facebook', 'fb'
+      annonce_FB
+    when 'scrivener', 'scriv'
+      annonce_Scriv
     else
-      case type.to_s
-      when 'facebook', 'fb'
-        annonce_Scriv
-      when 'scrivener', 'scriv'
-        annonce_FB
-      else
-        error "Je ne connais pas le type d'annonce '#{type}'…"
-      end
+      error "Je ne connais pas le type d'annonce '#{type}'…"
     end
+  rescue NotAnError => e
+    error e.message
   end
 
-  def annonce_FB
+  def annonce_Scriv
 
-    if informations[:annonce_FB]
-      yesNo(MSG(:already_facebook)) || return
+    clear
+    notice "=== Annonce sur le forume Scrivener ==="
+
+    if informations[:annonce_Scriv]
+      yesNo(MSG(:already_scrivener)) || return
     end
 
     if titre.nil?
@@ -57,21 +62,32 @@ class ViteFait
     forum_scrivener
 
     # Marquer l'annonce déposée ?
-    if yesNo("Dois-je marquer l'annonce déposée sur Facebook ?")
-      informations.set(annonce_FB: true)
+    if yesNo("Dois-je marquer l'annonce déposée sur Scrivener ?")
+      informations[:annonce_Scriv] = true
     end
-  end
 
-  def annonce_Scriv
-    Command.clear_terminal
+  end #/ annonce_Scriv
+
+  def annonce_FB
+    clear
+    notice "=== Annonce sur le groupe Facebook ==="
+
+    if informations[:annonce_FB]
+      yesNo(MSG(:already_facebook)) || return
+    end
+
     puts "\n\nMessage :\n#{temp_annonce_facebook}\n"
     Clipboard.copy(temp_annonce_facebook)
     notice "Message copié dans le presse-papier !"
     notice "Il suffit de coller ce message dans un nouveau post sur le groupe."
-    notice "S'assurer que la vidéo à bien été placée.\n\n"
+    notice "S'assurer que la vidéo a bien été placée.\n\n"
     decompte("Ouverture du groupe Facebook dans %{nombre_secondes}…",10)
     groupe_facebook
-  end
+
+    if yesNo("Dois-je marquer l'annonce sur Facebook faite ?")
+      informations[:annonce_FB] = true
+    end
+  end #/ annonce_FB
 
   def temp_annonce_facebook
     @temp_annonce_facebook ||= begin
