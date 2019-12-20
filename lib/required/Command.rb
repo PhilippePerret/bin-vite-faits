@@ -6,12 +6,19 @@ class Command
     # Analyse la ligne de commande courante
     def decompose
       ARGV.each do |arg|
-        if arg.start_with?('-')
-          key = arg.start_with?('--') ? arg[2..-1] : MIN_OPT_TO_REAL_OPT[arg[1..-1]]
-          if key.nil?
-            error "L'option #{arg} est inconnue."
-          else
-            COMMAND.options.merge!(key.to_sym => true)
+        if arg.start_with?('--')
+          key = arg[2..-1]
+          COMMAND.options.merge!(key.to_sym => true)
+        elsif arg.start_with?('-')
+          # Trait simple
+          keys = arg[1..-1].split('')
+          keys.each do |key|
+            key = MIN_OPT_TO_REAL_OPT[key]
+            if key.nil?
+              error "L'option #{arg} est inconnue."
+            else
+              COMMAND.options.merge!(key.to_sym => true)
+            end
           end
         elsif arg.include?('=')
           key, val = arg.split('=')

@@ -169,7 +169,7 @@ class ViteFait
 
   # Pour créer le fichier des opérations de façon assistées
   def create_file_operations
-    require_module('assistant_operations')
+    require_module('operations_assistant')
     assistant_creation_file
   end
 
@@ -219,7 +219,7 @@ class ViteFait
   # Pour ouvrir le fichier des opérations
   def open_operations_file
     file_operations_exists?(required=true) || return
-    puts "Joue la commande :\n\n\tvim \"#{operations_path}\""
+    system('vim', operations_path)
   end
 
   # Pour ouvrir le fichier screenflow ou Premiere
@@ -327,7 +327,7 @@ class ViteFait
   # Pour lancer la lecture des opérations définies
   def say_operations
     if file_operations_exists?
-      require_module('assistant_operations')
+      require_module('operations_assistant')
       exec_lecture_operations
     else
       error "Aucune opération n'est définie. Je ne peux pas les lire pour t'accompagner."
@@ -338,7 +338,7 @@ class ViteFait
   # Pour assister la fabrication finale de la voix du tutoriel
   # en affichant le texte défini dans le fichier des opérations.
   def assistant_voix_finale
-    require_module('assistant_operations')
+    require_module('operations_assistant')
     exec_assistant_voix_finale
   end
 
@@ -693,7 +693,7 @@ class ViteFait
     @scriv_file_path ||= pathof("#{name}.scriv")
   end
   def screenflow_path
-    @screenflow_path ||= pathof("#{name}.screenflow")
+    @screenflow_path ||= pathof("Montage.screenflow")
   end
   def premiere_path
     @premiere_path ||= pathof("#{name}.prproj")

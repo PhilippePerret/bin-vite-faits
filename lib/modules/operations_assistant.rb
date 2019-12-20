@@ -12,22 +12,25 @@ class ViteFait
 
   # Assistant pour la création du fichier opérations
   def assistant_creation_file
+
     clear
     notice "Nous allons créer ensemble le fichier des opérations"
 
     operations = nil
 
     if file_operations_exists?
-      case prompt("Le fichier des opérations existe déjà. Que dois-je faire :\n\n\tA : le détruire pour recommencer\n\tB : le poursuivre\n\tC : Renoncer et l'éditer avec Vim\n\nTon choix").downcase
+      case prompt("Le fichier des opérations existe déjà. Que dois-je faire :\n\n\tA : le détruire pour recommencer\n\tB : le poursuivre\n\tC : l'éditer avec Vim\n\tD : renoncer\n\nTon choix").downcase
       when 'a'
         # Détruire le fichier
         File.unlink(operations_path)
       when 'b'
         # Poursuivre le fichier
-        operations = YAML.load_file(operations_path)
+        operations = get_operations
       when 'c'
         # Éditer le fichier avec Vim
         return open_operations_file
+      when 'd'
+        return
       else
         error "Je ne comprends pas ce choix. Je préfère renoncer."
         return
@@ -100,11 +103,14 @@ class ViteFait
     end
   end
 
+  def get_operations
+    YAML.load_file(operations_path).to_sym
+  end
 
   # Assistant pour la réalisation des opérations, en les lisant
   def exec_lecture_operations
     file_operations_exists?(true) || return
-    operations = YAML.load_file(operations_path)
+    operations = get_operations
     clear
     notice "Je vais lire les opérations à exécuter"
     puts "Tu peux interrompre à tout moment avec CTRL-C."
@@ -205,7 +211,7 @@ Si tu veux refaire cette voix, relance la même commande.
 
   def assistant_voix_finale_without_video
     clear
-    operations = YAML.load_file(operations_path)
+    operations = get_operations
     notice "Enregistrement de la voix sans la vidéo"
     yesNo("Es-tu prêt à enregistrer ? (je compterai 5 secondes)") || return
     decompte("Démarrage dans %{nombre_secondes}", 5)
@@ -230,7 +236,7 @@ Si tu veux refaire cette voix, relance la même commande.
 
   def assistant_voix_finale_with_video
 
-    operations = YAML.load_file(operations_path)
+    operations = get_operations
     clear
     notice "Enregistrement de la voix avec la vidéo"
     mp4_capture_exists?(required=true) || return
