@@ -17,17 +17,44 @@ class ViteFait
       error "Désolé, mais ce tutoriel doit être fixé."
       return
     end
-    puts "\n\n\n"
 
+    clear
+    puts "=== INFORMATION SUR UN TUTORIEL ===\n\n"
+      puts "Nom du dossier : #{name}"
+    if exists?
+      puts "Titre          : #{titre || '---'}"
+      puts "Titre anglais  : #{titre_en || '---'}"
+      puts "Description    : #{description || '---'}"
+      puts "Lieu actuel    : #{lieu} — #{hlieu}"
+      puts "YoutTube ID    : #{youtube_id || '---'}"
+    else
+      puts "Lieu actuel    : aucun — le dossier n'est pas créé"
+    end
     if vitefait.defined?
       if vitefait.exists?
-        notice "Dossier travail vite-fait : '#{vitefait.work_folder}'."
-        line_exists_file(screenflow_path, 'ScreenFlow')
+        puts "\nFichiers de travail"
+        puts "-------------------\n"
+        line_exists_file(informations.path, 'Informations')
+        line_exists_file(operations_path, 'Opérations')
         line_exists_file(scriv_file_path, 'Scrivener')
-        line_exists_file(src_path, 'source')
-        line_exists_file(mp4_path, 'capture.mp4')
-        line_exists_file(ts_path, 'capture.ts')
+        line_exists_file(src_path, 'source MOV')
+        line_exists_file(titre_path, 'Titre (Scrivener)')
+        line_exists_file(titre_mov, 'Titre (capture)')
+        line_exists_file(vignette_gimp, 'Vignette Gimp')
+        line_exists_file(vocal_capture_path, 'Voix')
+        line_exists_file(screenflow_path, 'ScreenFlow')
+        line_exists_file(premiere_path, 'Adobe Premiere')
+
+        # fichier informations
+        # fichier voice
+        # fichier operations
+        puts "\nFichiers finaux"
+        puts "---------------\n"
         line_exists_file(completed_path, 'VIDÉO FINALE')
+        line_exists_file(vignette_path, 'Vignette JPEG')
+        line_exists_file(mp4_path, 'Capture (mp4)')
+        line_exists_file(titre_mp4, "Titre (mp4)")
+        line_exists_file(voice_aac, 'Voix finale')
       else
         if COMMAND.options[:check]
           error "Le dossier travail vite-fait '#{vitefait.chantier_folder_path}' n'existe pas."

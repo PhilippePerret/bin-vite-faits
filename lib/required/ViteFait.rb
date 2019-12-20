@@ -432,6 +432,15 @@ class ViteFait
     return nil
   end
 
+  # Le lieu, en valeur humaine
+  def hlieu
+    @hlieu ||= infos_lieu[:hname]
+  end
+
+  def infos_lieu
+    @infos_lieu ||= DATA_LIEUX[lieu]
+  end
+
   def folder_en_attente?
     File.exists?(attente_folder_path)
   end
@@ -554,10 +563,10 @@ class ViteFait
   end
 
   def line_exists_file path, name
-    if File.exists?(path)
-      notice "    - fichier #{name}".ljust(26) + ' : oui'
+    if path && File.exists?(path)
+      notice "    - fichier #{name}".ljust(32,'.') + ' oui'
     else
-      error "    - fichier #{name}".ljust(26) + ' : non'
+      error "    - fichier #{name}".ljust(32,'.') + ' non'
     end
   end
 
@@ -664,7 +673,6 @@ class ViteFait
   def premiere_path
     @premiere_path ||= pathof("#{name}.prproj")
   end
-
   # Éléments pour le titre
   def titre_path
     @titre_path ||= File.join(titre_folder, "Titre.scriv")
