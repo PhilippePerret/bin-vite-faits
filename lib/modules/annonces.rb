@@ -5,23 +5,35 @@
 =end
 class ViteFait
 
+  MSG(
+    {
+      type_is_required:"Il faut définir le type de l'annonce à produire :\n\n\tvite-faits annonce %{name} pour=scrivener|scriv|facebook|fb\n\nscrivener/scriv : pour le forum Latte & Litterature\nfacebook/fb : pour le groupe ”Scrivener en français” sur Facebook",
+      already_facebook:"L'annonce sur le groupe Facebook a déjà été faite. Dois-je recommencer ?"
+    }
+  )
+
   def exec_annonce(pour = nil)
     type = pour || COMMAND.params[:pour] || COMMAND.params[:type]
     if type.nil?
-      error "Il faut définir le type de l'annonce à produire :\n\n\tvite-faits annonce #{name} pour=scrivener|scriv|facebook|fb\n\nscrivener/scriv : pour le forum Latte & Litterature\nfacebook/fb : pour le groupe ”Scrivener en français” sur Facebook"
+      error MSG(:type_is_required)
     else
       case type.to_s
       when 'facebook', 'fb'
-        annonce_groupe_facebook
+        annonce_Scriv
       when 'scrivener', 'scriv'
-        annonce_forum_scrivener
+        annonce_FB
       else
         error "Je ne connais pas le type d'annonce '#{type}'…"
       end
     end
   end
 
-  def annonce_forum_scrivener
+  def annonce_FB
+
+    if informations[:annonce_FB]
+      yesNo(MSG(:already_facebook)) || return
+    end
+
     if titre.nil?
       return error "Il faut définir le titre du tutoriel :\n\n\tvite-faits infos #{name} titre=\"LE TITRE\"\n\n"
     elsif titre_en.nil?
@@ -43,9 +55,14 @@ class ViteFait
     decompte("Ouverture du forum dans %{nombre_secondes}", 10)
     # Ouvrir la page du forum pour créer le nouveau post
     forum_scrivener
+
+    # Marquer l'annonce déposée ?
+    if yesNo("Dois-je marquer l'annonce déposée sur Facebook ?")
+      informations.set(annonce_FB: true)
+    end
   end
 
-  def annonce_groupe_facebook
+  def annonce_Scriv
     Command.clear_terminal
     puts "\n\nMessage :\n#{temp_annonce_facebook}\n"
     Clipboard.copy(temp_annonce_facebook)

@@ -16,6 +16,13 @@ COMMAND_OTHER_PARAM_TO_REAL_PARAM = {
   'attente' => 'en_attente',
   'waiting' => 'en_attente'
 }
+
+# Les valeurs par défaut pour les messages obtenus par MSG
+# (cf. required/messages.rb et le manuel)
+def MSG_default_variables
+  {name:(vitefait && vitefait.name), titre:(vitefait && vitefait.titre), lieu:(vitefait && vitefait.lieu)}
+end
+
 # Données pour les types de version de tutoriel qu'on peut trouver
 # TODO Mettre leurs dossier ici, pour pouvoir les modifier facilement et que
 # ça se répercute partout ailleurs.

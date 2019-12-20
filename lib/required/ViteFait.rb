@@ -115,6 +115,17 @@ class ViteFait
     end
   end
 
+  # Méthode utilisée au début, pour s'assurer qu'un tutoriel peut
+  # utiliser une certaine commande. Ici, il faut que son dossier
+  # existe, qu'il soit valide (un seul lieu).
+  def is_required
+    if self.defined? && self.exists? && self.valid?
+      return true
+    else
+      error "Un tutoriel existant et valide est requis pour cette opération.\nJe dois m'arrêter là."
+    end
+  end
+
 
   # ---------------------------------------------------------------------
   #   Les actions
@@ -136,7 +147,6 @@ class ViteFait
     require_module('assistant_operations')
     assistant_creation_file
   end
-
 
   # ---
   #   Méthodes d'écriture
@@ -342,7 +352,7 @@ class ViteFait
       if folder_en_chantier?
         [chantier_folder_path, version2hname(:chantier)]
       elsif folder_completed?
-        [completed_folder_path, version2hname(:complete)]
+        [completed_folder_path, version2hname(:completed)]
       elsif en_chantier_on_disk?
         [chantierd_folder_path, version2hname(:chantierd)]
       elsif folder_en_attente?
@@ -511,8 +521,8 @@ class ViteFait
   end
 
   def post_forum_scrivener
-    require_module('annonce_forum_scrivener')
-    exec_annonce_forum_scrivener
+    require_module('annonce_FB')
+    exec_annonce_FB
   end
 
   # ---------------------------------------------------------------------

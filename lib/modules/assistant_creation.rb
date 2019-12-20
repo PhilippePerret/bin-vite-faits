@@ -96,11 +96,11 @@ end #/<<self
 
     proceed_assemblage      unless video_finale_existe?
 
-    ask_for_upload_video    unless video_uploaded_on_youtube?
+    ask_for_upload_video    unless video_uploaded?
     ask_for_youtube_id      unless youtube_id_defined?
 
     ask_for_annonce_facebook  unless annonce_facebook_deposed?
-    ask_for_annonce_scrivener unless annonce_forum_scrivener_deposed?
+    ask_for_annonce_scrivener unless annonce_FB_deposed?
 
     finale_message
 
@@ -323,8 +323,8 @@ yahoo et le code normal.
     yesOrStop("Es-tu prêt ?")
     chaine_youtube
     yesOrStop("La vidéo est uploadée ? Prêt à poursuivre ?")
-    unless video_uploaded_on_youtube?
-      informations.set(uploaded_on_youtube: true)
+    unless video_uploaded?
+      informations.set(uploaded: true)
     end
   end #/ask_for_upload_video
 
@@ -374,8 +374,8 @@ yahoo et le code normal.
 
   def completed_and_published?
     File.exists?(completed_path) &&
-      video_uploaded_on_youtube? &&
-      annonce_forum_scrivener_deposed? &&
+      video_uploaded? &&
+      annonce_FB_deposed? &&
       annonce_facebook_deposed?
   end
 
@@ -403,15 +403,15 @@ yahoo et le code normal.
     File.exists?(completed_path)
   end
 
-  def video_uploaded_on_youtube?
-    informations.data[:uploaded_on_youtube]
+  def video_uploaded?
+    informations.data[:uploaded]
   end
 
   def annonce_facebook_deposed?
     informations.data[:annonce_facebook]
   end
 
-  def annonce_forum_scrivener_deposed?
+  def annonce_FB_deposed?
     informations.data[:annonce_scrivener]
   end
 

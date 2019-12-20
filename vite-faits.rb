@@ -37,23 +37,23 @@ when 'titre_to_mp4', 'traite_titre'
 when 'montage'
   vitefait.name_is_required || vitefait.open_montage
 when 'assemble'
-  vitefait.name_is_required || vitefait.assemble
+  vitefait.is_required && vitefait.assemble
 when 'assemble_capture'
-  vitefait.name_is_required || vitefait.assemble_capture
+  vitefait.is_required && vitefait.assemble_capture
 when 'open_vignette', 'edit_vignette'
-  vitefait.name_is_required || vitefait.open_vignette
+  vitefait.is_required && vitefait.open_vignette
 when 'open_titre'
-  vitefait.name_is_required || vitefait.open_titre
+  vitefait.is_required && vitefait.open_titre
 when 'open_operations'
-  vitefait.name_is_required || vitefait.open_operations_file
+  vitefait.is_required && vitefait.open_operations_file
 when 'keep_only'
-  vitefait.name_is_required || vitefait.keep_only_folder
+  vitefait.is_required && vitefait.keep_only_folder
 when 'upload'
-  vitefait.name_is_required || vitefait.upload
+  vitefait.is_required && vitefait.upload
 when 'infos'
-  vitefait.name_is_required || vitefait.informations.touch
+  vitefait.is_required && vitefait.informations.touch
 when 'annonce'
-  vitefait.name_is_required || vitefait.annonce
+  vitefait.is_required && vitefait.annonce
 when 'chaine_youtube'
   vitefait.chaine_youtube
 when 'groupe_facebook'

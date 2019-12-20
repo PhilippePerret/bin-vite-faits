@@ -8,6 +8,20 @@
   la méthode 'Informations#touch'
 =end
 class Informations
+
+  DEFAULT_INFORMATIONS = {
+    titre:          {value:nil,   editable:true,  required:true},
+    titre_en:       {value:nil,   editable:true,  required:true},
+    youtube_id:     {value:nil,   editable:true,  required:true},
+    description:    {value:nil,   editable:true,  required:true},
+    uploaded:       {value:false, editable:false, required:false},
+    annonce_FB:     {value:false, editable:false, required:false},
+    annonce_Scriv:  {value:false, editable:false, required:false},
+    updated_at:     {value:nil,   editable:false, required:false},
+    created_at:     {value:nil,   editable:false, required:false}
+  }
+
+
   attr_reader :vitefait
 
   def initialize vitefait
@@ -60,17 +74,7 @@ class Informations
       if File.exists?(path)
         JSON.parse(File.read(path).force_encoding('utf-8'),symbolize_names:true)
       else
-        {
-          titre:        {value:nil, editable:true, required:true},
-          titre_en:     {value:nil, editable:true, required:true},
-          youtube_id:   {value:nil, editable:true, required:true},
-          description:  {value:nil, editable:true, required:true},
-          uploaded_on_youtube:      {value:false, editable:false, required:false},
-          annonce_forum_scrivener:  {value:false, editable:false, required:false},
-          annonce_groupe_facebook:  {value:false, editable:false, required:false},
-          updated_at:   {value:nil, editable:false, required:false},
-          created_at:   {value:nil, editable:false, required:false}
-        }
+        Informations::DEFAULT_INFORMATIONS
       end
     end
   end
