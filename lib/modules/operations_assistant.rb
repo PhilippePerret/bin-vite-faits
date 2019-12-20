@@ -19,7 +19,7 @@ class ViteFait
     operations = nil
 
     if file_operations_exists?
-      case prompt("Le fichier des opérations existe déjà. Que dois-je faire :\n\n\tA : le détruire pour recommencer\n\tB : le poursuivre\n\tC : l'éditer avec Vim\n\tD : renoncer\n\nTon choix").downcase
+      case getChar("Le fichier des opérations existe déjà. Que dois-je faire :\n\n\tA : le détruire pour recommencer\n\tB : le poursuivre\n\tC : l'éditer avec Vim\n\tD : renoncer\n\n>>>").downcase
       when 'a'
         # Détruire le fichier
         File.unlink(operations_path)
