@@ -47,7 +47,7 @@ class ViteFait
         line_exists_file(informations.path, 'Informations')
         line_exists_file(operations_path, 'Opérations')
         line_exists_file(scriv_file_path, 'Scrivener')
-        line_exists_file(src_path, 'source MOV')
+        line_exists_file(src_path(noalert=true), 'source MOV')
         line_exists_file(titre_path, 'Titre (Scrivener)')
         line_exists_file(titre_mov, 'Titre (capture)')
         line_exists_file(vignette_gimp, 'Vignette Gimp')
