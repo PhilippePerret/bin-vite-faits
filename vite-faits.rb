@@ -14,6 +14,8 @@ end
 case COMMAND.action
 when 'help', 'manuel'
   ViteFait.open_help
+when 'list', 'liste'
+  ViteFait.list.display
 when 'open'
   ViteFait.open(COMMAND.folder)
 when 'assistant'

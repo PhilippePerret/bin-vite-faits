@@ -19,6 +19,10 @@ def getChar(question)
   IOConsole.getChar(question)
 end
 
+def clear
+  Command.clear_terminal
+end
+
 # Méthode qui retourne TRUE si on presse la
 # barre espace ou rien dans le cas contraire,
 # sauf si c'est 'q'

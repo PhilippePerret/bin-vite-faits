@@ -34,6 +34,13 @@ class ViteFait
     end
   end
 
+  # Retourne la liste complète des tutoriels vite-faits
+  def self.list
+    @@list ||= begin
+      require_module('list')
+      List.new
+    end
+  end
   # Pour lancer les assistants de création ou d'accompagnement
   # On parle ici de l'assistant général, permettant de construire tout
   # le tutoriel aussi bien que les assistants qui permettent d'accompagner
@@ -753,37 +760,34 @@ class ViteFait
 
   # Chemin d'accès au dossier en attente (sur le disque)
   def attente_folder_path
-    @attente_folder_path ||= File.join(VITEFAIT_FOLDER_PROJECT_ON_DISK,name)
+    @attente_folder_path ||= File.join(VITEFAIT_ATTENTE_FOLDER,name)
   end
 
   # Chemin d'accès au dossier de travail (sur l'ordinateur)
   def chantier_folder_path
-    @chantier_folder_path ||= File.join(VITEFAIT_WORK_MAIN_FOLDER,name)
+    @chantier_folder_path ||= File.join(VITEFAIT_CHANTIER_FOLDER,name)
   end
 
 
   # Chemin d'accès au dossier sur le disque
   def completed_folder_path
-    @completed_folder_path ||= File.join(VITEFAIT_FOLDER_COMPLETED_ON_DISK,name)
+    @completed_folder_path ||= File.join(VITEFAIT_COMPLETED_FOLDER,name)
   end
 
   # Chemin d'accès au dossier de travail sur le disque
   def chantierd_folder_path
-    @chantierd_folder_path ||= File.join(VITEFAIT_FOLDER_WORKING_ON_DISK,name)
+    @chantierd_folder_path ||= File.join(VITEFAIT_CHANTIERD_FOLDER,name)
   end
 
   # Le dossier publié du tutoriel, s'il existe sur le disque
   def published_folder_path
-    @published_folder_path ||= File.join(VITEFAIT_PUBLISHED_FOLDER_ON_DISK,name)
+    @published_folder_path ||= File.join(VITEFAIT_PUBLISHED_FOLDER,name)
   end
 
 
   # ---------------------------------------------------------------------
   #   MÉTHODES FONCTIONNELLES
   # ---------------------------------------------------------------------
-
-  # Pour effacer l'écran du terminal
-  def clear; self.class.clear end
 
   def yesOrStop(question)
     self.class.yesOrStop(question)

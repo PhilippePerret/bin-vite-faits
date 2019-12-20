@@ -45,11 +45,11 @@ VITEFAIT_FOLDER_ON_LAPTOP = File.join(Dir.home,'Movies','Tutoriels','SCRIVENER',
 VITEFAIT_FOLDER_ON_DISK   = File.join('/Volumes','MacOSCatalina','Screencasts','SCRIVENER','LES_VITE_FAITS')
 VITEFAIT_MAIN_FOLDER = VITEFAIT_FOLDER_ON_DISK
 
-VITEFAIT_WORK_MAIN_FOLDER = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'2_En_chantier')
+VITEFAIT_CHANTIER_FOLDER = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'2_En_chantier')
 
 if File.exists?(VITEFAIT_FOLDER_ON_LAPTOP)
-  unless File.exists?(VITEFAIT_WORK_MAIN_FOLDER)
-    puts "ERROR : Le dossier '#{VITEFAIT_WORK_MAIN_FOLDER}' est introuvable…"
+  unless File.exists?(VITEFAIT_CHANTIER_FOLDER)
+    puts "ERROR : Le dossier '#{VITEFAIT_CHANTIER_FOLDER}' est introuvable…"
   end
 else
   puts "ERROR : Le dossier '#{VITEFAIT_FOLDER_ON_LAPTOP}' est introuvable…"
@@ -59,10 +59,10 @@ unless File.exists?(VITEFAIT_FOLDER_ON_DISK)
   puts "ERROR : Le dossier '#{VITEFAIT_FOLDER_ON_DISK}' est introuvable…"
 end
 
-VITEFAIT_PUBLISHED_FOLDER_ON_DISK = File.join(VITEFAIT_MAIN_FOLDER,'4_Published')
-VITEFAIT_FOLDER_COMPLETED_ON_DISK = File.join(VITEFAIT_MAIN_FOLDER,'3_Completed')
-VITEFAIT_FOLDER_WORKING_ON_DISK   = File.join(VITEFAIT_MAIN_FOLDER,'2_En_chantier')
-VITEFAIT_FOLDER_PROJECT_ON_DISK   = File.join(VITEFAIT_MAIN_FOLDER,'1_En_projet')
+VITEFAIT_PUBLISHED_FOLDER = File.join(VITEFAIT_MAIN_FOLDER,'4_Published')
+VITEFAIT_COMPLETED_FOLDER = File.join(VITEFAIT_MAIN_FOLDER,'3_Completed')
+VITEFAIT_CHANTIERD_FOLDER   = File.join(VITEFAIT_MAIN_FOLDER,'2_En_chantier')
+VITEFAIT_ATTENTE_FOLDER   = File.join(VITEFAIT_MAIN_FOLDER,'1_En_projet')
 
 VITEFAIT_HELP_PATH    = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.md')
 VITEFAIT_MANUAL_PATH  = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.pdf')
