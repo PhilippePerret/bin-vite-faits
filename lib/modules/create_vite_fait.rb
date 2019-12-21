@@ -77,7 +77,10 @@ class ViteFait
         end
         "\n👍  Nouveau vite-fait créé avec succès#{lieu}"
       end)
+
+      # On ouvre le dossier et on revient dans le terminal
       `open -a Finder "#{final_folder}"`
+      `open -a Terminal`
       puts "\n\n"
     end
 

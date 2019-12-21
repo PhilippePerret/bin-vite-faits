@@ -31,7 +31,7 @@ when 'complete'
 when 'rapport', 'report'
   vitefait.is_required && vitefait.write_rapport
 when 'lire_operations'
-  vitefait.is_required && vitefait.say_operations
+  vitefait.is_required && vitefait.record_operations
 when 'capture_to_mp4', 'traite_capture'
   vitefait.is_required && vitefait.capture_to_mp4
 when 'titre_to_mp4', 'traite_titre'

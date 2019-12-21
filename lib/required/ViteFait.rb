@@ -34,6 +34,30 @@ class ViteFait
     end
   end
 
+  # Méthode qui prend le dernier enregistrement effectué dans le
+  # dossier captures et le déplace vers +path+
+  # +path+ doit être le chemin complet, avec le nom du fichier,
+  # qui changera donc le nom actuel du fichier
+  def self.move_last_capture_in(dest_path)
+    dest_path || (return error "Le fichier destination devrait être défini…")
+    movs = Dir["#{FOLDER_CAPTURES}/*.mov"].collect do |file|
+      {path:file, time:File.stat(file).mtime.to_i}
+    end
+    if movs.count > 0
+      last_mov = movs.sort_by{|dfile| -dfile[:time]}.first
+    else
+      error "Il n'y a aucun fichier capture dans le dossier des captures (*)\n(*) dossier #{FOLDER_CAPTURES}"
+      return false
+    end
+    # On peut déplacer le fichier
+    FileUtils.move(last_mov, dest_path)
+    if File.exists?(dest_path)
+      return true
+    else
+      return(error("Bizarrement, le fichier .mov (*) n'a pas pu être déplacé vers la destination voulue (**)\n(*) #{last_mov}\n(**) #{dest_path}"))
+    end
+  end
+
   # Retourne la liste complète des tutoriels vite-faits
   def self.list
     @@list ||= begin
@@ -177,6 +201,15 @@ class ViteFait
     require_module('operations_assistant')
     assistant_creation_file
   end
+
+  # Pour récupérer les opérations définies
+  # Attention : il faut avoir vérifié avant que le fichier existait
+  # à l'aide de `file_operations_exists?`
+  def get_operations
+    file_operations_exists? || return
+    YAML.load_file(operations_path).to_sym
+  end
+
 
   def create_file_capture
     require_module('creation_assistant')
@@ -339,19 +372,17 @@ class ViteFait
   # ---
 
   # Pour lancer la lecture des opérations définies
-  def say_operations
-    if file_operations_exists?
-      require_module('operations_assistant')
-      exec_lecture_operations
-    else
-      error "Aucune opération n'est définie. Je ne peux pas les lire pour t'accompagner."
-      error "Crée le fichier des opérations ou demande à être accompagner en jouant :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
-    end
+  def record_operations
+    file_operations_exists?(true) || return
+    require_module('assistant/record_operations')
+    exec
+  rescue NotAnError => e
+    e.puts_error_if_message
   end
 
   # Pour assister la fabrication finale de la voix du tutoriel
   # en affichant le texte défini dans le fichier des opérations.
-      def assistant_voix_finale
+  def assistant_voix_finale
     require_module('operations_assistant')
     exec_assistant_voix_finale
   end
@@ -538,7 +569,7 @@ class ViteFait
   def file_operations_exists?(required = false)
     existe = File.exists?(operations_path)
     if !existe && required
-      return error "Le fichier des opérations n'existe pas. Pour le créer, consulter le mode d'emploi ou jouer :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
+      return error "Le fichier des opérations n'existe pas. Pour le créer, jouer :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
     end
     return existe
   end
@@ -734,7 +765,7 @@ class ViteFait
   end
   def titre_mov
     @titre_mov ||= begin
-      default_path = File.join(titre_folder, "Titre.mov")
+      default_path = default_titre_file_path
       unless File.exists?(default_path)
         # Il faut chercher le fichier mov dans le dossier
         current_path = Dir["#{titre_folder}/*.mov"].first
@@ -747,6 +778,9 @@ class ViteFait
       end
       default_path
     end
+  end
+  def default_titre_file_path
+    @default_titre_file_path ||= File.join(titre_folder, "Titre.mov")
   end
   def titre_mp4
     @titre_mp4 ||= File.join(titre_folder, "Titre.mp4")
@@ -855,7 +889,7 @@ class ViteFait
   def decompte phrase, fromValue, voix_dernier = false
     reste = fromValue
     phrase += " " * 20 + "\r"
-    while reste > -1
+    while reste > 0 # on ne dit pas zéro
       # Revenir à la 20e colonne de la 4è ligne
       # print "\033[4;24H"
       # print "\033[;24H"
@@ -884,7 +918,7 @@ class ViteFait
     # Pour fonctionner, la méthode (ou la sous-méthode) qui utilise cette
     # formule doit se terminer par :
     #     rescue NotAnError => e
-    #       error e.message if e.message
+    #       e.puts_error_if_message
     #     end
     def yesOrStop(question)
       yesNo(question) || raise(NotAnError.new)
