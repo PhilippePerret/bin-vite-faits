@@ -2,9 +2,7 @@
 class ViteFait
 
   def exec_assemble_capture(nomessage = false)
-    clear
-    notice "=== Assemblage du fichier capture demandé ==="
-    puts "🔧  Vérification de la validité des éléments…"
+    puts "🔧  Vérification de la validité des fichiers capture…"
 
     # S'assurer que le fichier de capture existe
     src_path || return
@@ -14,7 +12,6 @@ class ViteFait
 
     # Produire le fichier aac si nécessaire
     unless File.exists?(voice_aac)
-      puts "-- Le fichier 'voice.aac' n'existe pas, je dois le produire."
       cmd = "ffmpeg -i \"#{vocal_capture_path}\" \"#{voice_aac}\""
       COMMAND.options[:verbose] || cmd << " 2> /dev/null"
       res = `#{cmd}`
@@ -24,18 +21,16 @@ class ViteFait
         return error "Impossible de produire le fichier voix AAC. Je dois renoncer."
       end
     end
+
     # Produire le fichier mp4 si nécessaire
     unless mp4_capture_exists?
-      puts "-- Le fichier mp4 n'existe pas, je dois le produire."
       capture_to_mp4
       if mp4_capture_exists?
-        notice "---> Fichier capture MP4 produit avec succès"
+        notice "---> Fichier capture MP4 produit avec succès 👍"
       else
         return error "Impossible de produire le fichier capture MP4… Je dois renoncer."
       end
     end
-
-    puts " OK (on peut procéder)"
 
     # On produit une copie sans son, qui servira de base
     mp4_copy_path = pathof("#{name}-copie.mp4")

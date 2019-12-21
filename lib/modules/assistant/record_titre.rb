@@ -5,6 +5,15 @@
 
 =end
 def exec(options = nil)
+
+  if record_titre_exists?
+    if yesNo("L'enregistrement du titre existe déjà. Dois-je le refaire ?")
+      unlink_if_exist([titre_mov, titre_mp4, titre_ts])
+    else
+      return
+    end
+  end
+
   clear
   notice "= Enregistrement du TITRE ANIMÉ ="
   puts <<-EOT
@@ -27,12 +36,13 @@ Titre à écrire dans le document :
 EOT
   yesOrStop("Clique 'y' pour que j'ouvre le titre modèle.")
   open_titre(nomessage = true)
-  # Ouvrir aussi le dossier des captures et le dossier du tutoriel
-  ViteFait.open_folder_captures
-  open_in_finder(:chantier)
-  `open -a Terminal`
 
-  yesOrStop("Tape 'y' lorsque tu auras fini.")
+  yesOrStop("Tape 'y' — pour 'yes' — lorsque tu auras fini.")
   ViteFait.move_last_capture_in(default_titre_file_path) || raise(NotAError.new("Tu n'as pas enregistré le titre. je dois renoncer."))
 
+  if titre_mov && File.exists?(titre_mov)
+    notice "---> Enregistrement titre effectué avec succès 👍"
+  else
+    error "Le titre n'a pas pu être enregistré."
+  end
 end

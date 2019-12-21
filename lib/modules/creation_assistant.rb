@@ -32,28 +32,37 @@ arrêté.
       create_new_tutorial(tuto)
     end
 
-    tuto.set_generales_informations   unless tuto.infos_defined?
-    tuto.record_titre                 unless tuto.titre_is_recorded?
-    tuto.convert_titre_final          unless tuto.titre_final_converted?
-    tuto.build_vignette_jpeg          unless tuto.vignette_finale_existe?
+    tuto.set_generales_informations   unless tuto.infos_defined?(false)
+    tuto.record_titre                 unless tuto.titre_is_recorded?(false)
+    tuto.convert_titre_final          unless tuto.titre_final_converted?(false)
+    tuto.build_vignette_jpeg          unless tuto.vignette_finale_existe?(false)
 
-    tuto.define_operations            unless tuto.operations_are_defined?
+    tuto.define_operations            unless tuto.operations_are_defined?(false,false)
     # Enregistrement des opérations
-    tuto.record_operations            unless tuto.operations_are_recorded?
+    tuto.record_operations            unless tuto.operations_are_recorded?(false,false)
 
     # On finalise le fichier capture, pour qu'il corresponde à ce dont
     # on a besoin pour enregistrer la voix. Notamment au niveau de la
     # vitesse de la vidéo
-    tuto.ask_capture_mov_to_mp4       unless tuto.mp4_capture_exists?
+    tuto.ask_capture_mov_to_mp4       unless tuto.mp4_capture_exists?(false,false)
 
     # Enregistrement de la voix
-    tuto.ask_for_record_voice         unless tuto.voice_capture_exists?
+    tuto.ask_for_record_voice         unless tuto.voice_capture_exists?(false,false)
 
-    return
+    # Assemblage de la capture des opérations et de la capture de
+    # la voix (ou du fichier voix)
+    tuto.proceed_assemblage           unless tuto.video_finale_existe?(false)
 
-    tuto.assiste_creation
+    tuto.ask_for_upload_video         unless tuto.video_uploaded?(false)
 
-    notice "\nTerminé !"
+    tuto.ask_for_youtube_id           unless tuto.youtube_id_defined?(false)
+
+    tuto.ask_for_annonce_facebook     unless tuto.annonce_facebook_deposed?(false)
+    tuto.ask_for_annonce_scrivener    unless tuto.annonce_FB_deposed?(false)
+
+    tuto.finale_message
+
+    # notice "\nTerminé !"
 
   rescue NotAnError => e
     # Interruption de la création
@@ -65,22 +74,6 @@ arrêté.
   ensure
     print "\n\n\n"
   end
-
-
-  def assiste_creation
-
-
-    proceed_assemblage      unless video_finale_existe?
-
-    ask_for_upload_video    unless video_uploaded?
-    ask_for_youtube_id      unless youtube_id_defined?
-
-    ask_for_annonce_facebook  unless annonce_facebook_deposed?
-    ask_for_annonce_scrivener unless annonce_FB_deposed?
-
-    finale_message
-
-  end #/ assistant de l'instance
 
   # ---------------------------------------------------------------------
   #   Méthodes de demande
@@ -143,7 +136,7 @@ end #/<<self
       notice "Titre converti en fichier .mp4 👍"
     else
       error "Bizarrement, le titre n'a pas pu être converti…"
-      raise NotAError.new("Je dois m'arrêter là.")
+      raise NotAnError.new("Je dois m'arrêter là.")
     end
   end #/convert_titre_final
 
@@ -229,17 +222,28 @@ commande :
   # Méthode qui procède à l'assemblage final des éléments
   def proceed_assemblage
     clear
-    notice "Je vais procéder à l'assemblage. Il faudra atten-\ndre un peu."
-    puts "\nC'est assez long, pendant ce temps, tu peux vaquer\nà d'autres occupations."
+    notice "=== Assemblage ==="
+    puts <<-EOT
+
+Je vais procéder à plusieurs assemblages : celui de la
+capture des opérations (capture.mp4) et de la capture
+de la voix (voice.mp4).
+
+Puis l'assemblage de tous les éléments entre eux, avec
+l'intro, le titre, la « capture » et le final.
+
+Ces opérations sont assez longues, tu peux vaquer à
+d'autres occupations en attendant.
+    EOT
     sleep 5
     assemble(nomessage = true)
 
-    clear
-    puts <<-EOT
-L'assemblage a été effecuté avec succès, mais peut-être faut-il le
-modifier dans ScreenFlow.
+    notice "👍  --> Assemblage complet effectué avec succès."
 
-    EOT
+    if yesNo("Veux-tu l'éditer dans Screenflow ?")
+      `open -a Screenflow "#{completed_path}"`
+    end
+
     yesOrStop("Prêt à poursuivre ?")
   end #/proceed_assemblage
 
@@ -317,40 +321,73 @@ yahoo et le code normal.
       annonce_facebook_deposed?
   end
 
-  def vignette_finale_existe?
-    File.exists?(vignette_path)
+  def vignette_finale_existe?(nomessage = true)
+    if File.exists?(vignette_path)
+      notice "--- La vignette finale existe."
+      return true
+    else
+      return false
+    end
   end
 
-  def titre_is_recorded?
-    titre_mov && File.exists?(titre_mov)
+  def titre_is_recorded?(nomessage = true)
+    vrai = titre_mov && File.exists?(titre_mov)
+    if !nomessage && vrai
+      notice "--- Titre enregistré."
+    end
+    return vrai
   end
 
-  def titre_final_converted?
-    titre_mov && File.exists?(titre_mp4)
+  def titre_final_converted?(nomessage = true)
+    vrai = titre_mov && File.exists?(titre_mp4)
+    if !nomessage && vrai
+      notice "--- Fichier titre final préparé."
+    end
+    return vrai
   end
 
   def capture_ts_existe?
     src_path(noalert = true) && File.exists?(mp4_path)
   end
 
-  def video_finale_existe?
-    File.exists?(completed_path)
+  def video_finale_existe?(nomessage = true)
+    existe = File.exists?(completed_path)
+    if existe && !nomessage
+      notice "--- Tutoriel final assemblé."
+    end
+    return existe
   end
 
-  def video_uploaded?
-    informations.data[:uploaded]
+  def video_uploaded?(nomessage = true)
+    vrai = informations.data[:uploaded][:value] === true
+    if vrai && !nomessage
+      notice "--- Tutoriel uploadé sur YouTube."
+    end
+    return vrai
   end
 
-  def annonce_facebook_deposed?
-    informations.data[:annonce_facebook]
+  def annonce_facebook_deposed?(nomessage = true)
+    vrai = informations.data[:annonce_FB][:value] === true
+    if vrai && !nomessage
+      notice "--- Annonce Facebook diffusée."
+    end
+    return vrai
   end
 
-  def annonce_FB_deposed?
-    informations.data[:annonce_scrivener]
+  def annonce_FB_deposed?(nomessage = true)
+    vrai = informations.data[:annonce_Scriv][:value] === true
+    if vrai && !nomessage
+      notice "--- Annonce Forum Scrivener diffusée."
+    end
+    return vrai
   end
 
-  def youtube_id_defined?
-    informations.data[:youtube_id]
+  def youtube_id_defined?(nomessage = true)
+    est_defini = informations.data[:youtube_id][:value] != nil
+    if est_defini && !nomessage
+      notice "--- ID YouTube défini."
+    end
+    return est_defini
   end
 
   def infos_existent?

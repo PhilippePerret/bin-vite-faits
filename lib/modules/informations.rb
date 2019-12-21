@@ -73,10 +73,12 @@ class Informations
   def display
     puts "\n\n"
     data.each do |ikey, idata|
-      puts "\t"+ikey.to_s.ljust(20) + idata[:value].inspect
+      # puts "ikey: #{ikey} = #{idata.inspect}"
+      value = idata.is_a?(Hash) ? idata[:value] : idata
+      puts "\t"+ikey.to_s.ljust(20) + value.inspect
     end
     puts "\n\nPour modifier ces informations : `vite-faits infos #{vitefait.name} <clé>=<valeur>`"
-    puts data.inspect
+    # puts data.inspect
   end
 
   # Les données

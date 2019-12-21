@@ -30,7 +30,7 @@ class ViteFait
     COMMAND.params[:speed] && begin
       coefficiant = accelerator_for_speed(COMMAND.params[:speed])
       cmd << " -vf \"setpts=#{coefficiant}*PTS\""
-      puts "Accelerator : speed=#{COMMAND.params[:speed]} / coefficiant=#{coefficiant}"
+      # puts "Accelerator : speed=#{COMMAND.params[:speed]} / coefficiant=#{coefficiant}"
     end
     cmd << " \"#{mp4_path}\""
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"

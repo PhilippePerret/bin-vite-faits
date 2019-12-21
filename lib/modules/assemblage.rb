@@ -1,24 +1,17 @@
 # encoding: UTF-8
 class ViteFait
-  class << self
 
-    def prepare_assemblage
-      check_files_assemblage
-      intro_prepared? || prepare_intro
-      final_prepared? || prepare_final
-
-    rescue Exception => e
-      error e.message
-      error "🖐  Impossible de procéder à l'assemblage."
-    end
-
-  end # / << self
-
+  # Assemble
   def exec_assemble nomessage = false
 
-    # Avant toute chose, on doit s'assure qu'il existe les fichiers
+    # Avant toute chose, on doit s'assurer qu'il existe les fichiers
     # minimum pour procéder à l'opération
-    fichiers_mini_exists? # raise en cas d'erreur
+    required_files_exists? # raise en cas d'erreur
+
+    # On procède d'abord à l'assemblage de la capture des opérations
+    # et la capture de la voix
+    require_module('assemblage_capture')
+    exec_assemble_capture
 
     # On s'assure que les fichiers communs soient prêts (intro et final,
     # en version .ts)
@@ -27,9 +20,6 @@ class ViteFait
     # On s'assure que les fichiers du tutoriel soient prêts (titre et
     # capture des opérations, en ts)
     prepare_assemblage
-
-    # On doit vérifier si on possède bien les fichiers indispensables
-    check_files_assemblage
 
     # Le fichier final doit être détruit s'il existe
     File.unlink(completed_path) if File.exists?(completed_path)
@@ -80,34 +70,26 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
       EOT
     end #/si pas de no message
 
-  rescue Exception => e
-    error e.message if e.message != ''
-    error "Je dois abandonner l'assemblage."
   end
 
 
-  def fichiers_mini_exists?
+  def required_files_exists?
     # Le fichier capture des opérations, bien entendu
-    src_path.nil? && raise('')
+    src_path || raise("Le fichier capture des opérations est introuvable")
+    # Le fichier capture de la voix
+    voice_capture_exists?(true) || raise("Le fichier voix est introuvable")
     # Le fichier contenant le titre du tutoriel
-    File.exists?(titre_mov) || raise("Le titre doit être enregistré, pour procéder à l'assemblage.\nUtiliser la commande `vite-faits open_titre #{name}` pour l'ouvrir et l'enregistrer.")
+    (titre_mov && File.exists?(titre_mov)) || raise("Le titre doit être enregistré, pour procéder à l'assemblage.\nUtiliser la commande `vite-faits assistant #{name} pour=titre` pour l'ouvrir et l'enregistrer.")
+  rescue Exception => e
+    raise NotAnError.new(e.message)
   end
 
   def prepare_assemblage
     if COMMAND.options[:force]
       unlink_if_exist([ts_path, titre_mp4, titre_ts])
     end
-    source_prepared? || prepare_source
-    titre_prepared? ||  prepare_titre
-  end
-
-  def check_files_assemblage
-    unless File.exists?(src_path) || File.exists?(mp4_path)
-      raise("Aucun fichier source n'a été trouvé (#{src_path} ou #{mp4_path}). Il faut le créer.")
-    end
-    unless File.exists?(titre_path)
-      raise("Aucun fichier de titre n'a été trouvé (#{titre_path}). Il faut le créer.")
-    end
+    prepare_source  unless source_prepared?
+    prepare_titre   unless titre_prepared?
   end
 
   def prepare_source
@@ -175,8 +157,6 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
       File.exists?(final_ts)
     end
 
-
-
     def intro_ts
       @intro_ts ||= File.join(VITEFAIT_MATERIEL_FOLDER,"#{intro_affixe}.ts")
     end
@@ -194,6 +174,16 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
     end
     def final_affixe
       @final_affixe ||= "FINAL-vite-faits-sonore"
+    end
+
+    def prepare_assemblage
+      check_files_assemblage
+      intro_prepared? || prepare_intro
+      final_prepared? || prepare_final
+
+    rescue Exception => e
+      error e.message
+      error "🖐  Impossible de procéder à l'assemblage."
     end
 
   end#/<< self

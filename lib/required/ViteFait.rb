@@ -110,7 +110,7 @@ class ViteFait
     when 'capture'
       vitefait.is_required && vitefait.record_operations
     when 'titre', 'title'
-      vitefait.is_required && vitefait.open_titre
+      vitefait.is_required && vitefait.record_titre
     when 'voice', 'voix', 'texte'
       vitefait.name_is_required || vitefait.assistant_voix_finale
     else
@@ -220,7 +220,7 @@ class ViteFait
   # ---
 
   # Pour créer le vite-fait
-  def create(nomessage = false)
+  def create(nomessage = true)
     require_module('create_vite_fait')
     exec_create(nomessage)
   end
@@ -257,10 +257,13 @@ class ViteFait
   # opérations existe, false dans le cas contraire.
   # Si +required+ est true, produit une erreur en
   # cas d'absence
-  def operations_are_recorded?(required = false)
+  def operations_are_recorded?(required = false, nomessage = true)
     existe = src_path(noalert = true) && File.exists?(src_path)
     if required && !existe
       error "Le fichier Operations/capture.mov devrait exister.\nPour le créer, tu peux utiliser l'assistant :\n\tvite-faits assistant #{name} pour=capture"
+    end
+    if existe && !nomessage
+      notice "--- La capture des opérations a été opérée."
     end
     return existe
   end
@@ -271,10 +274,13 @@ class ViteFait
   # Mettre +required+ à true pour générer une alerte ne cas d'absence
   # avec le message d'aide. Utilisation :
   #   operations_are_defined?(true) || return
-  def operations_are_defined?(required = false)
+  def operations_are_defined?(required = false, nomessage = true)
     existe = File.exists?(operations_path)
     if !existe && required
       return error "Le fichier des opérations n'existe pas. Pour le créer, jouer :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
+    end
+    if existe && !nomessage
+      notice "--- Les opérations sont définies."
     end
     return existe
   end
@@ -371,20 +377,20 @@ class ViteFait
     end
   end
 
-  def open_titre(nomessage = false)
+  def open_titre(nomessage = true)
     if File.exists?(titre_path)
       `open -a Scrivener "#{titre_path}"`
-      unless nomessage
-        notice "Règle la largeur de la fenêtre pour avoir un beau titre\nEnregistre le titre en capturant son écriture,\nRécupère-le dans le dossier des captures,\nDéplace-le dans le dossier 'Titre' du dossier du tutoriel\nEt prépare-le si nécessaire avec la commande `vite-faits traite_titre #{name}.`"
-        if yesNo("Dois-je ouvrir le dossier des captures ?")
-          ViteFait.open_folder_captures
-          open_current_folder
-          notice "Glisse le dernier fichier du dossier Captures dans le dossier '#{name}/Titre/'"
-        end
-      end
     else
       error "Le fichier Titre.scriv est introuvable…\n#{titre_path}"
     end
+  end
+
+  def record_titre(nomessage=true)
+    require_module('assistant/record_titre')
+    exec
+  rescue NotAnError => e
+    e.puts_error_if_message
+    error "J'abandonne…"
   end
 
   # ---
@@ -407,13 +413,15 @@ class ViteFait
 
   # Assemble la vidéo complète
   # cf. le module 'assemblage.rb'
-  def assemble nomessage = false
+  def assemble nomessage = true
     require_module('assemblage')
     exec_assemble(nomessage)
+  rescue NotAnError => e
+    e.puts_error_if_message
   end
 
   # Assemble la vidéo de la capture et la voix
-  def assemble_capture nomessage = false
+  def assemble_capture nomessage = true
     require_module('assemblage_capture')
     exec_assemble_capture(nomessage)
   end
@@ -446,10 +454,12 @@ class ViteFait
   end
 
   # True s'il existe un fichier vocal séparé
-  def voice_capture_exists?(required=false)
+  def voice_capture_exists?(required=false,nomessage=true)
     existe = File.exists?(vocal_capture_path)
     if !existe && required
       error "Le fichier voix est requis. Pour le produire de façon assistée, utiliser :\n\n\tvite-faits assistant #{name} pour=voix\n\n"
+    elsif existe && !nomessage
+      notice "--- Voix capturée."
     end
     return existe
   end
@@ -525,17 +535,6 @@ class ViteFait
     end
   end
 
-  # Pour "achever" le projet, c'est-à-dire le copier sur le disque et le
-  # supprimer de l'ordinateur.
-  def complete
-    puts "\n\n*** Achèvement de #{name} demandé…"
-    FileUtils.copy_entry(chantier_folder_path, completed_folder_path)
-    notice "---> création du dossier '#{completed_folder_path}'"
-    FileUtils.rm_rf(chantier_folder_path)
-    notice "---> Destruction de '#{chantier_folder_path}'"
-    notice "\n=== 👍  Achèvement terminé du tutoriel vite-fait « #{name} »"
-  end
-
   # ---------------------------------------------------------------------
   #   MÉTHODES D'ÉTATS
   # ---------------------------------------------------------------------
@@ -560,8 +559,12 @@ class ViteFait
 
   # True si le titre, le titre anglais et la description du tutoriel
   # sont définis
-  def infos_defined?
-    !!(titre && titre_en && description)
+  def infos_defined?(nomessage = true)
+    vrai = !!(titre && titre_en && description)
+    if !nomessage && vrai
+      notice "--- Informations tutorielles données."
+    end
+    return vrai
   end
 
   # Lieu où on trouve ce tutoriel
@@ -605,10 +608,12 @@ class ViteFait
     File.exists?(published_folder_path)
   end
 
-  def mp4_capture_exists?(required = false)
+  def mp4_capture_exists?(required = false, nomessage=true)
     existe = File.exists?(mp4_path)
     if !existe && required
       error "Impossible de trouver le fichier mp4 de la capture…\nVous devez au préalable :\n\n\t- Enregistrer le fichier .mov de la capture\n\n\t- le convertir en fichier .mp4\n\n"
+    elsif existe && !nomessage
+      notice "--- Fichier capture.mp4 préparé."
     end
     existe
   end
@@ -806,6 +811,15 @@ class ViteFait
   def premiere_path
     @premiere_path ||= pathof("Montage.prproj")
   end
+
+  def record_titre_exists?(required = false)
+    existe = titre_mov && File.exists?(titre_mov)
+    if !existe && required
+      error "L'enregistrement du titre devrait exister. Pour le produire, jouer :\n\n\tvite-faits assistant #{name} pour=titre\n\n"
+    end
+    return existe
+  end
+
   # Éléments pour le titre
   def titre_path
     @titre_path ||= File.join(titre_folder, "Titre.scriv")
@@ -831,6 +845,9 @@ class ViteFait
   end
   def titre_mp4
     @titre_mp4 ||= File.join(titre_folder, "Titre.mp4")
+  end
+  def titre_prov_mp4
+    @titre_prov_mp4 ||= File.join(titre_folder, "Titre-prov.mp4")
   end
   def titre_ts
     @titre_ts ||= File.join(titre_folder, "Titre.ts")
@@ -937,7 +954,8 @@ class ViteFait
   # Si +voix_dernier est défini, on dit les dernières
   # valeurs avec cette voix (5, 4, 3, 2, 1)
   def decompte phrase, fromValue, voix_dernier = false
-    reste = fromValue
+    puts "\n\n"
+    reste = fromValue.to_i
     phrase += " " * 20 + "\r"
     while reste > 0 # on ne dit pas zéro
       # Revenir à la 20e colonne de la 4è ligne
