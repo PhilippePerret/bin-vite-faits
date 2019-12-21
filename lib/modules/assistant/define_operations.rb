@@ -20,7 +20,7 @@ def exec(options=nil)
   # Si un fichier des opérations existe déjà, il faut demander ce qu'il
   # faut faire avec, le refaire, le poursuivre ou continuer sans rien
   # toucher.
-  if file_operations_exists?
+  if operations_are_defined?
     notice "=== Définitions des opérations ==="
     demande = <<-EOD
 
@@ -65,7 +65,7 @@ def exec(options=nil)
 
   File.open(operations_path,'wb'){|f| f.write YAML.dump(operations)}
 
-  if file_operations_exists?
+  if operations_are_defined?
     notice "Fichier des opérations enregistré avec succès. 👍"
     puts <<-EOT
   Tu peux jouer la commande suivante pour que l'assistant

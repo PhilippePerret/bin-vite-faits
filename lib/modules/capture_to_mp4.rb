@@ -3,36 +3,47 @@ class ViteFait
 
   def exec_capture_to_mp4
     # On doit trouver la vidéo
-    unlink_if_exist([mp4_path,ts_path])
-    if !File.exists?(src_path)
-      error "Le fichier '#{src_path}' est introuvable…"
-      error "🖐  Impossible de procéder au traitement."
-    else
-      cmd = "ffmpeg -i \"#{src_path}\""
+    unlink_if_exist([mp4_path,mp4_cropped_path, ts_path])
+    src_path(required=true) || return
 
-      # On doit la raccourcir
+    cmd = "ffmpeg -i \"#{src_path}\""
+
+    # On doit la raccourcir
+    # Note : fichier_ref sera le fichier à prendre pour produire
+    # le mp4. Si on crop la fin, on prend le fichier mp4 produit
+    fichier_ref =
       unless COMMAND.options[:no_crop]
         # Pour raccourcir la vidéo (ne pas voir l'arrêt)
-        duree_raccourcie = (Video.dureeOf(src_path) - 2).to_i.as_horloge
-        cmd << " -ss 00:00:00 -t #{duree_raccourcie}"
+        duree_initiale = Video.dureeOf(src_path)
+        duree_raccourcie = (duree_initiale - 2).to_i.as_horloge
+        puts "Raccourcissement de #{duree_initiale} à #{duree_raccourcie} "
+        cmd << " -ss 00:00:00 -t #{duree_raccourcie} #{mp4_cropped_path}"
+        COMMAND.options[:verbose] || cmd << " 2> /dev/null"
+        `#{cmd}`
+        mp4_cropped_path
+      else
+        src_path
       end
 
-      COMMAND.params[:speed] && begin
-        coef = {'2' => '0.5', '1.5' => '0.75'}[COMMAND.params[:speed]]
-        coef ||= COMMAND.params[:speed]
-        cmd << " -vf \"setpts=#{coef}*PTS\""
-      end
-      cmd << " \"#{mp4_path}\""
-      COMMAND.options[:verbose] || cmd << " 2> /dev/null"
-      notice "\n* Fabrication du fichier ./Operations/capture.mp4. Merci de patienter…"
-      res = `#{cmd}`
-      if File.exists?(mp4_path)
-        notice "= 👍  Fichier mp4 fabriqué avec succès."
-        notice "= Vous pouvez procéder à l'assemblage dans le fichier '#{name}.screenflow' ou à l'assemblage automatique."
-      else
-        error "= Le fichier '#{mp4_path}' n'a pas pu être fabriqué…"
-      end
+    cmd = "ffmpeg -i \"#{fichier_ref}\""
+
+    COMMAND.params[:speed] && begin
+      coefficiant = accelerator_for_speed(COMMAND.params[:speed])
+      cmd << " -vf \"setpts=#{coefficiant}*PTS\""
+      puts "Accelerator : speed=#{COMMAND.params[:speed]} / coefficiant=#{coefficiant}"
     end
+    cmd << " \"#{mp4_path}\""
+    COMMAND.options[:verbose] || cmd << " 2> /dev/null"
+    notice "\n* Fabrication du fichier ./Operations/capture.mp4. Merci de patienter…"
+    res = `#{cmd}`
+    if File.exists?(mp4_path)
+      notice "= 👍  Fichier mp4 fabriqué avec succès."
+    else
+      NotAnError.new("🚫  Le fichier capture.mp4 (*) n'a pas pu être fabriqué…\(*) #{mp4_path}")
+    end
+
+    # File.unlink(mp4_cropped_path) if File.exists?(mp4_cropped_path)
+
   end
 
 end  #/ViteFait

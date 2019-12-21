@@ -38,23 +38,52 @@ class ViteFait
   # dossier captures et le déplace vers +path+
   # +path+ doit être le chemin complet, avec le nom du fichier,
   # qui changera donc le nom actuel du fichier
+  #
+  # Comme la capture peut être longue à être enregistrée, on
+  # attend toujours sur le fichier. Et par mesure de précaution,
+  # on ne prend jamais un fichier vieux de plus de 30 secondes.
+  #
+  # @return TRUE
+  #         en cas de succès
+  #
   def self.move_last_capture_in(dest_path)
     dest_path || (return error "Le fichier destination devrait être défini…")
-    movs = Dir["#{FOLDER_CAPTURES}/*.mov"].collect do |file|
-      {path:file, time:File.stat(file).mtime.to_i}
-    end
-    if movs.count > 0
-      last_mov = movs.sort_by{|dfile| -dfile[:time]}.first
+
+    # On va boucler jusqu'à trouver un candidat valide
+    candidat = nil
+    start_time  = Time.now.to_i
+    timeout     = start_time + 60 # on attend 30 secondes maximum
+
+    while candidat.nil? && Time.now.to_i < timeout
+
+      # On cherche le candidat le plus récent
+      movs = Dir["#{FOLDER_CAPTURES}/*.mov"].each do |file|
+        mtime = File.stat(file).mtime.to_i
+        mtime > start_time - 30 || next
+        if candidat.nil? || mtime > candidat.time
+          candidat = {path:file, time:mtime}
+        end
+      end
+
+      if candidat.nil?
+        puts "Pas encore de vidéo adéquate…"
+        sleep 5
+      end
+    end # /fin de la boucle jusqu'à trouver notre bonheur
+
+    if candidat.nil?
+      # Aucune vidéo convenable n'a été trouvée dans la dernière
+      # minute.
+      error "Aucun fichier capture adéquat (*) dans le dossier des captures (**)\n(*) pour être adéquat, la capture doit avoir été produite dans les 30 dernières secondes.\n(**) dossier #{FOLDER_CAPTURES}"
     else
-      error "Il n'y a aucun fichier capture dans le dossier des captures (*)\n(*) dossier #{FOLDER_CAPTURES}"
-      return false
-    end
-    # On peut déplacer le fichier
-    FileUtils.move(last_mov, dest_path)
-    if File.exists?(dest_path)
-      return true
-    else
-      return(error("Bizarrement, le fichier .mov (*) n'a pas pu être déplacé vers la destination voulue (**)\n(*) #{last_mov}\n(**) #{dest_path}"))
+      # OK, on a trouvé une vidéo
+      # On peut déplacer le fichier
+      FileUtils.move(candidat[:path], dest_path)
+      if File.exists?(dest_path)
+        return true
+      else
+        return(error("Bizarrement, le fichier .mov (*) n'a pas pu être déplacé vers la destination voulue (**)\n(*) #{last_mov}\n(**) #{dest_path}"))
+      end
     end
   end
 
@@ -79,7 +108,7 @@ class ViteFait
     when 'operations'
       vitefait.is_required && vitefait.create_file_operations
     when 'capture'
-      vitefait.is_required && vitefait.create_file_capture
+      vitefait.is_required && vitefait.record_operations
     when 'titre', 'title'
       vitefait.is_required && vitefait.open_titre
     when 'voice', 'voix', 'texte'
@@ -196,6 +225,10 @@ class ViteFait
     exec_create(nomessage)
   end
 
+  # ---
+  #   Pour les opérations
+  # ---
+
   # Pour créer le fichier des opérations de façon assistées
   def create_file_operations
     require_module('operations_assistant')
@@ -204,16 +237,46 @@ class ViteFait
 
   # Pour récupérer les opérations définies
   # Attention : il faut avoir vérifié avant que le fichier existait
-  # à l'aide de `file_operations_exists?`
+  # à l'aide de `operations_are_defined?`
   def get_operations
-    file_operations_exists? || return
+    operations_are_defined? || return
     YAML.load_file(operations_path).to_sym
   end
 
 
-  def create_file_capture
-    require_module('creation_assistant')
-    ask_for_main_capture(direct = true)
+  # Pour lancer la lecture des opérations définies
+  def record_operations
+    require_module('assistant/record_operations')
+    exec
+  rescue NotAnError => e
+    e.puts_error_if_message
+    error "OK, on abandonne.\n\n"
+  end
+
+  # Retourne true si le fichier capture des
+  # opérations existe, false dans le cas contraire.
+  # Si +required+ est true, produit une erreur en
+  # cas d'absence
+  def operations_are_recorded?(required = false)
+    existe = src_path(noalert = true) && File.exists?(src_path)
+    if required && !existe
+      error "Le fichier Operations/capture.mov devrait exister.\nPour le créer, tu peux utiliser l'assistant :\n\tvite-faits assistant #{name} pour=capture"
+    end
+    return existe
+  end
+
+  # Retourne TRUE s'il existe un fichier des opérations à lire
+  # Ce fichier s'appelle 'operations.yaml' et se trouve à la
+  # racine du dossier du tutoriel
+  # Mettre +required+ à true pour générer une alerte ne cas d'absence
+  # avec le message d'aide. Utilisation :
+  #   operations_are_defined?(true) || return
+  def operations_are_defined?(required = false)
+    existe = File.exists?(operations_path)
+    if !existe && required
+      return error "Le fichier des opérations n'existe pas. Pour le créer, jouer :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
+    end
+    return existe
   end
 
   # ---
@@ -260,7 +323,7 @@ class ViteFait
 
   # Pour ouvrir le fichier des opérations
   def open_operations_file
-    file_operations_exists?(required=true) || return
+    operations_are_defined?(required=true) || return
     system('vim', operations_path)
   end
 
@@ -330,6 +393,7 @@ class ViteFait
 
   # Pour transformer le fichier capture en vidéo mp4
   def capture_to_mp4
+    operations_are_recorded?(required=true) || return
     require_module('capture_to_mp4')
     exec_capture_to_mp4
   end
@@ -371,20 +435,23 @@ class ViteFait
   #   Autres méthodes
   # ---
 
-  # Pour lancer la lecture des opérations définies
-  def record_operations
-    file_operations_exists?(true) || return
-    require_module('assistant/record_operations')
-    exec
-  rescue NotAnError => e
-    e.puts_error_if_message
-  end
-
   # Pour assister la fabrication finale de la voix du tutoriel
   # en affichant le texte défini dans le fichier des opérations.
   def assistant_voix_finale
-    require_module('operations_assistant')
-    exec_assistant_voix_finale
+    require_module('assistant/record_voice')
+    exec
+  rescue NotAnError => e
+    e.puts_error_if_message
+    error "Nous abandonnons."
+  end
+
+  # True s'il existe un fichier vocal séparé
+  def voice_capture_exists?(required=false)
+    existe = File.exists?(vocal_capture_path)
+    if !existe && required
+      error "Le fichier voix est requis. Pour le produire de façon assistée, utiliser :\n\n\tvite-faits assistant #{name} pour=voix\n\n"
+    end
+    return existe
   end
 
 
@@ -560,29 +627,6 @@ class ViteFait
     existe
   end
 
-  # Retourne TRUE s'il existe un fichier des opérations à lire
-  # Ce fichier s'appelle 'operations.yaml' et se trouve à la
-  # racine du dossier du tutoriel
-  # Mettre +required+ à true pour générer une alerte ne cas d'absence
-  # avec le message d'aide. Utilisation :
-  #   file_operations_exists?(true) || return
-  def file_operations_exists?(required = false)
-    existe = File.exists?(operations_path)
-    if !existe && required
-      return error "Le fichier des opérations n'existe pas. Pour le créer, jouer :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
-    end
-    return existe
-  end
-
-  # True s'il existe un fichier vocal séparé
-  def voice_capture_exists?(required=false)
-    existe = File.exists?(vocal_capture_path)
-    if !existe && required
-      error "Le fichier voix est requis. Pour le produire de façon assistée, utiliser :\n\n\tvite-faits assistant #{name} pour=voix\n\n"
-    end
-    return existe
-  end
-
   # ---------------------------------------------------------------------
   #   Méthodes pour se rendre sur les lieux
   # ---------------------------------------------------------------------
@@ -741,6 +785,9 @@ class ViteFait
   def mp4_path
     @mp4_path ||= File.join(operations_folder, "capture.mp4")
   end
+  def mp4_cropped_path
+    @mp4_cropped_path ||= File.join(operations_folder, "capture-cropped.mp4")
+  end
   def ts_path
     @ts_path ||= File.join(operations_folder, "capture.ts")
   end
@@ -801,6 +848,9 @@ class ViteFait
   # mp4 car éditable par Audacity
   def vocal_capture_path
     @vocal_capture_path ||= File.join(voice_folder,'voice.mp4')
+  end
+  def vocal_capture_aiff_path
+    @vocal_capture_aiff_path ||= File.join(voice_folder,'voice.aiff')
   end
   # Le fichiers pour l'assemblage
   # aac car assemblable
@@ -897,9 +947,11 @@ class ViteFait
       phrase_finale = phrase % {nombre_secondes: "#{reste} seconde#{s}"}
       print phrase_finale
       # print "Ouverture du forum dans #{reste} seconde#{s}              \r"
-      sleep 1
       if voix_dernier && reste < 6
         `say -v #{voix_dernier} "#{reste}"`
+        sleep 0.5
+      else
+        sleep 1
       end
       reste -= 1
     end

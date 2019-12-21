@@ -20,16 +20,61 @@
 # Note : les +options+ ne servent à rien, pour le moment.
 #
 def exec(options=nil)
-  # Le fichier des opérations est requis
 
-  avec_assistant_operations = file_operations_exists?
+#   # pour essayer de façon automatique
+# Mais je n'y arrive ni avec AppleScript (problème de permission),
+# ni avec screencapture ou ffmpg (problème d'arrêt — je ne sais pas
+# comment les arrêter)
+#   `osascript <<EOT
+# tell app "QuickTime Player"
+#   new screen recording
+#   start document 1
+#   delay 5
+#   stop document 1
+#   export document 1 in "#{default_source_path}" using settings preset "480p"
+#   close document 1
+#   quit
+# end tell
+#   EOT`
+#   return
+
+  # Ouvrir toujours le projet Scrivener
+  open_scrivener_project || raise(NotAnError.new)
 
   clear
-  notice "=== Enregistrement de la voix finale ==="
+  `open -a Terminal`
+  notice "=== Enregistrement des opérations ==="
+
+  # Si un fichier capture.mov existe déjà, on demande à l'utilisateur
+  # si on doit le détruire pour le recommencer
+  if operations_are_recorded?
+    error "\n[NON FATAL] Un enregistrement des opérations existe déjà."
+    choix_final = false
+    if yesNo("Dois-je le détruire pour recommencer ?")
+      choix_final = yesNo("Confirmes-tu la DESTRUCTION DÉFINITIVE de l'enregistrement ?")
+    end
+    choix_final || return
+    File.unlink(src_path)
+
+  end
+
+  # Pour savoir si on doit enregistrer avec l'assistant des
+  # opérations ou sans.
+  avec_assistant_operations = operations_are_defined?
+
+  ajout_assistant_operations =
+  if avec_assistant_operations
+    "Grâce aux fichiers définissant ces\nopérations, je vais pouvoir t'accompagner dans\nle détail."
+  else
+    "S'il y avait un fichier définissant\nles opérations, je pourrais t'accompagner beau-\ncoup mieux."
+  end
+
+
   puts <<-EOT
 
-Je vais t'accompagner au cours de toutes les
-opérations à exécuter.
+Je vais t'accompagner au cours des opérations
+à exécuter. #{ajout_assistant_operations}
+
 
 À tout moment, si ça ne se passe pas bien, tu
 peux interrompre la capture à l'aide de CTRL-C.
@@ -50,15 +95,15 @@ peux interrompre la capture à l'aide de CTRL-C.
 
     dire("Active Scrivener et masque les autres applications avec Commande + Alte + H")
     sleep 3
-    dire("Active la capture et règle la sur : tout l'écran, Minuteur : aucun, Microphone : microphone intégré")
-    sleep 4
-    dire("Démarrage dans 10 secondes")
-    decompte("Démarrage dans %{nombre_secondes}", 3)
-    dire("Démarrage dans 5 secondes")
-    decompte("Démarrage dans %{nombre_secondes}", 4, 'Audrey')
-    dire("C'est parti ! Mets en route la capture !")
+    dire("Active la capture et règle-la avec les valeurs : tout l'écran, Minuteur : aucun, Microphone : microphone intégré")
 
     if avec_assistant_operations
+      sleep 4
+      dire("Démarrage dans 10 secondes")
+      decompte("Démarrage dans %{nombre_secondes}", 3)
+      dire("Démarrage dans 5 secondes")
+      decompte("Démarrage dans %{nombre_secondes}", 4, 'Audrey')
+      dire("C'est parti ! Mets en route la capture !")
       get_operations.each do |operation|
         if operation[:duration]
           end_sleep_time = Time.now.to_i + operation[:duration]
@@ -77,8 +122,10 @@ peux interrompre la capture à l'aide de CTRL-C.
       dire "Arrête maintenant la capture. Et reviens dans le Terminal."
     else
       # Sans assistant opérations, on attend la fin
+      dire "Tu peux lancer la capture quand tu veux."
       dire "Lorsque tu auras fini, arrête la capture et reviens dans le Terminal."
     end
+    dire "Pour information, les deux dernières secondes seront supprimées."
 
   end while !yesNo("Cette capture est-elle bonne ? (tape 'n' pour la recommencer)")
 
@@ -103,5 +150,5 @@ Tu peux demander l'assemblage avec :
     raise NotAnError.new("Sans fichier capture.mov, je ne peux pas poursuivre…")
   end
 
-  return yesNo("Tape 'y'.")
+  yesOrStop("Tape 'y' pour poursuivre.")
 end

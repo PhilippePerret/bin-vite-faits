@@ -37,8 +37,17 @@ arrêté.
     tuto.convert_titre_final          unless tuto.titre_final_converted?
     tuto.build_vignette_jpeg          unless tuto.vignette_finale_existe?
 
-    tuto.define_operations            unless tuto.file_operations_exists?
+    tuto.define_operations            unless tuto.operations_are_defined?
+    # Enregistrement des opérations
     tuto.record_operations            unless tuto.operations_are_recorded?
+
+    # On finalise le fichier capture, pour qu'il corresponde à ce dont
+    # on a besoin pour enregistrer la voix. Notamment au niveau de la
+    # vitesse de la vidéo
+    tuto.ask_capture_mov_to_mp4       unless tuto.mp4_capture_exists?
+
+    # Enregistrement de la voix
+    tuto.ask_for_record_voice         unless tuto.voice_capture_exists?
 
     return
 
@@ -56,6 +65,22 @@ arrêté.
   ensure
     print "\n\n\n"
   end
+
+
+  def assiste_creation
+
+
+    proceed_assemblage      unless video_finale_existe?
+
+    ask_for_upload_video    unless video_uploaded?
+    ask_for_youtube_id      unless youtube_id_defined?
+
+    ask_for_annonce_facebook  unless annonce_facebook_deposed?
+    ask_for_annonce_scrivener unless annonce_FB_deposed?
+
+    finale_message
+
+  end #/ assistant de l'instance
 
   # ---------------------------------------------------------------------
   #   Méthodes de demande
@@ -106,21 +131,6 @@ end #/<<self
     exec
   end
 
-  def assiste_creation
-
-    ask_for_record_voice    unless voice_capture_exists?
-
-    proceed_assemblage      unless video_finale_existe?
-
-    ask_for_upload_video    unless video_uploaded?
-    ask_for_youtube_id      unless youtube_id_defined?
-
-    ask_for_annonce_facebook  unless annonce_facebook_deposed?
-    ask_for_annonce_scrivener unless annonce_FB_deposed?
-
-    finale_message
-
-  end #/ assistant de l'instance
 
   # --- LES SOUS-MÉTHODES D'ASSISTANCE ---
 
@@ -154,13 +164,66 @@ end #/<<self
     exec
   end #/record_operations
 
+  def ask_capture_mov_to_mp4
+    clear
+    notice "=== Conversion capture.mov -> capture.mp4 ==="
+    puts <<-EOT
+
+Dois-je modifier la vitesse de la capture des
+opérations, par exemple pour accélérer le fichier
+(avant l'enregistrement de la voix) ?
+
+    A:  garder la vitesse originale
+    B:  Augmenter la vitesse d'une fois et demi
+        (recommandé)
+    C:  doubler la vitesse
+    D:  Entrer l'accélération (1 = normal,
+        2 = doubler, 3 = tripler, et toutes les
+        valeurs intermédiaires)
+
+Pour faire des essais, vous pouvez utiliser la
+commande :
+    vite-faits capture_to_mp4 #{name} speed=<valeur>
+
+    EOT
+
+    speed = nil
+    while speed.nil
+      case (getChar("Vitesse choisie :")||'').upcase
+      when 'A'
+        speed = 1
+      when 'B'
+        speed = 1.5
+      when 'C'
+        speed = 2
+      when 'D'
+        speed = prompt("Accélération à donner :")
+        speed || raise(NotAnError.new("Je ne connais pas cette valeur."))
+        unless speed.gsub(/0-9\./,'') == ''
+          error "La valeur #{speed} n'est pas conforme. On ne devrait\nque des chiffres et le point."
+          speed = nil
+        end
+      else
+        raise NotAnError.new("Je ne connais pas cette valeur.")
+      end
+    end #/while la vitesse n'est pas définie
+
+    # On a la vitesse, on peut convertir
+    COMMAND.params.merge!(speed: speed)
+    require_module('capture_to_mp4')
+    exec_capture_to_mp4
+  end #/
+
   # Méthode qui assiste à l'enregistrement de la voix si
   # nécessaire
   def ask_for_record_voice
-    yesNo("Veux-tu procéder à l'enregistrement séparé de la voix ?") || return
+    # Il n'est pas sûr que l'utilisateur veuille enregistrer une nouvelle
+    # voix
+    yesNo("Veux-tu procéder à l'enregistrement de la voix ?") || return
     # S'il existe un fichier avec les opérations, on va écrire le texte à
     # l'écran, ou le faire défiler progressivement.
-    assistant_voix_finale
+    require_relative('assistant/record_voice')
+    exec
   end
 
   # Méthode qui procède à l'assemblage final des éléments
@@ -264,10 +327,6 @@ yahoo et le code normal.
 
   def titre_final_converted?
     titre_mov && File.exists?(titre_mp4)
-  end
-
-  def operations_are_recorded?
-    src_path(noalert = true) && File.exists?(src_path)
   end
 
   def capture_ts_existe?

@@ -8,6 +8,9 @@ MIN_OPT_TO_REAL_OPT = {
   'v' => 'verbose'
 }
 
+def accelerator_for_speed speed
+  ((1.0 / speed.to_f) * 100).to_i.to_f / 100
+end
 # Cette table permet d'utiliser plusieurs valeurs pour
 # les même paramètres. Par exemple, pour le 'type' à
 # la création, on peut mettre indifféremment 'attente',
