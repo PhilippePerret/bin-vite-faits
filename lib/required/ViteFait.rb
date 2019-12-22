@@ -385,9 +385,10 @@ class ViteFait
     end
   end
 
-  def record_titre(nomessage=true)
+  def record_titre
     require_module('assistant/record_titre')
     exec
+    notice "Pour finaliser ce titre, joue :\n\n\tvite-fait titre_to_mp4[ #{name}]"
   rescue NotAnError => e
     e.puts_error_if_message
     error "J'abandonne…"

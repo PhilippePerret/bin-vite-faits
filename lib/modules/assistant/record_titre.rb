@@ -17,32 +17,33 @@ def exec(options = nil)
   clear
   notice "= Enregistrement du TITRE ANIMÉ ="
   puts <<-EOT
-Je vais ouvrir le modèle, il te suffira alors de :
 
-- régler la largeur de fenêtre et de faire un essai,
-- régler l'enregistrement (Cmd+Maj+5) :
-  • Minuteur   : 5 secondes
-  • Microphone : aucun, sans son,
-  • Tout l'écran,
-- lancer l'enregistrement,
-- arrêter la capture assez vite (la dernière seconde
-  sera coupée),
-- et revenir ici.
+Je vais t'assister dans la réalisation de la
+capture du titre.
 
-Titre à écrire dans le document :
+  EOT
 
-    « #{titre} ».
+  open_titre(nomessage = true) || return
+  `open -a Terminal`
+  yesOrStop("Es-tu prêt ?")
 
-EOT
-  yesOrStop("Clique 'y' pour que j'ouvre le titre modèle.")
-  open_titre(nomessage = true)
+  direEtFaire([
+    {exec: "`open -a Scrivener`"},
+    "Dans Scrivener, masque les autres applications (Command, Alte, H)",
+    "Assure-toi qu'on ne voie rien dans le Finder",
+    "Écrit le titre : “#{titre}“…",
+    "Règle la largeur de la fenêtre pour que le titre apparaisse bien…",
+    "Supprime le titre",
+    "Active la capture (Commande, Majuscule, 5) et règle ses options avec : Écran complet",
+    "Minuteur : 5 secondes, Microphone : aucun",
+    "Il faudra arrêter l'enregistrement assez rapidement (la dernière seconde sera supprimée)",
+    "À la fin, il faudra enregistrer le fichier et le fermer",
+    "Lance la capture et tape le titre : “#{titre}”"
+    ])
+
 
   yesOrStop("Tape 'y' — pour 'yes' — lorsque tu auras fini.")
   ViteFait.move_last_capture_in(default_titre_file_path) || raise(NotAError.new("Tu n'as pas enregistré le titre. je dois renoncer."))
 
-  if titre_mov && File.exists?(titre_mov)
-    notice "---> Enregistrement titre effectué avec succès 👍"
-  else
-    error "Le titre n'a pas pu être enregistré."
-  end
+  IO.check_existence(titre_mov, {thing: "capture du titre", success: "la capture du titre a bien été exécutée", failure: "La capture du titre a échoué…"})
 end

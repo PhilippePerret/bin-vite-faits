@@ -46,5 +46,23 @@ class << self
     error e.message
     error "Je ne procède pas à la destruction demandée."
   end #/remove_with_case
+
+
+  def check_existence path, params = nil
+    params ||= {}
+    params[:thing]    ||= "dosier/fichier “#{path && File.basename(path)}”"
+    params[:success]  ||= "le #{params[:thing]} existe bien."
+    params[:failure]  ||= "le #{params[:thing]} est introuvable…"
+    params[:interactive].nil? && params[:interactive] = true
+    if path && File.exists?(path)
+      if params[:interactive]
+        notice "---> #{params[:success]} 👍"
+      end
+      return true
+    else
+      error "🚫  #{params[:failure]}"
+      return false
+    end
+  end
 end #/<< self
 end #/IO
