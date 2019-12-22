@@ -62,8 +62,6 @@ arrêté.
 
     tuto.finale_message
 
-    # notice "\nTerminé !"
-
   rescue NotAnError => e
     # Interruption de la création
     e.puts_error_if_message

@@ -26,8 +26,6 @@ when 'open_scrivener'
   vitefait.is_required && vitefait.open_scrivener_project
 when 'move','deplace', 'deplacer'
   vitefait.is_required && vitefait.move
-when 'complete'
-  vitefait.is_required && vitefait.complete
 when 'rapport', 'report'
   vitefait.is_required && vitefait.write_rapport
 when 'lire_operations'
@@ -58,6 +56,8 @@ when 'annonce'
   vitefait.is_required && vitefait.annonce
 when 'annonces'
   vitefait.is_required && vitefait.annonce(:both)
+when 'remove', 'destroy', 'detruire', 'supprimer', 'delete'
+  vitefait.is_required && vitefait.destroy
 when 'chaine_youtube', 'open_youtube'
   vitefait.chaine_youtube
 when 'groupe_facebook'

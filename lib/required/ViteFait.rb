@@ -393,6 +393,11 @@ class ViteFait
     error "J'abandonne…"
   end
 
+  def destroy
+    require_module('destroy')
+    exec_destroy
+  end
+
   # ---
   #   Méthodes de conversion
   # ---
