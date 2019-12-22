@@ -48,7 +48,7 @@ when 'open_vignette', 'edit_vignette'
   vitefait.is_required && vitefait.open_vignette
 when 'open_titre'
   vitefait.is_required && vitefait.open_titre
-when 'open_operations'
+when 'operations'
   vitefait.is_required && vitefait.open_operations_file
 when 'keep_only'
   vitefait.is_required && vitefait.keep_only_folder

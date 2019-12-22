@@ -124,7 +124,7 @@ class ViteFait
 
   # Pour créer le fichier des opérations de façon assistées
   def create_file_operations
-    require_module('operations_assistant')
+    require_module('operations')
     assistant_creation_file
   end
 
@@ -222,8 +222,8 @@ class ViteFait
 
   # Pour ouvrir le fichier des opérations
   def open_operations_file
-    operations_are_defined?(required=true) || return
-    system('vim', operations_path)
+    require_module('operations')
+    exec_open_operations_file
   end
 
   # Pour ouvrir le fichier screenflow ou Premiere
