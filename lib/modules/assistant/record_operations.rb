@@ -38,8 +38,9 @@ def exec(options=nil)
 #   EOT`
 #   return
 
-  # Ouvrir toujours le projet Scrivener
-  open_scrivener_project || raise(NotAnError.new)
+  # Ouvrir toujours le projet Scrivener (en réalité : une copie du
+  # projet préparé)
+  open_copie_scrivener_project || raise(NotAnError.new)
 
   clear
   `open -a Terminal`

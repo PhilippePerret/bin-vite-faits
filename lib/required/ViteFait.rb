@@ -216,8 +216,19 @@ class ViteFait
 
   # Pour ouvrir le projet scrivener du tutoriel
   def open_scrivener_project
-    project_scrivener_exists?(required=true) || return
-    `open -a Scrivener "#{scriv_file_path}"`
+    require_module('scrivener_project')
+    scrivener_project.open
+  end
+  def open_copie_scrivener_project
+    require_module('scrivener_project')
+    oldquiet = !!COMMAND.options[:quiet]
+    COMMAND.options[:quiet] = true
+    res = scrivener_project.duplique_and_open
+    COMMAND.options[:quiet] = oldquiet
+    return res
+  end
+  def scrivener_project
+    @scrivener_project ||= ScrivenerProject.new(self)
   end
 
   # Pour ouvrir le fichier des opérations
@@ -709,7 +720,7 @@ class ViteFait
     @scriv_file_path ||= pathof(scriv_file_name)
   end
   def scriv_file_name
-    @scriv_file_name ||= "#{name}.scriv"
+    @scriv_file_name ||= "#{name}~prepared.scriv"
   end
   def screenflow_path
     @screenflow_path ||= pathof("Montage.screenflow")

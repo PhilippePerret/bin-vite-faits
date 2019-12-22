@@ -26,8 +26,6 @@ when 'assistant'
   ViteFait.assistant
 when 'create'
   vitefait.name_is_required || vitefait.create
-when 'open_scrivener'
-  vitefait.is_required && vitefait.open_scrivener_project
 when 'move','deplace', 'deplacer'
   vitefait.is_required && vitefait.move
 when 'rapport', 'report'
@@ -44,6 +42,8 @@ when 'assemble'
   vitefait.is_required && vitefait.assemble
 when 'assemble_capture'
   vitefait.is_required && vitefait.assemble_capture
+when 'open_scrivener'
+  vitefait.is_required && vitefait.open_scrivener_project
 when 'open_vignette', 'edit_vignette'
   vitefait.is_required && vitefait.open_vignette
 when 'open_titre'
