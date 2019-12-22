@@ -720,7 +720,7 @@ class ViteFait
     @scriv_file_path ||= pathof(scriv_file_name)
   end
   def scriv_file_name
-    @scriv_file_name ||= "#{name}~prepared.scriv"
+    @scriv_file_name ||= "#{name}-prepared.scriv"
   end
   def screenflow_path
     @screenflow_path ||= pathof("Montage.screenflow")

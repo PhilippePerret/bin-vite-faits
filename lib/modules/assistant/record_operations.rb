@@ -145,6 +145,11 @@ Tu peux enregistrer la voix finale avec :
 Tu peux demander l'assemblage avec :
     vite-faits assemble #{name}
 
+Tu peux lire le contenu des opérations avec :
+    vite-faits operations [#{name}]
+Tu peux modifier ce document, dans Vim, avec :
+    vite-faits operations [#{name}] -e/--edit
+
     EOT
   else
     # Le fichier .mov de la capture n'a pas été produit…

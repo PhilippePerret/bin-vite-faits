@@ -91,7 +91,7 @@ Que veux-tu faire :
     end
 
     def path
-      @path ||= vitefait.pathof("#{vitefait.name}~prepared.scriv")
+      @path ||= vitefait.pathof("#{vitefait.name}-prepared.scriv")
     end
 
   end #/ScrivenerProject
