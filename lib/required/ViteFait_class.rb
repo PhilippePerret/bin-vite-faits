@@ -15,6 +15,15 @@ class ViteFait
     data.update
   end
 
+  # Méthode pour afficher le nom du tutoriel courant, s'il existe
+  def self.show_current_name
+    if current_tutoriel
+      notice "Le tutoriel courant '#{current_tutoriel}'"
+    else
+      notice "Aucun tutoriel courant."
+    end
+  end
+
   class << self
     def current_tutoriel
       @current_tutoriel ||= begin
