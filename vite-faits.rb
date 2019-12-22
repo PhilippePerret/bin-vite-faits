@@ -3,6 +3,8 @@
 
 require_relative 'lib/required.rb'
 
+ViteFait.init
+
 Command.decompose
 # => COMMAND
 
