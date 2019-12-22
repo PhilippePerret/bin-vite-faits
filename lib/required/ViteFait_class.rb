@@ -11,6 +11,12 @@ class ViteFait
 
   end
 
+  # Pour faire un test ou des tests de code
+  # Taper `vite-faits test` en console
+  def self.test
+    # Mettre ici du code à essayer
+  end
+
   def self.finish
     data.update
   end
