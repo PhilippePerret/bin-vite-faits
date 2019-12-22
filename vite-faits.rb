@@ -69,3 +69,7 @@ when 'forum_scrivener'
 else
   error "Impossible de traiter l'action #{COMMAND.action}"
 end
+
+ViteFait.finish
+# Notamment pour enregistrer le tutoriel courant et
+# la date

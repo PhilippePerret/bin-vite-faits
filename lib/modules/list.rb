@@ -15,10 +15,11 @@ class ViteFait
         else
           ditem[:presence] = 0
         end
+        ditem[:similarity] = (ditem[:presence] * 100) - ditem[:levenstein]
         candidats << ditem
       end
 
-      candidats = candidats.sort_by{|ditem| -((ditem[:presence] * 1000) - ditem[:levenstein]) }
+      candidats = candidats.sort_by{|ditem| -ditem[:similarity] }
       candidat = candidats.first
 
       return candidat

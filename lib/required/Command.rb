@@ -1,4 +1,14 @@
 # encoding: UTF-8
+=begin
+
+  Une ligne est décomposée de cette manière :
+
+  > application [arg1] [arg2] [argN] [param1=v1] [param2=v2] [-opt] [--option]
+
+  On trouve les arguments dans    COMMAND.args
+  On trouve les paramètres dans   COMMAND.params
+  On trouve les options dans      COMMAND.options
+=end
 class Command
 
   class << self
@@ -24,15 +34,15 @@ class Command
           key, val = arg.split('=')
           real_key = COMMAND_OTHER_PARAM_TO_REAL_PARAM[key] || key
           COMMAND.params.merge!(real_key.to_sym => val)
-        elsif COMMAND.action.nil?
-          COMMAND.action = arg
-        elsif COMMAND.folder.nil?
-          COMMAND.folder = arg
+        else
+          COMMAND.args << arg
         end
+      end
+      if self.respond_to?(:after_decompose)
+        after_decompose
       end
       # puts "COMMAND : #{COMMAND.options.inspect}"
     end
-
 
     # Utiliser Command.clear_terminal
     def clear_terminal
@@ -41,13 +51,14 @@ class Command
 
   end #/<< self
 
-  attr_accessor :action, :folder, :options, :params
+  attr_accessor :options, :params, :args
 
   def initialize
     init()
   end
 
   def init
+    self.args     = []
     self.options  = {}
     self.params   = {}
   end

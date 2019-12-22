@@ -20,7 +20,7 @@ class Hash
       when Hash, Array
         v = v.to_sym
       end
-      h.merge!(k => v)
+      h.merge!(k.to_sym => v)
     end
     return h
   end

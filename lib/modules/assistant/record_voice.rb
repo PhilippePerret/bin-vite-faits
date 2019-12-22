@@ -91,7 +91,7 @@ Attention, l'enregistrement du son n'est pas encore
 terminé. Par prudence, j'enregistre toujours 20 secondes
 de plus que la vidéo de capture, pour être sûr.
 
-L'enregistrement se terminera dans #{reste_secondes} secondes.
+L'enregistrement se terminera dans #{reste_secondes.to_i} secondes.
 
     EOT
     decompte("Arrêt de l'enregistrement dans %{nombre_secondes}", reste_secondes)

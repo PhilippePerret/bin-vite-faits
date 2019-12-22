@@ -1,123 +1,6 @@
 # encoding: UTF-8
-def vitefait
-  @vitefait ||= ViteFait.new(COMMAND.folder)
-end
 
 class ViteFait
-
-  def self.require_module module_name
-    require File.join(FOLDER_MODULES,module_name)
-  end
-
-  def self.open_help
-    if COMMAND.options[:edit] || !File.exists?(VITEFAIT_MANUAL_PATH)
-      `open -a Typora "#{VITEFAIT_HELP_PATH}"`
-    else
-      `open "#{VITEFAIT_MANUAL_PATH}"`
-    end
-  end
-
-  # Ouvrir quelque chose (dans le finder)
-  def self.open folder
-    require_module('open')
-    exec_open(folder)
-  end
-
-  # Ouvrir le dossier des captures (qui doit être défini dans les
-  # constantes constants.rb)
-  def self.open_folder_captures
-    if File.exists?(FOLDER_CAPTURES)
-      `open -a Finder "#{FOLDER_CAPTURES}"`
-    else
-      error "Le dossier capture est introuvable (#{FOLDER_CAPTURES})"
-      error "Il faut définir son path dans constants.rb (FOLDER_CAPTURES)"
-    end
-  end
-
-  # Méthode qui prend le dernier enregistrement effectué dans le
-  # dossier captures et le déplace vers +path+
-  # +path+ doit être le chemin complet, avec le nom du fichier,
-  # qui changera donc le nom actuel du fichier
-  #
-  # Comme la capture peut être longue à être enregistrée, on
-  # attend toujours sur le fichier. Et par mesure de précaution,
-  # on ne prend jamais un fichier vieux de plus de 30 secondes.
-  #
-  # @return TRUE
-  #         en cas de succès
-  #
-  def self.move_last_capture_in(dest_path)
-    dest_path || (return error "Le fichier destination devrait être défini…")
-
-    # On va boucler jusqu'à trouver un candidat valide
-    candidat = nil
-    start_time  = Time.now.to_i
-    timeout     = start_time + 60 # on attend 30 secondes maximum
-
-    while candidat.nil? && Time.now.to_i < timeout
-
-      # On cherche le candidat le plus récent
-      movs = Dir["#{FOLDER_CAPTURES}/*.mov"].each do |file|
-        mtime = File.stat(file).mtime.to_i
-        mtime > start_time - 30 || next
-        if candidat.nil? || mtime > candidat.time
-          candidat = {path:file, time:mtime}
-        end
-      end
-
-      if candidat.nil?
-        puts "Pas encore de vidéo adéquate…"
-        sleep 5
-      end
-    end # /fin de la boucle jusqu'à trouver notre bonheur
-
-    if candidat.nil?
-      # Aucune vidéo convenable n'a été trouvée dans la dernière
-      # minute.
-      error "Aucun fichier capture adéquat (*) dans le dossier des captures (**)\n(*) pour être adéquat, la capture doit avoir été produite dans les 30 dernières secondes.\n(**) dossier #{FOLDER_CAPTURES}"
-    else
-      # OK, on a trouvé une vidéo
-      # On peut déplacer le fichier
-      FileUtils.move(candidat[:path], dest_path)
-      if File.exists?(dest_path)
-        return true
-      else
-        return(error("Bizarrement, le fichier .mov (*) n'a pas pu être déplacé vers la destination voulue (**)\n(*) #{last_mov}\n(**) #{dest_path}"))
-      end
-    end
-  end
-
-  # Retourne la liste complète des tutoriels vite-faits
-  def self.list
-    @@list ||= begin
-      require_module('list')
-      List.new
-    end
-  end
-
-  # Recherche le nom le plus proche de +name+
-  def self.get_nearer_from_name(name)
-    self.list.get_nearer_from_name(name)
-  end
-  # Pour lancer les assistants de création ou d'accompagnement
-  # On parle ici de l'assistant général, permettant de construire tout
-  # le tutoriel aussi bien que les assistants qui permettent d'accompagner
-  # l'enregistrement de la voix ou de lire les opérations à exécuter.
-  def self.assistant
-    case COMMAND.params[:pour]
-    when 'operations'
-      vitefait.is_required && vitefait.create_file_operations
-    when 'capture'
-      vitefait.is_required && vitefait.record_operations
-    when 'titre', 'title'
-      vitefait.is_required && vitefait.record_titre
-    when 'voice', 'voix', 'texte'
-      vitefait.name_is_required || vitefait.assistant_voix_finale
-    else
-      require_module('creation_assistant')
-      create_with_assistant
-    end
-  end
 
   # ---------------------------------------------------------------------
   #
@@ -175,6 +58,7 @@ class ViteFait
 
   end
 
+  # La méthode retourne false si le nom est bien défini
   def name_is_required
     if self.defined?
       return false
@@ -189,6 +73,7 @@ class ViteFait
   # existe, qu'il soit valide (un seul lieu).
   def is_required
     name_is_required && (return false)
+
     if self.defined? && self.exists? && self.valid?
       return true
     elsif self.defined?
@@ -196,17 +81,25 @@ class ViteFait
       if candidat.nil?
         return error "Je n'ai trouvé aucun tutoriel de ce nom ou proche de ce nom. Je dois renoncer.\n\n"
       end
-      yesNo("Je n'ai pas trouvé ce tutoriel…\nS'agit-il du tutoriel '#{candidat[:name]}' ? (si c'est un nouveau, tape 'n')") || return
-      instance_variables.each do |prop|
-        instance_variable_set("#{prop}", nil)
+      if candidat[:similarity] > -3
+        yesNo("Je n'ai pas trouvé ce tutoriel ('#{name}')…\nS'agit-il du tutoriel '#{candidat[:name]}' (indice de similarité de #{candidat[:similarity]}) ? (si c'est un nouveau, tape 'n')") || return
+        instance_variables.each do |prop|
+          instance_variable_set("#{prop}", nil)
+        end
+        force_tutoriel(candidat[:name])
+        return true
       end
-      COMMAND.folder = self.work_folder = @name = candidat[:name]
-      @vitefait = nil
-      check_tutoriel
-      return true
     else
       error "Un tutoriel existant et valide est requis pour cette opération.\nJe dois m'arrêter là."
     end
+  end
+
+  def force_tutoriel name
+    name.nil? && return
+    COMMAND.folder = self.work_folder = @name = name
+    @vitefait = nil
+    check_tutoriel
+    return name
   end
 
 
@@ -555,7 +448,14 @@ class ViteFait
   # TRUE si le tutoriel définit son nom
   # (et juste son nom, pas son existence, qui doit être
   #  checkée avec exists?)
+  # Si aucun dossier n'est défini dans la ligne de commande, on essaie
+  # de prendre le dernier tutoriel utilisé
   def defined?
+    self.work_folder ||= force_tutoriel(ViteFait.current_tutoriel)
+    self.work_folder && begin
+      ViteFait.current_tutoriel= self.work_folder
+      @vitefait = nil
+    end
     self.work_folder != nil
   end
 
@@ -987,23 +887,4 @@ class ViteFait
     `say -v Audrey "#{text}" `
   end
 
-  class << self
-
-    # Pour poser une question et produire une erreur en cas d'autre réponse
-    # que 'y'
-    # Pour fonctionner, la méthode (ou la sous-méthode) qui utilise cette
-    # formule doit se terminer par :
-    #     rescue NotAnError => e
-    #       e.puts_error_if_message
-    #     end
-    def yesOrStop(question)
-      yesNo(question) || raise(NotAnError.new)
-    end
-
-    def machine_a_ecrire_path
-      # @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aiff')
-      # @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.mp3')
-      @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aac')
-    end
-  end #/ << self
 end
