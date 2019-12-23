@@ -3,6 +3,32 @@
   Méthodes utiles
 =end
 
+
+# Si +voix_dernier est défini, on dit les dernières
+# valeurs avec cette voix (5, 4, 3, 2, 1)
+def decompte phrase, fromValue, voix_dernier = false
+  puts "\n\n"
+  reste = fromValue.to_i
+  phrase += " " * 20 + "\r"
+  while reste > 0 # on ne dit pas zéro
+    # Revenir à la 20e colonne de la 4è ligne
+    # print "\033[4;24H"
+    # print "\033[;24H"
+    s = reste > 1 ? 's' : ''
+    phrase_finale = phrase % {nombre_secondes: "#{reste} seconde#{s}"}
+    print phrase_finale
+    # print "Ouverture du forum dans #{reste} seconde#{s}              \r"
+    if voix_dernier && reste < 6
+      `say -v #{voix_dernier} "#{reste}"`
+      sleep 0.5
+    else
+      sleep 1
+    end
+    reste -= 1
+  end
+  puts "\n\n\n"
+end
+
 # Méthode qui dit des textes
 # Params:
 #   +liste+:: [Array] La liste des choses à faire ou dire
@@ -13,7 +39,7 @@
 #   +params+::  [Hash] Les paramètres
 #               :pause    [Integer]   Nombre de secondes entre les actions
 #               :voice    [String]    La voix à utiliser.
-# 
+#
 def dire_et_faire liste, params = nil
   params ||= {}
   params[:voice] ||= 'Audrey'

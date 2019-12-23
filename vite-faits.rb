@@ -54,6 +54,8 @@ when 'open_titre'
   vitefait.is_required && vitefait.open_titre
 when 'operations'
   vitefait.is_required && vitefait.open_operations_file
+when 'edit_voice'
+  vitefait.is_required && vitefait.edit_voice_file
 when 'keep_only'
   vitefait.is_required && vitefait.keep_only_folder
 when 'upload'

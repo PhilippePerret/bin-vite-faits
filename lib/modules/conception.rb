@@ -218,6 +218,7 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: "create %{name}"
   produit:
     - "2_En_chantier/%{name}"
+    - "2_En_chantier/%{name}/%{name}-prepared.scriv"
     - "2_En_chantier/%{name}/Exports"
     - "2_En_chantier/%{name}/Titre"
     - "2_En_chantier/%{name}/Operations"
@@ -302,7 +303,7 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: "assistant pour=operations %{name}"
       manuel: captureoperations
   produit:
-    - "2_En_chantier/%{name}/Titre/%{name}.mov"
+    - "2_En_chantier/%{name}/Operations/capture.mov"
 
 - id: recordvoice
   hname: Enregistrement de la voix
@@ -316,7 +317,17 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: "assistant pour=voix [%{name}]"
       manuel: recordvoice
   produit:
-    - "2_En_chantier/%{name}/Voix/voice.aiff"
+    - "2_En_chantier/%{name}/Voix/voice.mp4"
+
+- id: affine_voix
+  hname: Affinement de la voix
+  description: |
+    On va utiliser Audacity ou autre logiciel de traitement de la
+    voix pour parachever le fichier voix, notamment en augmentant
+    l'intensité et en supprimant le bruit.
+  support:
+    - hname: Améliorer la qualité du fichier voix
+      command: edit_voice %{name}
 
 - id: assemblagecomplet
   hname: Assemblage du tutoriel complet

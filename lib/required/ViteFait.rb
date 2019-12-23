@@ -363,6 +363,14 @@ class ViteFait
     error "Nous abandonnons."
   end
 
+  def edit_voice_file
+    require_module('edit_voice_file')
+    edition_fichier_voix
+  rescue NotAnError => e
+    e.puts_error_if_message
+    error "Abandon…"
+  end
+
   # True s'il existe un fichier vocal séparé
   def voice_capture_exists?(required=false,nomessage=true)
     existe = File.exists?(vocal_capture_path)
@@ -516,7 +524,7 @@ class ViteFait
     File.exists?(chantier_folder_path)
   end
   alias :en_chantier? :folder_en_chantier?
-  
+
   def en_chantier_on_disk?
     File.exists?(chantierd_folder_path)
   end
@@ -865,35 +873,6 @@ class ViteFait
   # ---------------------------------------------------------------------
   #   MÉTHODES FONCTIONNELLES
   # ---------------------------------------------------------------------
-
-  def yesOrStop(question)
-    self.class.yesOrStop(question)
-  end
-
-  # Si +voix_dernier est défini, on dit les dernières
-  # valeurs avec cette voix (5, 4, 3, 2, 1)
-  def decompte phrase, fromValue, voix_dernier = false
-    puts "\n\n"
-    reste = fromValue.to_i
-    phrase += " " * 20 + "\r"
-    while reste > 0 # on ne dit pas zéro
-      # Revenir à la 20e colonne de la 4è ligne
-      # print "\033[4;24H"
-      # print "\033[;24H"
-      s = reste > 1 ? 's' : ''
-      phrase_finale = phrase % {nombre_secondes: "#{reste} seconde#{s}"}
-      print phrase_finale
-      # print "Ouverture du forum dans #{reste} seconde#{s}              \r"
-      if voix_dernier && reste < 6
-        `say -v #{voix_dernier} "#{reste}"`
-        sleep 0.5
-      else
-        sleep 1
-      end
-      reste -= 1
-    end
-    puts "\n\n\n"
-  end
 
   # Pour faire dire un texte
   def dire text

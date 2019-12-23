@@ -14,7 +14,7 @@ class << self
 === Bienvenue dans l'assistant de création de tutoriels “vite-faits” ===
 
 Nous allons créer ensemble le tutoriel de A à Z, de la mise
-en place à la diffusion et l'annonce.
+en place à la diffusion et les annonces.
 Note : on peut aussi reprendre la création là où on s'est
 arrêté.
     EOT
@@ -31,6 +31,8 @@ arrêté.
     else
       create_new_tutorial(tuto)
     end
+
+    tuto.make_pre_bilan_operatoire
 
     tuto.set_generales_informations   unless tuto.infos_defined?(false)
     tuto.record_titre                 unless tuto.titre_is_recorded?(false)
@@ -103,6 +105,102 @@ end #/<<self
   # ---------------------------------------------------------------------
   #   INSTANCE
   # ---------------------------------------------------------------------
+
+  DATA_ALL_FILES = {
+    informations: {
+      id:'informations',
+      hname: "Fichier des informations générales",
+      relpath: 'infos.json'
+    },
+    operations: {
+      id: 'operations',
+      hname: "Fichier des opérations et textes",
+      relpath: 'Operations/operations.yaml'
+    },
+
+    # = CAPTURE OPÉRATIONS =
+    capture_mov:{
+      id: 'capture_mov',
+      hname: "Capture brute des opérations",
+      relpath: 'Operations/capture.mov'
+    },
+    capture_mp4: {
+      id: 'capture_mp4',
+      hname: "Assemblage des opérations et de la voix",
+      relpath: 'Operations/capture.mp4'
+    },
+    capture_ts:{
+      id:'capture_ts',
+      hname:"Vidéo finale pour assemblage (.ts)"
+      relpath: 'Operations/capture.ts'
+    },
+
+    # = TITRE =
+    titre_mov: {
+      id: 'titre_mov',
+      hname: "Capture brute du titre",
+      relpath: 'Titre/Titre.mov'
+    },
+    titre_mp4: {
+      id: 'titre_mp4',
+      hname: "Assemblage du titre",
+      relpath: 'Titre/Titre.mp4'
+    },
+    titre_ts: {
+      id: 'titre_mp4',
+      hname: "Vidéo titre final pour assemblage (.ts)",
+      relpath: 'Titre/Titre.ts'
+    },
+
+    # = VOIX =
+    voice_mp4:{
+      id: 'voice_mp4',
+      hname: "Capture de la voix",
+      relpath: 'Voix/voice.mp4'
+    },
+    voice_aiff:{
+      id: 'voice_aiff',
+      hname: "Capture de la voix modifié avec Audacity (ou autre)",
+      relpath: 'Voix/voice.aiff'
+    },
+    voice_aac:{
+      id: 'voice_aac',
+      hname: "Fichier voix pour assemblage avec opérations (.aac)",
+      relpath: 'Voix/voice.aac'
+    },
+
+    # = VIGNETTE =
+    vignette_jpg:{
+      id: 'vignette_jpg',
+      hname: 'Vignette JPEG',
+      relpath: 'Vignette/Vignette.jpg'
+    },
+
+    # = FICHIER TUTORIEL FINAL
+    final_tutoriel:{
+      id:'final_tutoriel',
+      hname: "Fichier vidéo du tutoriel final (à uploader)",
+      relpath: 'Exports/%{name}_completed.mp4'
+    }
+  }
+  # Avant de procéder à la création assistée, je procède à un pré-bilan
+  # pour savoir, par exemple, quels fichiers existent, pour savoir,
+  # notamment, si un fichier a été supprimé, qui doit être refait et si
+  # cette refaction doit entrainer la destruction des fichiers suivants
+  # On a une vérification aussi au niveau des dates.
+  def make_pre_bilan_operatoire
+    # Si le dossier n'existe pas, rien à faire
+    exists? || return
+    prebilan = [
+      'informations',
+      'operations',
+      'titre_mov',
+      'titre_mp4',
+      'capture_mov'
+      'voice_mp4'
+    ]
+  end
+
 
   def set_generales_informations
     yesNo("Prêt à définir les informations générales ?") || return
