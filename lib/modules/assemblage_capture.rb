@@ -2,7 +2,7 @@
 class ViteFait
 
   def exec_assemble_capture(nomessage = false)
-    puts "🔧  Vérification de la validité des fichiers capture…"
+    notice "🔬  Vérification de la validité des fichiers capture…"
 
     # S'assurer que le fichier de capture existe
     src_path || return
