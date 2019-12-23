@@ -21,6 +21,14 @@ class ViteFait
     data.update
   end
 
+  # Pour aider à la conception
+  def self.aide_conception
+    require_module('conception')
+    tuto_name = COMMAND.folder ||= 'tuto-demo'
+    @vitefait = nil
+    vitefait.conception.display
+  end
+
   # Méthode pour afficher le nom du tutoriel courant, s'il existe
   def self.show_current_name
     if current_tutoriel

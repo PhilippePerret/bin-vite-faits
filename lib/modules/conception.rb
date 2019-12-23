@@ -1,0 +1,288 @@
+# encoding: UTF-8
+=begin
+  Module pour l'aide à la conception d'un tutoriel.
+=end
+YAML_DATA_CONCEPTION = <<-YAML
+---
+- id: creation_dossier
+  hname: Création du dossier
+  description: |
+      Création du dossier du tutoriel et de tous ses éléments.
+  support:
+    - hname: Constitution d'un dossier tutoriel
+      manuel: structuretutorielfolder
+    - hname: Création du dossier tutoriel
+      manuel: creationdossiertutoriel
+      command: "create %{name}"
+  produit:
+    - "2_En_attente/%{name}"
+    - "2_En_attente/%{name}/Exports"
+    - "2_En_attente/%{name}/Titre"
+    - "2_En_attente/%{name}/Operations"
+    - "2_En_attente/%{name}/Vignette"
+    - "2_En_attente/%{name}/Voix"
+
+- id: prepared_project_and_operations
+  hname: Projet Scrivener préparé et Opérations
+  description: |
+      Préparation du projet Scrivener qui va servir de base, tout
+      en établissant les opérations successives — et les textes à
+      dire — du tutoriel.
+  support:
+    - hname: Ouvrir le projet Scrivener pour le préparer
+      manuel: projetscrivenerprepared
+      command: "-e open_scrivener %{name}"
+    - hname: Initier le fichier des opérations
+      command: assistant %{name} pour=operations
+      manuel: operationsfile
+    - hname: Éditer le fichier opérations pour le modifier
+      manuel: operationsfile
+      command: -e operations %{name}
+    - hname: Essayer le projet préparé
+      manuel: projetscrivenerprepared
+      command: "open_scrivener %{name}"
+    - hname: Lire les opérations pour essayer
+      manuel: operationsfile
+      command: "lire_operations %{name}"
+  produit:
+    - "2_En_attente/%{name}/%{name}-prepared.scriv"
+    - "2_En_attente/%{name}/Operations/operations.yaml"
+
+- id: record_titre
+  hname: Enregistrement du titre du tutoriel
+  description: |
+    Cette étape consiste à enregistrer la capture du titre qui
+    apparaitra après l'introduction et sera tapé comme sur une
+    machine à écrire. On se sert du fichier `Titre/titre.scriv`
+    et on capture son écriture.
+  support:
+    - hname: Capturer le titre
+      command: "assistant pour=titre %{name}"
+      manuel: recordtitre
+  produit:
+    - "2_En_attente/%{name}/Titre/Titre.mov"
+
+- id: assemblage_titre
+  hname: Assemblage du titre
+  description: |
+    Dans cette étape, on va assembler le titre capturé au cours
+    de l'étape précédente avec le son de machine à écrire.
+  support:
+    - hname: Assembler le titre
+      command: "assemble pour=titre %{name}"
+      manuel: recordtitre
+  produit:
+    - "2_En_attente/%{name}/Titre/Titre.mp4"
+
+- id: capture_operations
+  hname: Capturer les opérations
+  description: |
+    C'est le plus gros morceau du tutoriel, qui consiste à jouer
+    toutes les opérations déterminées en les capturant.
+  support:
+    - hname: Capturer les opérations
+      command: "assistant pour=operations %{name}"
+      manuel: captureoperations
+  produit:
+    - "2_En_attente/%{name}/Titre/%{name}.mov"
+
+- id: recordvoice
+  hname: Enregistrement de la voix
+  description: |
+    Au cours de cette étape, on va procéder à l'enregistrement
+    du texte qui doit être dit sur la capture des opérations.
+    Cette étape est entièrement assistée pour être d'une simpli-
+    cité enfantine.
+  support:
+    - hname: Capturer la voix avec l'assistant
+      command: "assistant pour=voix [%{name}]"
+      manuel: recordvoice
+  produit:
+    - "2_En_attente/%{name}/Voix/voice.aiff"
+
+- id: assemblagecomplet
+  hname: Assemblage du tutoriel complet
+  description: |
+    C'est cette étape qui va produire le tutoriel complet à uploa-
+    der sur YouTube (prochaine étape).
+  support:
+    - hname: Assembler tous les éléments
+      command: "assemble [%{name}]"
+  produit:
+    - "2_En_attente/%{name}/%{name}.ts"
+    - "2_En_attente/%{name}/Titre/Titre.ts"
+    - "2_En_attente/%{name}/Exports/%{name}_completed.mp4"
+
+- id: production_vignette
+  hname: Fabrication de la vignette YouTube
+  description: |
+    Cette étape permet de produire le fichier JPEG de la vignette
+    qui sera utilisé sur YouTube, mais également sur le forum
+    Scrivener.
+  support:
+    - hname: Ouvrir la vignette pour produire l'image
+      command: "open_vignette [%{name}]"
+      manuel: produirevignette
+  produit:
+    - "2_En_attente/%{name}/Vignette/vignette.jpg"
+
+- id: upload_youtube
+  hname: Upload sur YouTube
+  description: |
+    Une fois tous les éléments préparés, on peut procéder au télé-
+    chargement de la vidéo sur YouTube. L'assistant rejoint la page
+    de téléchargement.
+    Au besoin, on s'identifie avec le compte Yahoo.
+  support:
+    - hname: Rejoindre la page de téléchargement
+      command: chaine_youtube
+      manuel: gotoyoutube
+  produit: null
+
+- id: publication_site_perso
+  hname: Publication sur mon site perso
+  description: |
+    Le nouveau tutoriel doit être répertorié sur mon site perso.
+  support:
+    - hname: Rejoindre mon site perso
+      command: site_perso
+      manuel: null
+  produit: null
+
+- id: annonces
+  hname: Annonce du nouveau tutoriel
+  description: |
+    La dernière chose à faire est d'annoncer le nouveau tutoriel
+    sur le groupe Facebook et le forum Scrivener.
+  support:
+    - hname: Être assisté pour produire les annonces
+      command: annonces %{name}
+    - hname: Rejoindre le groupe Facebook
+      command: groupe_facebook
+    - hname: Rejoindre le forum Scrivener
+      command: forum_scrivener
+    - hname: Annonce sur Facebook
+      command: annonce type=fb %{name}
+    - hname: Annonce sur le forum Scrivener
+      command: annonce type=scriv %{name}
+  produit: null
+
+YAML
+
+def writeline lines, nombre_espaces
+  lines = lines.split(/\r?\n/)
+  tab = " " * nombre_espaces
+  puts tab + lines.join("\n#{tab}")
+end
+
+
+class ViteFait
+  def conception
+    @conception ||= Conception.new(self)
+  end
+
+  # ---------------------------------------------------------------------
+  #   Classe ViteFait::Conception
+  #   Gestion des données de conception
+  # ---------------------------------------------------------------------
+  class Conception
+    attr_reader :vitefait
+    def initialize vitefait
+      @vitefait = vitefait
+    end
+
+    def display
+      steps.each do |step|
+        step.display
+      end
+    end
+
+    # Retourne la liste des étapes de conception sous une forme
+    # d'instance {ViteFait::Conception::Step}.
+    def steps
+      @steps ||= begin
+        index = 0
+        YAML.load(YAML_DATA_CONCEPTION % {name: vitefait.name}).to_sym.collect do |dstep|
+          dstep.merge!(index: (index += 1))
+          Step.new(vitefait, dstep)
+        end
+      end
+    end
+
+    # ---------------------------------------------------------------------
+    #   CLASSE ViteFait::Conception::Step
+    #   Pour une étape de conception
+    # ---------------------------------------------------------------------
+    class Step
+      attr_reader :vitefait
+      attr_reader :data
+      def initialize vitefait, data
+        @vitefait = vitefait
+        @data     = data
+      end
+
+      MARGE_ESPACES = 5
+      # Affichage d'une étape
+      def display
+        write_yellow "\n\n#{index.to_s.rjust(3)}. #{hname.upcase}"
+        writeline("\n= Description =", MARGE_ESPACES)
+        writeline(description, MARGE_ESPACES)
+        writeline("\n= Méthodes utiles pour cette étape =",MARGE_ESPACES)
+        supports.each do |support|
+          support.display
+        end
+        produit && begin
+          writeline("\n= L'étape produit =", MARGE_ESPACES)
+          produit.each do |prod|
+            writeline("  --> #{File.basename(prod)}", MARGE_ESPACES)
+          end
+        end
+      end
+
+      # Volatile Properties
+      def supports
+        @supports ||= begin
+          support.collect do |dsuppor|
+            Support.new(self, dsuppor)
+          end
+        end
+      end
+
+      # Fix Properties
+      def id;           @id           ||= data[:id]           end
+      def hname;        @hname        ||= data[:hname]        end
+      def index;        @index        ||= data[:index]        end
+      def description;  @description  ||= data[:description]  end
+      def support;      @support      ||= data[:support]      end
+      def produit;      @produit      ||= data[:produit]      end
+
+
+      # ---------------------------------------------------------------------
+      #   Class ViteFait::Conception::Step::Support
+      #   Les lignes de support
+      # ---------------------------------------------------------------------
+      class Support
+        attr_reader :step, :data
+        def initialize step, data
+          @step = step
+          @data = data
+        end
+
+        # Affichage de l'aide manuel
+        def display
+          write_green "\t#{hname}"
+          command && write_cyan("\t  vite-faits #{command}")
+          # TODO Quand on pourra sortir une version HTML, on pourra mettre
+          # un lien vers le mode d'emploi.
+          # manuel && puts("\t  Ancre manuel : ##{manuel}")
+        end
+
+        def hname;    @hname    ||= data[:hname]    end
+        def command;  @command  ||= data[:command]  end
+        def manuel;   @manuel   ||= data[:manuel]   end
+
+      end #/ViteFait::Conception::Step::Support
+    end #/ViteFait::Conception::Step
+  end #/ViteFait::Conception
+
+end #/ViteFait
