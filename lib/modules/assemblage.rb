@@ -28,7 +28,7 @@ class ViteFait
     if COMMAND.options[:verbose] && !nomessage
       puts "\n---- Commande finale : '#{cmd}'"
     else
-      notice "🔧  Assemblage final, merci de patienter…"
+      notice "📦  Assemblage final, merci de patienter…"
     end
     res = `#{cmd}`
 
@@ -147,7 +147,7 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
       cmd = "ffmpeg -i \"#{src}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{dst}\""
       COMMAND.options[:verbose] || cmd << " 2> /dev/null"
       res = `#{cmd}`
-      notice "---> Production de #{dst} 👍"
+      notice "---> Production de #{dst} 👍"
     end
 
     def intro_prepared?

@@ -98,7 +98,7 @@ class ViteFait
     # On va boucler jusqu'à trouver un candidat valide
     candidat = nil
     start_time  = Time.now.to_i
-    timeout     = start_time + 60 # on attend 30 secondes maximum
+    timeout     = start_time + 60 # on attend au maximum une minute
 
     while candidat.nil? && Time.now.to_i < timeout
 
@@ -112,7 +112,7 @@ class ViteFait
       end
 
       if candidat.nil?
-        puts "Pas encore de vidéo adéquate…"
+        puts "J'attends sur la vidéo…"
         sleep 5
       end
     end # /fin de la boucle jusqu'à trouver notre bonheur

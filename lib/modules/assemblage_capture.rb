@@ -49,12 +49,12 @@ class ViteFait
     File.unlink(mp4_path)
 
     # Commande finale pour assembler l'image et le son
-    notice "🔧  Assemblage en cours, merci de patienter…"
+    notice "📦  Assemblage en cours, merci de patienter…"
     # version avec la copie sans le son :
     cmd = "ffmpeg -i \"#{mp4_copy_path}\" -i \"#{vocal_capture_path}\" -codec copy -shortest \"#{mp4_path}\" 2> /dev/null"
     res = `#{cmd}`
     if File.exists?(mp4_path)
-      notice "---> Assemblage de la capture MP4 exécutée avec succès 👍"
+      notice "---> Assemblage de la capture MP4 exécutée avec succès 📦 👍"
     else
       error "Une erreur est survenue, je n'ai pas pu produire le fichier…"
       FileUtils.copy(mp4_copy_path, mp4_path)

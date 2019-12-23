@@ -17,7 +17,7 @@ class ViteFait
     # On doit la raccourcir
     unless COMMAND.options[:no_crop]
       # Pour raccourcir la vidéo (ne pas voir l'arrêt)
-      duree_raccourcie = (Video.dureeOf(src_path) - 1).to_i.as_horloge
+      duree_raccourcie = (Video.dureeOf(titre_mov) - 1).to_i.as_horloge
       cmd << " -ss 00:00:00 -t #{duree_raccourcie}"
     end
     cmd << " #{titre_prov_mp4}"

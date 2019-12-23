@@ -21,7 +21,7 @@ arrêté.
 
     # On demande le nom
     tuto = nil
-    tuto_name = ask_for_tuto_name || return
+    tuto_name = COMMAND.folder || ask_for_tuto_name || return
 
     # On crée une instance, le traitement sera plus facile ensuite
     tuto = new(tuto_name)
@@ -106,83 +106,6 @@ end #/<<self
   #   INSTANCE
   # ---------------------------------------------------------------------
 
-  DATA_ALL_FILES = {
-    informations: {
-      id:'informations',
-      hname: "Fichier des informations générales",
-      relpath: 'infos.json'
-    },
-    operations: {
-      id: 'operations',
-      hname: "Fichier des opérations et textes",
-      relpath: 'Operations/operations.yaml'
-    },
-
-    # = CAPTURE OPÉRATIONS =
-    capture_mov:{
-      id: 'capture_mov',
-      hname: "Capture brute des opérations",
-      relpath: 'Operations/capture.mov'
-    },
-    capture_mp4: {
-      id: 'capture_mp4',
-      hname: "Assemblage des opérations et de la voix",
-      relpath: 'Operations/capture.mp4'
-    },
-    capture_ts:{
-      id:'capture_ts',
-      hname:"Vidéo finale pour assemblage (.ts)"
-      relpath: 'Operations/capture.ts'
-    },
-
-    # = TITRE =
-    titre_mov: {
-      id: 'titre_mov',
-      hname: "Capture brute du titre",
-      relpath: 'Titre/Titre.mov'
-    },
-    titre_mp4: {
-      id: 'titre_mp4',
-      hname: "Assemblage du titre",
-      relpath: 'Titre/Titre.mp4'
-    },
-    titre_ts: {
-      id: 'titre_mp4',
-      hname: "Vidéo titre final pour assemblage (.ts)",
-      relpath: 'Titre/Titre.ts'
-    },
-
-    # = VOIX =
-    voice_mp4:{
-      id: 'voice_mp4',
-      hname: "Capture de la voix",
-      relpath: 'Voix/voice.mp4'
-    },
-    voice_aiff:{
-      id: 'voice_aiff',
-      hname: "Capture de la voix modifié avec Audacity (ou autre)",
-      relpath: 'Voix/voice.aiff'
-    },
-    voice_aac:{
-      id: 'voice_aac',
-      hname: "Fichier voix pour assemblage avec opérations (.aac)",
-      relpath: 'Voix/voice.aac'
-    },
-
-    # = VIGNETTE =
-    vignette_jpg:{
-      id: 'vignette_jpg',
-      hname: 'Vignette JPEG',
-      relpath: 'Vignette/Vignette.jpg'
-    },
-
-    # = FICHIER TUTORIEL FINAL
-    final_tutoriel:{
-      id:'final_tutoriel',
-      hname: "Fichier vidéo du tutoriel final (à uploader)",
-      relpath: 'Exports/%{name}_completed.mp4'
-    }
-  }
   # Avant de procéder à la création assistée, je procède à un pré-bilan
   # pour savoir, par exemple, quels fichiers existent, pour savoir,
   # notamment, si un fichier a été supprimé, qui doit être refait et si
@@ -191,16 +114,92 @@ end #/<<self
   def make_pre_bilan_operatoire
     # Si le dossier n'existe pas, rien à faire
     exists? || return
-    prebilan = [
-      'informations',
-      'operations',
-      'titre_mov',
-      'titre_mp4',
-      'capture_mov'
-      'voice_mp4'
+    table_prebilan = []
+    DATA_KEYS_FILES_OPERATION.each do |kfile|
+      data_file = {}
+      data_file.merge!(DATA_ALL_FILES[kfile.to_sym])
+      path = File.join(current_folder, (data_file[:relpath] % {name: name}))
+      existe  = !!File.exists?(path)
+      mtime   = existe ? File.stat(path).mtime.to_i : nil
+      data_file.merge!({
+        exists: existe,
+        time:   mtime
+        })
+      table_prebilan << data_file
+    end
+
+    table_prebilan += [
+      {id: 'upload',        hname: "Téléchargement sur YouTube",  exists:!infos[:youtube_id].nil?},
+      {id: 'annonce_fb',    hname: "Annonce Facebook",            exists: infos[:annonce_FB]},
+      {id: 'annonce_Scriv', hname:"Annonce Forum Scrivener",      exists: infos[:annonce_Scriv]}
     ]
+
+    # puts "\n\n---- #{table_prebilan}"
+
+    # On va analyser ces informations
+    # Fonctionnement :
+    #   Le principe est que si un élément a été supprimé et
+    #   qu'il existe des éléments suivant, on doit demander
+    #   s'il faut supprimer ces éléments pour actualiser la
+    #   chose.
+    puts "\n\n"
+    table_prebilan.each_with_index do |bilan, index|
+      puts "#{bilan[:hname].ljust(60,'.')} #{bilan[:exists].inspect}"
+      bilan[:exists] && next
+      # Un élément qui n'existe pas
+      # Est-ce qu'un élément après existe ?
+      table_prebilan[(index+1)..-1].each do |cbilan|
+        if cbilan[:exists]
+          # => Il faut demander
+          question = <<-EOQ
+L'élément #{bilan[:hname]} n'existe plus, mais l'élément
+suivant #{cbilan[:hname]} existe (ainsi, peut-être, que
+d'autres éléments encore après).
+
+Que dois-je faire ?
+
+  A. Ne refaire que l'élément #{bilan[:hname]} et
+     garder les autres.
+
+  B. Supprimer tous les éléments après pour les
+     refaire ou les actualiser.
+
+          EOQ
+          puts question
+          case (getChar("Ton choix :")||'').upcase
+          when '' then raise NotAnError.new()
+          when 'A'
+            return # sans rien faire
+          when 'B'
+            remove_files_from(index+1)
+          else
+            raise NotAnError.new("Ce choix est inconnu.")
+          end
+        end
+      end
+    end
   end
 
+  # Effacer tous les fichiers depuis l'étape bilan d'index
+  # +index+ (dans DATA_ALL_FILES)
+  def remove_files_from(index)
+    keyFile = DATA_KEYS_FILES_OPERATION[index]
+    datFile = DATA_ALL_FILES[keyFile]
+    question = "Confirmes-tu bien la suppression de tous les fichiers existants après l'étape “#{datFile[:hname]}” ?"
+    yesNo(question) || return
+    DATA_KEYS_FILES_OPERATION[index..-1].each do |kfile|
+      dfile = DATA_ALL_FILES[kfile]
+      dfile[:relpath] || next # pas un fichier
+      path = File.join(current_folder, (dfile[:relpath] % {name: name}))
+      File.exists?(path) || next # le fichier n'existe pas
+      File.unlink(path)
+      if File.exists?(path)
+        error "Le fichier #{dfile[:hname]} (*) n'a pas pu être détruit…\n(*) #{path}"
+      else
+        notice "Fichier #{dfile[:hname]} (*) détruit avec succès !\n(*) #{path}"
+      end
+    end
+  end
 
   def set_generales_informations
     yesNo("Prêt à définir les informations générales ?") || return
@@ -277,7 +276,7 @@ commande :
     EOT
 
     speed = nil
-    while speed.nil
+    while speed.nil?
       case (getChar("Vitesse choisie :")||'').upcase
       when 'A'
         speed = 1
@@ -489,8 +488,5 @@ yahoo et le code normal.
   def infos_existent?
     return true # TODO
   end
-
-  # Raccourci
-  def yesOrStop(question); self.class.yesOrStop(question) end
 
 end #/ViteFait

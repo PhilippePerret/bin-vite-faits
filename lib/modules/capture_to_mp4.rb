@@ -35,6 +35,7 @@ class ViteFait
     cmd << " \"#{mp4_path}\""
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"
     notice "\n* Fabrication du fichier ./Operations/capture.mp4. Merci de patienter…"
+    puts "Exécution en cours, merci de patienter…"
     res = `#{cmd}`
     if File.exists?(mp4_path)
       notice "= 👍  Fichier mp4 fabriqué avec succès."

@@ -21,23 +21,6 @@
 #
 def exec(options=nil)
 
-#   # pour essayer de façon automatique
-# Mais je n'y arrive ni avec AppleScript (problème de permission),
-# ni avec screencapture ou ffmpg (problème d'arrêt — je ne sais pas
-# comment les arrêter)
-#   `osascript <<EOT
-# tell app "QuickTime Player"
-#   new screen recording
-#   start document 1
-#   delay 5
-#   stop document 1
-#   export document 1 in "#{default_source_path}" using settings preset "480p"
-#   close document 1
-#   quit
-# end tell
-#   EOT`
-#   return
-
   # Ouvrir toujours le projet Scrivener (en réalité : une copie du
   # projet préparé)
   open_copie_scrivener_project || raise(NotAnError.new)
@@ -63,18 +46,11 @@ def exec(options=nil)
   # opérations ou sans.
   avec_assistant_operations = operations_are_defined?
 
-  ajout_assistant_operations =
-  if avec_assistant_operations
-    "Grâce aux fichiers définissant ces\nopérations, je vais pouvoir t'accompagner dans\nle détail."
-  else
-    "S'il y avait un fichier définissant\nles opérations, je pourrais t'accompagner beau-\ncoup mieux."
-  end
-
 
   puts <<-EOT
 
 Je vais t'accompagner au cours des opérations
-à exécuter. #{ajout_assistant_operations}
+à exécuter.
 
 
 À tout moment, si ça ne se passe pas bien, tu
@@ -88,19 +64,25 @@ peux interrompre la capture à l'aide de CTRL-C.
   pouvoir t'accompagner dans le détail.
 
     EOT
+  else
+    puts <<-EOT
+  S'il y avait un fichier définissant les opérations,
+  je pourrais t'accompagner beaucoup mieux."
+
+    EOT
   end
 
   yesOrStop("Prêt à commencer ?…")
 
   begin #Boucle jusqu'à ce qu'on arrive à une vidéo acceptable
 
-    dire("Active Scrivener et masque les autres applications avec Commande + Alte + H")
+    dire("Active Scrivener et masque les autres applications avec Commande, ALTE, H")
     sleep 3
     dire("Active la capture et règle-la avec les valeurs : tout l'écran, Minuteur : aucun, Microphone : microphone intégré")
 
     if avec_assistant_operations
-      sleep 4
       dire("Démarrage dans 10 secondes")
+      sleep 4
       decompte("Démarrage dans %{nombre_secondes}", 3)
       dire("Démarrage dans 5 secondes")
       decompte("Démarrage dans %{nombre_secondes}", 4, 'Audrey')

@@ -66,7 +66,16 @@ Que veux-tu faire :
     end
 
     def duplique_and_open
-      File.unlink(copie_path) if copie_exists?
+      begin
+        copie_exists? && File.unlink(copie_path)
+      rescue Exception => e
+        if e.class.name.to_s == 'Errno::EPERM'
+          # Problème de permission, je ne sais pas pourquoi
+          `rm "#{copie_path}"`
+        else
+          raise e
+        end
+      end
       FileUtils.cp_r(path, copie_path)
       `open -a Scrivener "#{copie_path}"`
       COMMAND.options[:quiet] && (return true)

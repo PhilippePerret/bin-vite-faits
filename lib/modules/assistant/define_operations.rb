@@ -51,6 +51,29 @@ def exec(options=nil)
       error "Je ne comprends pas ce choix. Je ne fais rien."
       return
     end
+  else
+    # <= Le fichier opérations n'est pas encore créé
+    # => on affiche un texte informatif.
+    clear
+    notice "=== Définition des opérations ==="
+    puts <<-EOT
+
+Nous allons définir les opérations à exécuter dans ce
+tutoriel. Cela consiste à définir :
+
+  id:   Un identifiant unique de l'opération,
+  assistant:    L'opération à exécuter, qui sera dite
+                par l'assistant si la création est as-
+                sistée.
+  voice:        Le texte qui devra être dit sur l'opé-
+                ration exécutée.
+  duration:     La durée optionnelle de l'opération, si
+                le texte est trop court. Car l'assistant
+                passe à l'opération suivante dès que son
+                texte a été dit.
+
+    EOT
+
   end
 
   operations = get_all_operations_voulues(operations)
@@ -86,8 +109,6 @@ def get_all_operations_voulues(operations = nil)
   operations_ids = {}
   operations.each { |op| operations_ids.merge!( op[:id] => true ) }
 
-  clear
-  notice "=== Définition des opérations ==="
   while true
     # identifiant de l'opération
     begin
