@@ -146,6 +146,10 @@ class ViteFait
     error "OK, on abandonne.\n\n"
   end
 
+  def update_from
+    require_module('update')
+    update
+  end
   # Retourne true si le fichier capture des
   # opérations existe, false dans le cas contraire.
   # Si +required+ est true, produit une erreur en

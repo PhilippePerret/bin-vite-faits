@@ -36,20 +36,24 @@ DATA_ALL_FILES = {
   },
   operations: {
     id: 'operations',
-    hname: "Fichier des opérations et textes",
-    relpath: 'Operations/operations.yaml'
+    hname: "Création du fichier des opérations et textes",
+    relpath: 'Operations/operations.yaml',
+    # Correspond à cette étape pour 'update from=...'
+    from_update: 'operations'
   },
 
   # = CAPTURE OPÉRATIONS =
   capture_mov:{
     id: 'capture_mov',
     hname: "Capture brute des opérations",
-    relpath: 'Operations/capture.mov'
+    relpath: 'Operations/capture.mov',
+    from_update: 'capture_operations'
   },
   capture_mp4: {
     id: 'capture_mp4',
     hname: "Assemblage des opérations et de la voix",
-    relpath: 'Operations/capture.mp4'
+    relpath: 'Operations/capture.mp4',
+    from_update: 'assemblage_capture_et_voix'
   },
   capture_ts:{
     id:'capture_ts',
@@ -61,7 +65,8 @@ DATA_ALL_FILES = {
   titre_mov: {
     id: 'titre_mov',
     hname: "Capture brute du titre",
-    relpath: 'Titre/Titre.mov'
+    relpath: 'Titre/Titre.mov',
+    from_update: 'titre'
   },
   titre_mp4: {
     id: 'titre_mp4',
@@ -78,7 +83,8 @@ DATA_ALL_FILES = {
   voice_mp4:{
     id: 'voice_mp4',
     hname: "Capture de la voix",
-    relpath: 'Voix/voice.mp4'
+    relpath: 'Voix/voice.mp4',
+    from_update: 'capture_voix'
   },
   voice_aiff:{
     id: 'voice_aiff',
@@ -88,7 +94,8 @@ DATA_ALL_FILES = {
   voice_aac:{
     id: 'voice_aac',
     hname: "Fichier voix pour assemblage avec opérations (.aac)",
-    relpath: 'Voix/voice.aac'
+    relpath: 'Voix/voice.aac',
+    from_update: 'improve_voice'
   },
 
   # = VIGNETTE =
@@ -102,7 +109,8 @@ DATA_ALL_FILES = {
   final_tutoriel:{
     id:'final_tutoriel',
     hname: "Fichier vidéo du tutoriel final (à uploader)",
-    relpath: 'Exports/%{name}_completed.mp4'
+    relpath: 'Exports/%{name}_completed.mp4',
+    from_update: 'assemblage'
   }
 }
 

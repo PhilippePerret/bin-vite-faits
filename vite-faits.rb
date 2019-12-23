@@ -46,6 +46,8 @@ when 'assemble'
   vitefait.is_required && vitefait.assemble
 when 'assemble_capture'
   vitefait.is_required && vitefait.assemble_capture
+when 'update'
+  vitefait.is_required && vitefait.update_from
 when 'open_scrivener'
   vitefait.is_required && vitefait.open_scrivener_project
 when 'open_vignette', 'edit_vignette'
