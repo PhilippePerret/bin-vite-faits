@@ -15,6 +15,18 @@ def yesNo(question)
   return IOConsole.yesNo(question)
 end
 
+# Pour poser une question et produire une erreur en cas d'autre réponse
+# que 'y'
+# Pour fonctionner, la méthode (ou la sous-méthode) qui utilise cette
+# formule doit se terminer par :
+#     rescue NotAnError => e
+#       e.puts_error_if_message
+#     end
+def yesOrStop(question)
+  yesNo(question) || raise(NotAnError.new)
+end
+
+
 def getChar(question)
   IOConsole.getChar(question)
 end

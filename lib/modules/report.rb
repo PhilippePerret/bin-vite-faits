@@ -20,25 +20,26 @@ class ViteFait
 
     clear
     puts "=== INFORMATION SUR UN TUTORIEL ===\n\n"
-      puts "Nom du dossier   : #{name}"
+      puts "Nom du dossier     : #{name}"
     if exists?
-      puts "Titre            : #{titre || '---'}"
-      puts "Titre anglais    : #{titre_en || '---'}"
-      puts "Description      : #{description || '---'}"
-      puts "Lieu actuel      : #{lieu} — #{hlieu}"
-      puts "YoutTube ID      : #{youtube_id || '---'}"
+      puts "Titre              : #{titre || '---'}"
+      puts "Titre anglais      : #{titre_en || '---'}"
+      puts "Description        : #{description || '---'}"
+      puts "Lieu actuel        : #{lieu} — #{hlieu}"
+      write_last_step_conception
+      puts "YoutTube ID        : #{youtube_id || '---'}"
       if informations[:annonce_FB]
-        notice "Annonce Facebook : oui"
+        notice "Annonce Facebook   : oui"
       else
-        error "Annonce Facebook : non"
+        error "Annonce Facebook   : non"
       end
       if informations[:annonce_Scriv]
-        notice "Annonce Lat&Lit  : oui"
+        notice "Annonce Lat&Lit    : oui"
       else
-        error "Annonce Lat&Lit  : non"
+        error "Annonce Lat&Lit    : non"
       end
     else
-      puts "Lieu actuel    : aucun — le dossier n'est pas créé"
+      puts "Lieu actuel      : aucun — le dossier n'est pas créé"
     end
     if self.defined?
       if self.exists?
@@ -80,5 +81,12 @@ class ViteFait
     end
     puts "\n\n\n"
   end #/exec_print_report
+
+  def write_last_step_conception
+    en_chantier? || return
+    require_module('conception')
+    laststep = conception.last_logic_step
+    puts "Last Concept Step  : #{laststep.index}. #{laststep.hname}"
+  end
 
 end

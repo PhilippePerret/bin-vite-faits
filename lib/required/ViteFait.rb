@@ -515,6 +515,8 @@ class ViteFait
   def folder_en_chantier?
     File.exists?(chantier_folder_path)
   end
+  alias :en_chantier? :folder_en_chantier?
+  
   def en_chantier_on_disk?
     File.exists?(chantierd_folder_path)
   end
