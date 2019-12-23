@@ -227,9 +227,7 @@ Que dois-je faire ?
   def convert_titre_final
     notice "* Conversion du titre.mov en titre.mp4…"
     titre_to_mp4
-    if titre_final_converted?
-      notice "Titre converti en fichier .mp4 👍"
-    else
+    unless titre_final_converted?
       error "Bizarrement, le titre n'a pas pu être converti…"
       raise NotAnError.new("Je dois m'arrêter là.")
     end

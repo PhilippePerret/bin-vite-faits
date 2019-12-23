@@ -12,7 +12,7 @@ class ViteFait
     unlink_if_exist([titre_mp4, titre_prov_mp4, titre_ts])
 
     # On enregistre le titre avec 1 secondes en moins
-    notice "🔧  Fabrication du fichier de titre assemblé. Merci de patienter…"
+    notice "📦  Fabrication du fichier de titre assemblé. Merci de patienter…"
     cmd = "ffmpeg -i \"#{titre_mov}\""
     # On doit la raccourcir
     unless COMMAND.options[:no_crop]
@@ -40,7 +40,7 @@ class ViteFait
     File.unlink(titre_prov_mp4) if File.exists?(titre_prov_mp4)
 
     if File.exists?(titre_mp4)
-      notice "= 👍  Fichier titre mp4 fabriqué avec succès."
+      notice "--> 👍  Fichier titre mp4 fabriqué avec succès."
     else
       error "Le fichier titre mp4 n'a pas pu être fabriqué…"
     end
