@@ -136,6 +136,15 @@ COMMAND_OTHER_PARAM_TO_REAL_PARAM = {
   'waiting' => 'en_attente'
 }
 
+COEF_DICTION = 0.07668
+
+# Pour calculer le coefficiant de diction, on fait lire plusieurs
+# textes à Audrey
+def update_coefficiant_diction
+  require_module('calcul_coefficiant_diction')
+  calcul_coefficiant_diction
+end
+
 # Les valeurs par défaut pour les messages obtenus par MSG
 # (cf. required/messages.rb et le manuel)
 def MSG_default_variables

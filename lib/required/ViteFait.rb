@@ -203,9 +203,9 @@ class ViteFait
 
   # Méthode générale utiliser pour ouvrir n'importe quel élément
   # du vite-fait
-  def open_something what = nil
+  def open_something what = nil, edition = nil
     require_module('open')
-    exec_open(what)
+    exec_open(what, edition)
   end
 
   # Méthode générique pour enregistrer les éléments.

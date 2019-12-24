@@ -15,6 +15,7 @@ class ViteFait
   # Taper `vite-faits test` en console
   def self.test
     # Mettre ici du code à essayer
+    update_coefficiant_diction
   end
 
   def self.finish

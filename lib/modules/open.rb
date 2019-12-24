@@ -2,19 +2,27 @@
 class ViteFait
 class << self
   def exec_open what
-    case COMMAND.folder
-    when 'bin', 'dev'
-      # Pour ouvrir le dossier bin dans Atom
-      `open -a Atom "#{BIN_FOLDER}"`
-    when 'disk'
-      `open -a Finder "#{VITEFAIT_FOLDER_ON_DISK}"`
-    when 'laptop'
-      `open -a Finder "#{VITEFAIT_FOLDER_ON_LAPTOP}"`
+    puts "what = '#{what}'"
+
+    case what
+    when 'folder_captures', 'folder-captures'
+      open_folder_captures
     else
-      if new(folder).exists?
-        new(folder).open_in_finder(COMMAND.params[:version])
+      folder = COMMAND.folder
+      case folder
+      when 'bin', 'dev'
+        # Pour ouvrir le dossier bin dans Atom
+        `open -a Atom "#{BIN_FOLDER}"`
+      when 'disk'
+        `open -a Finder "#{VITEFAIT_FOLDER_ON_DISK}"`
+      when 'laptop'
+        `open -a Finder "#{VITEFAIT_FOLDER_ON_LAPTOP}"`
       else
-        error "🖐  Je ne sais pas ouvrir '#{folder}'."
+        if new(folder).exists?
+          new(folder).open_in_finder(COMMAND.params[:version])
+        else
+          error "🖐  Je ne sais pas ouvrir '#{folder}'."
+        end
       end
     end
   end
@@ -22,7 +30,12 @@ end #<< self
 # ---------------------------------------------------------------------
 #   INSTANCE
 # ---------------------------------------------------------------------
-def exec_open what
+def exec_open what, edition = nil
+
+  if edition === nil
+    edition = !!COMMAND.options[:edit]
+  end
+
   COMMAND.folder || begin
     # Que ce soit une ouverture "direct" (comme le manuel, ou le dossier
     # bin) ou l'ouverture d'un élément du tutoriel, il faut toujours que
@@ -39,7 +52,7 @@ def exec_open what
     require_module('operations')
     exec_open_operations_file
   when 'scrivener'
-    if COMMAND.options[:edit]
+    if edition
       scrivener_project.open
     else
       res = scrivener_project.duplique_and_open
@@ -57,7 +70,7 @@ def exec_open what
       return false
     end
   when 'vignette'
-    if COMMAND.options[:edit]
+    if edition
       if File.exists?(vignette_gimp)
         `open -a Gimp "#{vignette_gimp}"`
         notice "Modifie le titre puis export en jpg sous le nom 'Vignette.jpg'"
@@ -70,7 +83,7 @@ def exec_open what
       puts "(ajoute -e/--edit pour éditer la vignette et la produire)"
     end
   when 'voice'
-    if COMMAND.options[:edit]
+    if edition
       # Éditer, c'est-à-dire modifier, dans Audacity
       edit_voice_file
     elsif COMMAND.options[:record]
@@ -104,7 +117,7 @@ def exec_open what
     end
     notice "Bon montage ! 👍"
   else
-    ViteFait.exec_open
+    ViteFait.exec_open(what)
   end
 end
 end #/ViteFait

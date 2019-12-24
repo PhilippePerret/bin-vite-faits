@@ -61,16 +61,24 @@ def exec(options=nil)
 Nous allons définir les opérations à exécuter dans ce
 tutoriel. Cela consiste à définir :
 
-  id:   Un identifiant unique de l'opération,
+  id:           Un identifiant unique de l'opération,
   assistant:    L'opération à exécuter, qui sera dite
-                par l'assistant si la création est as-
-                sistée.
-  voice:        Le texte qui devra être dit sur l'opé-
-                ration exécutée.
+                par l'assistant lors de la création as-
+                sistée. Ce texte doit décrire ce qu'il
+                faut faire précisément.
+  voice:        Le texte que je devrais dire sur les
+                opérations exécutées pour expliquer au
+                spectateur de la vidéo ce qui doit être
+                fait.
   duration:     La durée optionnelle de l'opération, si
-                le texte est trop court. Car l'assistant
-                passe à l'opération suivante dès que son
-                texte a été dit.
+                les textes sont trop courts par exemple.
+                Si cette valeur n'est pas définie expli-
+                citement, elle sera calculée d'après la
+                longueur du plus grand texte (entre l'as-
+                sitant et la 'voice'). Ce qui fait que
+                cette durée peut coller presque parfaite-
+                ment au texte qui sera dit dans le tuto-
+                riel.
 
     EOT
 

@@ -11,4 +11,9 @@ end
 
 class Float
 
+  # Retourne un flottant qui contient le nombre de décimales voulues
+  def with_decimal(nombre_decimales = 2)
+    e, d = self.to_s.split('.')
+    "#{e}.#{d[0..nombre_decimales-1]}".to_f
+  end
 end

@@ -87,19 +87,40 @@ peux interrompre la capture à l'aide de CTRL-C.
       dire("Démarrage dans 5 secondes")
       decompte("Démarrage dans %{nombre_secondes}", 4, 'Audrey')
       dire("C'est parti ! Mets en route la capture !")
+
+      # Boucle sur toutes les opérations
+      # --------------------------------
+
       get_operations.each do |operation|
-        if operation[:duration]
-          end_sleep_time = Time.now.to_i + operation[:duration]
-        end
-        `say -v Thomas -r 140 "#{operation[:assistant]}"`
-        if operation[:duration]
-          sleep_reste = end_sleep_time - Time.now.to_i
-          sleep_reste < 0 && sleep_reste = 0
+        op_start_time = Time.now.to_i
+
+        # Il faudrait savoir si la voix à dire sera plus longue que la voix
+        # de Thomas. On part du principe que la longueur * coefficiant donne
+        # le temps du texte.
+        duree_definie = operation[:duration] || 0
+        duree_assistant = (operation[:assistant].length * COEF_DICTION).with_decimal(1)
+        duree_voice     = (operation[:voice].length * COEF_DICTION).with_decimal(1)
+
+        # Débug
+        if duree_assistant > duree_voice
+          puts "La durée du texte de l'assistant (#{duree_assistant}) est plus long que la voix (#{duree_voice}). La durée de l'opération n'était pas définie, je le prends en référence de longueur."
         else
-          sleep_reste = 1
+          puts "La durée du texte de l'assistant (#{duree_assistant}) est plus courte que la voix (#{duree_voice}). La durée de l'opération n'était pas définie, je prends la voix en référence de longueur."
         end
+
+        duree_operationnelle = [duree_definie, duree_assistant, duree_voice].max
+
+        puts "Durée d'opération définie à : #{duree_operationnelle}"
+        end_sleep_time = op_start_time + duree_operationnelle
+
+        `say -v Thomas -r 140 "#{operation[:assistant]}"`
+        sleep_reste = end_sleep_time - Time.now.to_i
+        sleep_reste < 0 && sleep_reste = 0
         sleep sleep_reste
       end #/boucle sur toutes les opérations
+
+
+
       # À la fin, on laisse encore 3 secondes pour finir
       sleep 3
       dire "Arrête maintenant la capture. Et reviens dans le Terminal."

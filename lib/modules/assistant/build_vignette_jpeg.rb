@@ -6,7 +6,7 @@ def exec(options = nil)
   clear
   notice "Nous devons créer LA VIGNETTE"
 
-  open_vignette
+  open_something('vignette', edition = true)
   `open -a Terminal`
 
   puts <<-EOT
