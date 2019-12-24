@@ -203,10 +203,22 @@ class ViteFait
 
   # Méthode générale utiliser pour ouvrir n'importe quel élément
   # du vite-fait
-  def open_something
-    puts "Je vais ouvrir quelque chose."
+  def open_something what = nil
+    require_module('open')
+    exec_open(what)
   end
 
+  # Méthode générique pour enregistrer les éléments.
+  # +what+ peut être 'operations'/'o', 'titre'/'t', 'voice'/'v'
+  def record_something what
+    what = SHORT_SUJET_TO_REAL_SUJET[what] || what
+    send("record_#{what}".to_sym)
+  end
+
+  def assemble_something what
+    what = SHORT_SUJET_TO_REAL_SUJET[what] || what
+    send("assemble_#{what}".to_sym)
+  end
   # Ouvrir le dossier du tutoriel où qu'il soit enregistré
   def open_in_finder(version = nil)
     if version.nil?
@@ -228,40 +240,11 @@ class ViteFait
     end
   end
 
-  # Pour ouvrir le projet scrivener du tutoriel
-  def open_scrivener_project
-    require_module('scrivener_project')
-    scrivener_project.open
-  end
-  def open_copie_scrivener_project
-    require_module('scrivener_project')
-    oldquiet = !!COMMAND.options[:quiet]
-    COMMAND.options[:quiet] = true
-    res = scrivener_project.duplique_and_open
-    COMMAND.options[:quiet] = oldquiet
-    return res
-  end
   def scrivener_project
-    @scrivener_project ||= ScrivenerProject.new(self)
-  end
-
-  # Pour ouvrir le fichier des opérations
-  def open_operations_file
-    require_module('operations')
-    exec_open_operations_file
-  end
-
-  # Pour ouvrir le fichier screenflow ou Premiere
-  def open_montage
-    if File.exists?(screenflow_path)
-      `open -a ScreenFlow "#{screenflow_path}"`
-    elsif File.exists?(premiere_path)
-      `open "#{premiere_path}"`
-    else
-      error "🖐  Impossible de trouver un fichier de montage à ouvrir…"
-      return
+    @scrivener_project ||= begin
+      require_module('scrivener_project')
+      ScrivenerProject.new(self)
     end
-    notice "Bon montage ! 👍"
   end
 
   def open_if_exists folder, version
@@ -286,27 +269,10 @@ class ViteFait
     end
   end
 
-  def open_vignette
-    if File.exists?(vignette_gimp)
-      `open -a Gimp "#{vignette_gimp}"`
-      notice "Modifie le titre puis export en jpg sous le nom 'Vignette.jpg'"
-    else
-      error "Le fichier vignette est introuvable\n#{vignette_gimp}"
-    end
-  end
-
-  def open_titre(nomessage = true)
-    if File.exists?(titre_path)
-      `open -a Scrivener "#{titre_path}"`
-    else
-      error "Le fichier Titre.scriv est introuvable…\n#{titre_path}"
-    end
-  end
-
   def record_titre
     require_module('assistant/record_titre')
     exec
-    notice "Pour finaliser ce titre, joue :\n\n\tvite-fait titre_to_mp4[ #{name}]"
+    notice "Pour finaliser ce titre, joue :\n\n\tvite-fait assemble_titre[ #{name}]"
   rescue NotAnError => e
     e.puts_error_if_message
     error "J'abandonne…"
@@ -329,9 +295,9 @@ class ViteFait
   end
 
   # Méthode de transformation du titre en fichier mp4
-  def titre_to_mp4
-    require_module('titre_to_mp4')
-    exec_titre_to_mp4
+  def assemble_titre
+    require_module('assemble_titre')
+    exec_assemble_titre
   end
 
 
@@ -369,7 +335,7 @@ class ViteFait
 
   # Pour assister la fabrication finale de la voix du tutoriel
   # en affichant le texte défini dans le fichier des opérations.
-  def assistant_voix_finale
+  def record_voice
     require_module('assistant/record_voice')
     exec
   rescue NotAnError => e

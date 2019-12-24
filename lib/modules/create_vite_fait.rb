@@ -51,13 +51,6 @@ class ViteFait
         notice "--> VIGNETTE : ./Vignette/Vignette.xcf 👍"
       end
 
-      # Copie du gabarit Screenflow
-      unless File.exists?(screenflow_path)
-        src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.screenflow')
-        FileUtils.copy_entry(src, screenflow_path)
-        notice "---> Screenflow : ./Montage.screenflow 👍"
-      end
-
       # Le dossier final qu'il faudra ouvrir.
       # Car l'utilisateur veut peut-être créer un fichier en attente
       final_folder = chantier_folder_path

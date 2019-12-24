@@ -26,9 +26,10 @@ when 'list', 'liste'
   ViteFait.list.display
 when 'open'
   ViteFait.open(COMMAND.folder)
-when /^open\-(.*)$/
-  puts "-> COMMAND.action = #{COMMAND.action} / #{$1} / #{vitefait.is_required.inspect}"
+when /^open[\-_](.*)$/
   vitefait.is_required && vitefait.open_something($1)
+when /^record[\-_](.*)$/
+  vitefait.is_required && vitefait.record_something($1)
 when 'assistant'
   ViteFait.assistant
 when 'create'
@@ -41,24 +42,12 @@ when 'lire_operations'
   vitefait.is_required && vitefait.record_operations
 when 'capture_to_mp4', 'traite_capture'
   vitefait.is_required && vitefait.capture_to_mp4
-when 'titre_to_mp4', 'traite_titre'
-  vitefait.is_required && vitefait.titre_to_mp4
-when 'montage'
-  vitefait.is_required && vitefait.open_montage
+when /^assemble[\-_](.*)$/
+  vitefait.is_required && vitefait.assemble_something($1)
 when 'assemble'
   vitefait.is_required && vitefait.assemble
-when 'assemble_capture'
-  vitefait.is_required && vitefait.assemble_capture
 when 'update'
   vitefait.is_required && vitefait.update_from
-when 'open_scrivener'
-  vitefait.is_required && vitefait.open_scrivener_project
-when 'open_vignette', 'edit_vignette'
-  vitefait.is_required && vitefait.open_vignette
-when 'open_titre'
-  vitefait.is_required && vitefait.open_titre
-when 'operations'
-  vitefait.is_required && vitefait.open_operations_file
 when 'edit_voice'
   vitefait.is_required && vitefait.edit_voice_file
 when 'keep_only'

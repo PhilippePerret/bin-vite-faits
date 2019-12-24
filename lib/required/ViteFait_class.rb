@@ -158,7 +158,7 @@ class ViteFait
     when 'titre', 'title'
       vitefait.is_required && vitefait.record_titre
     when 'voice', 'voix', 'texte'
-      vitefait.name_is_required || vitefait.assistant_voix_finale
+      vitefait.name_is_required || vitefait.record_voice
     else
       require_module('creation_assistant')
       create_with_assistant

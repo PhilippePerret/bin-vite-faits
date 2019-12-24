@@ -97,7 +97,7 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
     self.class.make_ts_file( mp4_path, ts_path )
   end
   def prepare_titre
-    File.exists?(titre_mp4) || titre_to_mp4
+    File.exists?(titre_mp4) || assemble_titre
     self.class.make_ts_file(titre_mp4, titre_ts)
   end
 

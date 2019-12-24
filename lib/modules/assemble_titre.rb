@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class ViteFait
 
-  def exec_titre_to_mp4
+  def exec_assemble_titre
     unless File.exists?(titre_mov)
       raise "🖐  Le fichier `Titre.mov` est introuvable. Il faut capturer le titre en se servant du fichier Titre.scriv"
     end

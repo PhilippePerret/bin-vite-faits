@@ -1,4 +1,14 @@
 
+class ViteFait
+  SHORT_SUJET_TO_REAL_SUJET = {
+    'o'   => 'operations',
+    's'   => 'scrivener',
+    't'   => 'titre',
+    'v'   => 'voice',
+    'vi'  => 'vignette'
+  }
+end #/ViteFait
+
 MIN_OPT_TO_REAL_OPT = {
   'e' => 'edit',
   'f' => 'force',

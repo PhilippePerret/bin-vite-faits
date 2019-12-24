@@ -23,7 +23,7 @@ def exec(options=nil)
 
   # Ouvrir toujours le projet Scrivener (en réalité : une copie du
   # projet préparé)
-  open_copie_scrivener_project || raise(NotAnError.new)
+  open_something('scrivener') || raise(NotAnError.new)
 
   clear
   `open -a Terminal`
@@ -32,7 +32,7 @@ def exec(options=nil)
   # Si un fichier capture.mov existe déjà, on demande à l'utilisateur
   # si on doit le détruire pour le recommencer
   if operations_are_recorded?
-    error "\n[NON FATAL] Un enregistrement des opérations existe déjà."
+    error "\n[NON FATAL] Une capture des opérations existe déjà."
     choix_final = false
     if yesNo("Dois-je le détruire pour recommencer ?")
       choix_final = yesNo("Confirmes-tu la DESTRUCTION DÉFINITIVE de l'enregistrement ?")

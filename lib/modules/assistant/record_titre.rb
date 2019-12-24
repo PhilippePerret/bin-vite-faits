@@ -23,7 +23,9 @@ capture du titre.
 
   EOT
 
-  open_titre(nomessage = true) || return
+  oldquiet = COMMAND.options[:quiet]
+  COMMAND.options[:quiet] = true
+  open_something('titre') || return
   `open -a Terminal`
   yesOrStop("Es-tu prêt ?")
 
