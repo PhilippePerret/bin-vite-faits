@@ -6,6 +6,8 @@ class << self
       error "Il faut indiquer ce qu'il faut ouvrir…"
     else
       case folder
+      when 'operations'
+        # TODO Ouvrir en lecture ou en édition
       when 'bin', 'dev'
         # Pour ouvrir le dossier bin dans Atom
         `open -a Atom "#{BIN_FOLDER}"`

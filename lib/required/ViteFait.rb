@@ -74,8 +74,10 @@ class ViteFait
   def is_required
     name_is_required && (return false)
 
-    if self.defined? && self.exists? && self.valid?
+    if self.defined? && exists? && valid?
       return true
+    elsif self.defined? && exists? && !valid?
+      return error "Le tutoriel #{name} n'est pas valide…"
     elsif self.defined?
       candidat = self.class.get_nearer_from_name(name)
       if candidat.nil?
@@ -88,10 +90,13 @@ class ViteFait
         end
         force_tutoriel(candidat[:name])
         return true
+      else
+        return error "Je n'ai trouvé aucun tutoriel de le nom est ou ressemble à '#{name}'.\n\n"
       end
     else
       error "Un tutoriel existant et valide est requis pour cette opération.\nJe dois m'arrêter là."
     end
+    return false
   end
 
   def force_tutoriel name
@@ -196,6 +201,11 @@ class ViteFait
   #   Méthodes d'ouverture
   # ---
 
+  # Méthode générale utiliser pour ouvrir n'importe quel élément
+  # du vite-fait
+  def open_something
+    puts "Je vais ouvrir quelque chose."
+  end
 
   # Ouvrir le dossier du tutoriel où qu'il soit enregistré
   def open_in_finder(version = nil)

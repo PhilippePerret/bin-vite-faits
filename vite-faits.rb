@@ -26,6 +26,9 @@ when 'list', 'liste'
   ViteFait.list.display
 when 'open'
   ViteFait.open(COMMAND.folder)
+when /^open\-(.*)$/
+  puts "-> COMMAND.action = #{COMMAND.action} / #{$1} / #{vitefait.is_required.inspect}"
+  vitefait.is_required && vitefait.open_something($1)
 when 'assistant'
   ViteFait.assistant
 when 'create'
