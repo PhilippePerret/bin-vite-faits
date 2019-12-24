@@ -670,7 +670,7 @@ class ViteFait
       fname = File.basename(pth)
       if fname === default_source_fname
         return default_source_fname
-      elsif fname.downcase != 'titre.mov'
+      elsif fname.downcase != 'capture.mov'
         # On va renommer ce fichier pour qu'il porte le bon nom
         FileUtils.move(pth, default_source_path)
         return default_source_fname

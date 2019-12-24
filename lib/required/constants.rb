@@ -24,20 +24,21 @@ MIN_OPT_TO_REAL_OPT = {
 #   - faire un bilan avant d'assister une reprise de création
 #   - pouvoir updater à partir d'un fichier en particulier
 DATA_KEYS_FILES_OPERATION = [
-  'informations',
-  'titre_mov',
-  'titre_mp4',
-  'vignette_jpg',
-  'operations',
-  'capture_mov',
-  'voice_mp4',
-  'voice_aiff',
-  'voice_aac',
-  'capture_mp4',
-  'titre_ts',
-  'capture_ts',
-  'final_tutoriel'
+  :informations,
+  :titre_mov,
+  :titre_mp4,
+  :vignette_jpg,
+  :operations,
+  :capture_mov,
+  :capture_mp4,
+  :voice_mp4,
+  :voice_aiff,
+  :voice_aac,
+  :titre_ts,
+  :capture_ts,
+  :final_tutoriel
 ]
+
 DATA_ALL_FILES = {
   informations: {
     id:'informations',

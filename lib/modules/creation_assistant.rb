@@ -40,6 +40,7 @@ arrêté.
     tuto.build_vignette_jpeg          unless tuto.vignette_finale_existe?(false)
 
     tuto.define_operations            unless tuto.operations_are_defined?(false,false)
+
     # Enregistrement des opérations
     tuto.record_operations            unless tuto.operations_are_recorded?(false,false)
 
@@ -50,6 +51,10 @@ arrêté.
 
     # Enregistrement de la voix
     tuto.ask_for_record_voice         unless tuto.voice_capture_exists?(false,false)
+
+    # S'il existe un fichier .aiff on regarde s'il est plus jeune que le
+    # fichier mp4 dans lequel cas on demande à refaire le mp4.
+    tuto.check_for_reconvert_voice    if File.exists?(tuto.vocal_capture_aiff_path)
 
     # Assemblage de la capture des opérations et de la capture de
     # la voix (ou du fichier voix)
@@ -183,12 +188,12 @@ Que dois-je faire ?
   # Effacer tous les fichiers depuis l'étape bilan d'index
   # +index+ (dans DATA_ALL_FILES)
   def remove_files_from(index)
-    keyFile = DATA_KEYS_FILES_OPERATION[index]
+    keyFile = DATA_KEYS_FILES_OPERATION[index].to_sym
     datFile = DATA_ALL_FILES[keyFile]
     question = "Confirmes-tu bien la suppression de tous les fichiers existants après l'étape “#{datFile[:hname]}” ?"
     yesNo(question) || return
     DATA_KEYS_FILES_OPERATION[index..-1].each do |kfile|
-      dfile = DATA_ALL_FILES[kfile]
+      dfile = DATA_ALL_FILES[kfile.to_sym]
       dfile[:relpath] || next # pas un fichier
       path = File.join(current_folder, (dfile[:relpath] % {name: name}))
       File.exists?(path) || next # le fichier n'existe pas
@@ -310,6 +315,28 @@ commande :
     # l'écran, ou le faire défiler progressivement.
     require_relative('assistant/record_voice')
     exec
+  end
+
+  def check_for_reconvert_voice
+    mtime_aiff  = File.stat(vocal_capture_aiff_path).mtime.to_i
+    mtime_mp4   = File.stat(vocal_capture_path).mtime.to_i
+
+    # Si le fichier mp4 est plus vieux que le fichier aiff, rien à
+    # faire. Sinon, ça signifie que le fichier aiff a été modifié après
+    # la fabrication du mp4 et qu'il faut donc certainement le refaire.
+    mtime_mp4 > mtime_aiff && return # rien à faire
+
+    puts <<-EOT
+
+Le fichier voix AIFF a été modifié depuis la production du
+fichier voix MP4.
+
+    EOT
+    if yesNo("Dois-je reconvertir le fichier .aiff en .mp4 final ?")
+      require_module('convert_voice_aiff')
+      convert_voice_aiff_to_voice_mp4
+    end
+
   end
 
   # Méthode qui procède à l'assemblage final des éléments
