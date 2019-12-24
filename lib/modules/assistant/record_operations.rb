@@ -38,7 +38,7 @@ def exec(options=nil)
       choix_final = yesNo("Confirmes-tu la DESTRUCTION DÉFINITIVE de l'enregistrement ?")
     end
     choix_final || return
-    File.unlink(src_path)
+    IO.remove_with_care(src_path,'fichier source principal',false)
 
   end
 

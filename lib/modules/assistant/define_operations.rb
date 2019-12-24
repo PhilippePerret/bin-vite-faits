@@ -36,7 +36,7 @@ def exec(options=nil)
     case getChar(demande).downcase
     when 'a'
       # Détruire le fichier
-      File.unlink(operations_path)
+      IO.remove_with_care(operations_path,'fichier des opérations',false)
     when 'b'
       # Poursuivre le fichier
       operations = get_operations

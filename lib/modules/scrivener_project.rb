@@ -67,7 +67,7 @@ Que veux-tu faire :
 
     def duplique_and_open
       begin
-        copie_exists? && File.unlink(copie_path)
+        IO.remove_with_care(copie_path,'copie',false)
       rescue Exception => e
         if e.class.name.to_s == 'Errno::EPERM'
           # Problème de permission, je ne sais pas pourquoi

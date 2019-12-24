@@ -33,7 +33,7 @@ def exec(options = nil)
   # fichier existe déjà)
   if File.exists?(vocal_capture_path)
     yesOrStop("Un fichier voix existe déjà… Dois-je vraiment le détruire et le remplacer ?")
-    File.unlink(vocal_capture_path)
+    IO.remove_with_care(vocal_capture_path,'fichier voix',false)
   end
 
   # Précaution : le fichier capture.mp4 doit impérativement

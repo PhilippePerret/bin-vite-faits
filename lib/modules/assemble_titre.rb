@@ -37,7 +37,7 @@ class ViteFait
     # Jouer la commande
     res = `#{cmd}`
 
-    File.unlink(titre_prov_mp4) if File.exists?(titre_prov_mp4)
+    IO.remove_with_care(titre_prov_mp4,'fichier titre provisoire',false)
 
     if File.exists?(titre_mp4)
       notice "--> 👍  Fichier titre mp4 fabriqué avec succès."

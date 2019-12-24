@@ -22,7 +22,7 @@ class ViteFait
     prepare_assemblage
 
     # Le fichier final doit être détruit s'il existe
-    File.unlink(completed_path) if File.exists?(completed_path)
+    IO.remove_with_care(completed_path,'fichier tutoriel final',false)
     cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}|#{ts_path}|#{final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{completed_path}\""
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"
     if COMMAND.options[:verbose] && !nomessage

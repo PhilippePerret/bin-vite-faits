@@ -197,12 +197,7 @@ Que dois-je faire ?
       dfile[:relpath] || next # pas un fichier
       path = File.join(current_folder, (dfile[:relpath] % {name: name}))
       File.exists?(path) || next # le fichier n'existe pas
-      File.unlink(path)
-      if File.exists?(path)
-        error "Le fichier #{dfile[:hname]} (*) n'a pas pu être détruit…\n(*) #{path}"
-      else
-        notice "Fichier #{dfile[:hname]} (*) détruit avec succès !\n(*) #{path}"
-      end
+      IO.remove_with_care(path,"fichier #{dfile[:hname]}",true)
     end
   end
 

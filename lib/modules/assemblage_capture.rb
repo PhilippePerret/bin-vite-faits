@@ -34,7 +34,7 @@ class ViteFait
 
     # On produit une copie sans son, qui servira de base
     mp4_copy_path = pathof("#{name}-copie.mp4")
-    File.unlink(mp4_copy_path) if File.exists?(mp4_copy_path)
+    IO.remove_with_care(mp4_copy_path,'fichier copie mp4',false)
     res = `ffmpeg -i "#{mp4_path}" -c copy -an "#{mp4_copy_path}" 2> /dev/null`
     # ATTENTION : ici, pas question de supprimer le 2> /dev/null,
     # mêmem si la verbosité a été demandée, car cela empêcherait
@@ -46,7 +46,7 @@ class ViteFait
     end
 
     # On doit détruire le mp4
-    File.unlink(mp4_path)
+    IO.remove_with_care(mp4_path,'fichier mp4',false)
 
     # Commande finale pour assembler l'image et le son
     notice "📦  Assemblage en cours, merci de patienter…"
@@ -61,7 +61,7 @@ class ViteFait
     end
 
     # On peut détruire la copie
-    File.unlink(mp4_copy_path)
+    IO.remove_with_care(mp4_copy_path,'fichier copie mp4',false)
 
   end #/exec_assemblage_capture
 

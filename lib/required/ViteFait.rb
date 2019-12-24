@@ -594,10 +594,7 @@ class ViteFait
   # Détruit un fichier s'il existe
   def unlink_if_exist liste
     liste.each do |pth|
-      if File.exists?(pth)
-        File.unlink(pth)
-        notice "---> Destruction de ./#{relative_pathof(pth)}"
-      end
+      IO.remove_with_care(pth,"./#{relative_pathof(pth)}",true)
     end
   end
 

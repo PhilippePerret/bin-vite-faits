@@ -43,8 +43,7 @@ class ViteFait
       NotAnError.new("🚫  Le fichier capture.mp4 (*) n'a pas pu être fabriqué…\(*) #{mp4_path}")
     end
 
-    File.unlink(mp4_cropped_path) if File.exists?(mp4_cropped_path)
-
+    IO.remove_with_care(mp4_cropped_path,'fichier mp4 croppé',false)
   end
 
 end  #/ViteFait
