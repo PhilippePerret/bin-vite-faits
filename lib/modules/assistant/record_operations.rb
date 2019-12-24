@@ -74,19 +74,23 @@ peux interrompre la capture à l'aide de CTRL-C.
 
   yesOrStop("Prêt à commencer ?…")
 
+  is_first_time = true
+
   begin #Boucle jusqu'à ce qu'on arrive à une vidéo acceptable
 
     dire("Active Scrivener et masque les autres applications avec Commande, ALTE, H")
-    sleep 3
+    sleep 3 if is_first_time
     dire("Active la capture et règle-la avec les valeurs : tout l'écran, Minuteur : aucun, Microphone : microphone intégré")
 
     if avec_assistant_operations
-      dire("Démarrage dans 10 secondes")
-      sleep 4
-      decompte("Démarrage dans %{nombre_secondes}", 3)
+      if is_first_time
+        dire("Démarrage dans 10 secondes")
+        sleep 4
+        decompte("Démarrage dans %{nombre_secondes}", 3)
+      end
       dire("Démarrage dans 5 secondes")
       decompte("Démarrage dans %{nombre_secondes}", 4, 'Audrey')
-      dire("C'est parti ! Mets en route la capture !")
+      dire("Mets en route la capture !")
 
       # Boucle sur toutes les opérations
       # --------------------------------
@@ -100,17 +104,9 @@ peux interrompre la capture à l'aide de CTRL-C.
         duree_definie = operation[:duration] || 0
         duree_assistant = (operation[:assistant].length * COEF_DICTION).with_decimal(1)
         duree_voice     = (operation[:voice].length * COEF_DICTION).with_decimal(1)
-
-        # Débug
-        if duree_assistant > duree_voice
-          puts "La durée du texte de l'assistant (#{duree_assistant}) est plus long que la voix (#{duree_voice}). La durée de l'opération n'était pas définie, je le prends en référence de longueur."
-        else
-          puts "La durée du texte de l'assistant (#{duree_assistant}) est plus courte que la voix (#{duree_voice}). La durée de l'opération n'était pas définie, je prends la voix en référence de longueur."
-        end
-
         duree_operationnelle = [duree_definie, duree_assistant, duree_voice].max
 
-        puts "Durée d'opération définie à : #{duree_operationnelle}"
+        # Calcul du temps de fin
         end_sleep_time = op_start_time + duree_operationnelle
 
         `say -v Thomas -r 140 "#{operation[:assistant]}"`
@@ -123,14 +119,14 @@ peux interrompre la capture à l'aide de CTRL-C.
 
       # À la fin, on laisse encore 3 secondes pour finir
       sleep 3
-      dire "Arrête maintenant la capture. Et reviens dans le Terminal."
+      dire "Arrête maintenant la capture (les deux dernières secondes seront supprimées). Puis reviens dans le Terminal."
     else
       # Sans assistant opérations, on attend la fin
       dire "Tu peux lancer la capture quand tu veux."
       dire "Lorsque tu auras fini, arrête la capture et reviens dans le Terminal."
     end
-    dire "Pour information, les deux dernières secondes seront supprimées."
 
+    is_first_time = false # si on remonte, on n'attendra moins
   end while !yesNo("Cette capture est-elle bonne ? (tape 'n' pour la recommencer)")
 
   # On va prendre la dernière capture effectuée pour la mettre en
