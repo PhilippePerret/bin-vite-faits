@@ -11,7 +11,7 @@ class ViteFait
     end
     alias :goto_manual :goto_manuel
   end #/<< self
-  
+
   # Initialisation de la commande
   def self.init
     require_module('check_init')
@@ -22,7 +22,9 @@ class ViteFait
   # Taper `vite-faits test` en console
   def self.test
     # Mettre ici du code à essayer
-    update_coefficiant_diction
+    promptBlink('TITRE', 'TITRE de l’opération')
+    puts "\n\n"
+    # puts "\033[31;5m Title of the Program \033[0m"
   end
 
   def self.finish

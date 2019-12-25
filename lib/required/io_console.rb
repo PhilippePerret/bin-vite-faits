@@ -3,6 +3,9 @@
   Les méthodes d'entrée/sortie utiles pour le Terminal
 =end
 
+def promptBlink(amorce, question)
+  return IOConsole.wait_for_string_with_blink_double_message(amorce, question)
+end
 def prompt(question)
   return IOConsole.wait_for_string(question)
 end
@@ -91,6 +94,23 @@ class << self
     end
   end
   alias :prompt :wait_for_string
+
+  # Méthode complexe qui affiche +amorce+ en clignotant, avant
+  # de placer la +question+ et d'attendre un texte
+  def wait_for_string_with_blink_double_message(amorce, question, options = {})
+    blank_question = " " * (question.length + 1)
+    blank_amorce = " " * (amorce.length)
+    puts "\e[?25l"
+    4.times do |i|
+      print "\033[42;7m #{blank_amorce} \033[0m\r"
+      sleep 0.11
+      print "\033[42;7m #{amorce} \033[0m\r"
+      sleep 0.11
+    end
+    print "\033[42;7m #{question} \033[0m"
+    print "\e[?25h"
+    wait_for_string('')
+  end
 
   def wait_for_char question
     print "\n#{question}"
