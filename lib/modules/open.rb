@@ -18,7 +18,10 @@ class << self
       else
         if folder.nil? && COMMAND.options[:help]
           puts "Vous voulez de l'aide sur la commande ouvrir ?"
-          `open -a Preview "file:///#{VITEFAIT_PDF_MANUAL_PATH}#commandesopen"`
+          # `open -a #{DEFAULT_BROWSER} "file:///#{VITEFAIT_HTML_MANUAL_PATH_ON_LAPTOP}\#commandesopen"`
+          # `open -a #{DEFAULT_BROWSER} "file:///#{VITEFAIT_HTML_MANUAL_PATH_ON_LAPTOP}#commandesopen"`
+          # `open -a #{DEFAULT_BROWSER} "file:///#{VITEFAIT_HTML_MANUAL_PATH_ON_LAPTOP}\?anchor=commandesopen"`
+          `open -a #{DEFAULT_BROWSER} "http://localhost/#{VITEFAIT_HTML_MANUAL_PATH}#commandesopen"`
         elsif folder && new(folder).exists?
           new(folder).open_in_finder(COMMAND.params[:version])
         else

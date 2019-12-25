@@ -1,4 +1,6 @@
 
+DEFAULT_BROWSER = "Firefox"
+
 class ViteFait
   SHORT_SUJET_TO_REAL_SUJET = {
     'o'   => 'operations',
@@ -150,7 +152,7 @@ end
 # Les valeurs par défaut pour les messages obtenus par MSG
 # (cf. required/messages.rb et le manuel)
 def MSG_default_variables
-  {name:(vitefait && vitefait.name), titre:(vitefait && vitefait.titre), lieu:(vitefait && vitefait.lieu)}
+  {name:(vitefait.defined? && vitefait.name), titre:(vitefait.exists? && vitefait.titre), lieu:(vitefait.exists? && vitefait.lieu)}
 end
 
 # Données pour les types de version de tutoriel qu'on peut trouver
@@ -182,5 +184,7 @@ end
 VITEFAIT_MARKDOWN_MANUAL_PATH    = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.md')
 VITEFAIT_PDF_MANUAL_PATH  = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.pdf')
 VITEFAIT_PDF_MANUAL_PATH_ON_LAPTOP = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Manuel-les-vite-faits.pdf')
+VITEFAIT_HTML_MANUAL_URI = File.join('LesViteFaits','Manuel-les-vite-faits.html')
+VITEFAIT_HTML_MANUAL_PATH = File.join(Dir.home,'Sites','LesViteFaits','Manuel-les-vite-faits.html')
 
 VITEFAIT_MATERIEL_FOLDER = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel')

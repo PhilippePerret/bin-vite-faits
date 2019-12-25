@@ -459,6 +459,7 @@ class ViteFait
   end
 
   def exists?
+    self.defined? || (return false)
     lieu && File.exists?(current_folder)
   end
 

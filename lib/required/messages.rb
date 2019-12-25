@@ -5,9 +5,20 @@ end
 def notice msg, options = {}
   COMMAND.options[:silence] || puts("\033[1;32m#{msg}\033[0m")
 end
+def warn msg, options = {}
+  write_yellow msg
+end
 
 def write_green msg
   puts "\033[1;32m#{msg}\033[0m"
+end
+# def write_orange msg
+#   (20..90).each do |i|
+#     puts "#{i} : \033[1;#{i}m#{msg}\033[0m"
+#   end
+# end
+def write_gras msg
+  puts "\033[1;38m#{msg}\033[0m"
 end
 def write_purple msg
   puts "\033[1;34m#{msg}\033[0m"
@@ -44,12 +55,10 @@ end #/ TempMSG
 
 # Gestion des messages template
 # -----------------------------
-# @param {Symbol} msg_id
-#                 Quand c'est un symbol, msg_id définit le message à retourner
-# @param {Hash}   msg_id
-#                 Quand c'est une table, msg_id définit les messages à ajouter
-# @param {Hash}   params
-#                 La définition optionnelle des variables.
+# +Params+
+#   +msg_id+::  [Symbol]  ID du message à retourner.
+#               [Hash]    Table des messages
+#   +params+::  [Hash]    Table des variables
 #
 # Usage
 # -----
