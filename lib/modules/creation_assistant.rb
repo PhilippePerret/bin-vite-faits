@@ -202,19 +202,19 @@ Que dois-je faire ?
   end
 
   def set_generales_informations
-    yesNo("Prêt à définir les informations générales ?") || return
+    yesNo("Prêt à définir les informations générales ?") || raise(NotAnError.new)
     require_relative 'assistant/generales_informations'
     exec
   end
 
   def record_titre
-    yesNo("Prêt pour enregistrer le titre animé ?") || return
+    yesNo("Prêt pour enregistrer le titre animé ?") || raise(NotAnError.new)
     require_relative 'assistant/record_titre'
     exec
   end
 
   def build_vignette_jpeg
-    yesNo("Prêt pour fabriquer la vignette ?") || return
+    yesNo("Prêt pour fabriquer la vignette ?") || raise(NotAnError.new)
     require_relative 'assistant/build_vignette_jpeg'
     exec
   end
