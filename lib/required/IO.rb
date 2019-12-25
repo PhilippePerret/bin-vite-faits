@@ -73,8 +73,10 @@ class << self
         return true
       end
     else
-      error "🚫  Impossible de trouver le #{thing} (*) à détruire…\n(*) #{path}"
-      return false
+      # Si le fichier n'existe pas, il n'y a rien à faire
+      # TODO il faudrait un moyen, quand même, de préciser qu'il faut
+      # faire une alerte dans certaines situation.
+      return true
     end
   rescue Exception => e
     error e.message
