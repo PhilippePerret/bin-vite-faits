@@ -15,16 +15,50 @@
 class IO
 class << self
 
+  # Copie le fichier +src+ vers le ficheir +dst+ en s'assurant que
+  # l'opération s'est bien passée
+  def copy_with_care(src,dst,what = nil, interactive = true)
+    (src && src != '')  || raise(ArgumentError.new("Le chemin d'accès au fichier source doit impérativement être défini."))
+    File.exists?(src)   || raise(ArgumentError.new("Impossible de trouver le fichier source (*)… Je dois renoncer.\n(*) #{src}"))
+    (dst && dst != '')  || raise(ArgumentError.new("Le chemin d'accès au fichier destination doit impérativement être défini."))
+    what ||= (File.directory?(src) ? 'dossier' : 'fichier')
+    # Il faut détruire le fichier destination s'il existe
+    remove_with_care(dst,"#{what} destination",interactive,force=true) || return
+    # On fait la copy
+    FileUtils.copy(src,dst)
+
+    if File.exists?(dst)
+      notice "👍  Le #{what} source a été dupliqué." if interactive
+    else
+      error "🚫  Le #{what} source (*) n'a pas pu être dupliqué…\n(*) #{path}"
+      return false
+    end
+
+    # On vérifie l'intégrité du fichier
+    if Digest::SHA2.file(src).hexdigest == Digest::SHA2.file(dst).hexdigest
+      notice "👍  Les deux fichiers sont identiques." if interactive
+    else
+      error "🚫  Les deux fichiers sont différents (checksum)… La copie n'est pas correcte."
+      return false
+    end
+    return true # tout s'est bien passé
+  end
+
   # Détruit un élément en s'assurant qu'il existe et qu'il n'existe plus
   # à la fin.
   # Retourne TRUE en cas de succès, false dans le cas contraire.
-  # @param {String} path
   # Params:
-  #   +path+:: [String] Le chemin d'accès à l'élément à détruire
-  def remove_with_care(path, thing = nil, interactive = true)
+  #   +path+::  [String] Le chemin d'accès à l'élément à détruire
+  #   +thing+:: [String] La désignation humaine de l'élément à détruire.
+  #   +interactive+:: [Boolean] Si true, on affiche les messages. Sinon,
+  #             l'opération reste silencieuse.
+  #   +force+:: [Boolean] Si true, on ne vérifie pas que le fichier se trouve
+  #             dans le dossier de l'utilisateur courant. À utiliser seulement
+  #             si on est sûr.
+  def remove_with_care(path, thing = nil, interactive = true, force = false)
     (path && path != '') || raise(ArgumentError.new("Le chemin d'accès doit impérativement être défini."))
-    (path.start_with?('/') && path.start_with?(Dir.home)) || raise(ArgumentError.new("Par mesure de prudence, il est interdit de détruire un élément hors du “home” de l'utilisateur."))
-    thing ||= "dossier/fichier"
+    (path.start_with?('/') && (path.start_with?(Dir.home) || force)) || raise(ArgumentError.new("Par mesure de prudence, il est interdit de détruire un élément hors du “home” de l'utilisateur."))
+    thing ||= (File.directory?(src) ? 'dossier' : 'fichier')
     if File.exists?(path)
       if File.directory?(path)
         FileUtils.rm_rf(path)
@@ -44,7 +78,7 @@ class << self
     end
   rescue Exception => e
     error e.message
-    error "Je ne procède pas à la destruction demandée."
+    error "Je ne procède pas à la destruction."
   end #/remove_with_case
 
 

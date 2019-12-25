@@ -2,8 +2,6 @@
 class ViteFait
 class << self
   def exec_open what
-    puts "what = '#{what}'"
-
     case what
     when 'folder_captures', 'folder-captures'
       open_folder_captures
@@ -18,7 +16,10 @@ class << self
       when 'laptop'
         `open -a Finder "#{VITEFAIT_FOLDER_ON_LAPTOP}"`
       else
-        if new(folder).exists?
+        if folder.nil? && COMMAND.options[:help]
+          puts "Vous voulez de l'aide sur la commande ouvrir ?"
+          `open -a Preview "file:///#{VITEFAIT_PDF_MANUAL_PATH}#commandesopen"`
+        elsif folder && new(folder).exists?
           new(folder).open_in_finder(COMMAND.params[:version])
         else
           error "🖐  Je ne sais pas ouvrir '#{folder}'."

@@ -8,7 +8,8 @@ class ViteFait
 
   # Initialisation de la commande
   def self.init
-
+    require_module('check_init')
+    check_init
   end
 
   # Pour faire un test ou des tests de code
@@ -20,6 +21,7 @@ class ViteFait
 
   def self.finish
     data.update
+    check_before_finish
   end
 
   # Pour aider à la conception
@@ -57,10 +59,10 @@ class ViteFait
   end
 
   def self.open_help
-    if COMMAND.options[:edit] || !File.exists?(VITEFAIT_MANUAL_PATH)
-      `open -a Typora "#{VITEFAIT_HELP_PATH}"`
+    if COMMAND.options[:edit] || !File.exists?(VITEFAIT_PDF_MANUAL_PATH)
+      `open -a Typora "#{VITEFAIT_MARKDOWN_MANUAL_PATH}"`
     else
-      `open "#{VITEFAIT_MANUAL_PATH}"`
+      `open "#{VITEFAIT_PDF_MANUAL_PATH}"`
     end
   end
 

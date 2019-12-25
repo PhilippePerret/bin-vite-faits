@@ -4,6 +4,11 @@
   Les erreurs qu'on peut rencontrer
 =end
 
+# Pour des erreurs non fatale
+class NonFatalError < StandardError; end
+# Pour des erreurs fatales
+class FatalError < StandardError; end
+
 # Utiliser pour interrompre une création, comme avec l'assistant
 class NotAnError < StandardError
 
@@ -13,5 +18,5 @@ class NotAnError < StandardError
     end
     return false
   end
-  
+
 end

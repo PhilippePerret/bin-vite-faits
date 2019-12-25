@@ -179,19 +179,8 @@ DATA_LIEUX.each do |klieu, dlieu|
   eval("VITEFAIT_#{klieu.to_s.upcase}_FOLDER = File.join(VITEFAIT_FOLDER_ON_#{dlieu[:place].to_s.upcase}, dlieu[:folder_name])")
 end
 
-if File.exists?(VITEFAIT_FOLDER_ON_LAPTOP)
-  unless File.exists?(VITEFAIT_CHANTIER_FOLDER)
-    puts "ERROR : Le dossier '#{VITEFAIT_CHANTIER_FOLDER}' est introuvable…"
-  end
-else
-  puts "ERROR : Le dossier '#{VITEFAIT_FOLDER_ON_LAPTOP}' est introuvable…"
-end
-
-unless File.exists?(VITEFAIT_FOLDER_ON_DISK)
-  puts "ERROR : Le dossier '#{VITEFAIT_FOLDER_ON_DISK}' est introuvable…"
-end
-
-VITEFAIT_HELP_PATH    = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.md')
-VITEFAIT_MANUAL_PATH  = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.pdf')
+VITEFAIT_MARKDOWN_MANUAL_PATH    = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.md')
+VITEFAIT_PDF_MANUAL_PATH  = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.pdf')
+VITEFAIT_PDF_MANUAL_PATH_ON_LAPTOP = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Manuel-les-vite-faits.pdf')
 
 VITEFAIT_MATERIEL_FOLDER = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel')
