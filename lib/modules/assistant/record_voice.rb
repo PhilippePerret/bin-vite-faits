@@ -94,7 +94,7 @@ de plus que la vidéo de capture, pour être sûr.
 L'enregistrement se terminera dans #{reste_secondes.to_i} secondes.
 
     EOT
-    decompte("Arrêt de l'enregistrement dans %{nombre_secondes}", reste_secondes)
+    decompte("Stop in… %{nombre_secondes}", reste_secondes)
   end
 
   if File.exists?(vocal_capture_path)
@@ -181,7 +181,7 @@ commentaire de la vidéo.
   duree_voice = duree_capture + 20 # au cas où
 
   yesOrStop("Es-tu prêt ? (je vais compter 10 secondes avant de commencer)")
-  decompte("Démarrage de l'enregistrement dans %{nombre_secondes}",5, 'Audrey')
+  decompte("Enregistrement dans %{nombre_secondes}",5, 'Audrey')
 
   # Mettre en route l'enregistrement
   # cmd = "ffmpeg -f avfoundation -i \":0\" -t 10 \"#{vocal_capture_path}\" &"
@@ -206,13 +206,20 @@ EOS`
   if avec_assistant
     operations.each_with_index do |operation, index|
       clear
-      if index > 0
-        puts "\n\n(#{operations[index-1][:voice]})"
-      end
-      notice "\n\n\n« #{operation[:voice]} »"
-      if operations[index+1]
-        puts "\n\n\n(suivant : #{operations[index+1][:voice]})"
-      end
+      puts <<-EOT
+
+\033[1;90m(#{(operations[index-1]||{})[:voice]})\033[0m
+
+
+
+\033[1;32m– #{operation[:voice]}\033[0m
+
+
+
+\033[1;90m(#{(operations[index-1]||{})[:voice]})\033[0m
+
+
+      EOT
       SPACEOrQuit("Passer au texte suivant ?")
     end
   else
@@ -227,7 +234,7 @@ def assistant_voix_finale_without_video
   operations = get_operations
   notice "Enregistrement de la voix sans la vidéo"
   yesNo("Es-tu prêt à enregistrer ? (je compterai 5 secondes)") || return
-  decompte("Démarrage dans %{nombre_secondes}", 5)
+  decompte("Start in… %{nombre_secondes}", 5)
   clear
   operations.each do |operation|
     if operation[:duration]
