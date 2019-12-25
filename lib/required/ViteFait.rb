@@ -551,9 +551,27 @@ class ViteFait
     existe
   end
 
+  def video_sur_youtube?
+    url = "https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=#{youtube_id}"
+    res = `cUrl "#{url}" 2> /dev/null`
+    return res != 'Not Found'
+  end
+
   # ---------------------------------------------------------------------
   #   Méthodes pour se rendre sur les lieux
   # ---------------------------------------------------------------------
+
+  def video_url
+    @video_url ||= begin
+      if youtube_id.nil?
+        error "Ce tutoriel ne semble pas encore déposé sur YouTube."
+        nil
+      else
+        "https://www.youtube.com/watch?v=#{youtube_id}"
+      end
+    end
+  end
+
   def chaine_youtube
     `open -a Safari "#{url_chaine}"`
     sleep 2

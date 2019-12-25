@@ -380,9 +380,16 @@ yahoo et le code normal.
     yesOrStop("Es-tu prêt ?")
     chaine_youtube
     yesOrStop("La vidéo est uploadée ? Prêt à poursuivre ?")
-    unless video_uploaded?
+    # Pour s'assurer que l'upload a bien eu lieu, on essaie
+    # d'atteindre la vidéo
+    if video_sur_youtube?
+      notice "J'ai trouvé la vidéo sur YouTube 👍"
       informations.set(uploaded: true)
+    else
+      raise(NotAnError.new("🚫  Je n'ai pas pu trouver la vidéo sur YouTube, malheureusement…"))
+      informations.set(uploaded: false)
     end
+
   end #/ask_for_upload_video
 
 

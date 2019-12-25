@@ -98,7 +98,7 @@ class ViteFait
     @temp_annonce_facebook ||= begin
       <<-EOT
 Je suis heureux de vous annoncer 📣 la diffusion d'un nouveau tutoriel “vite-fait” 🖥. Il s'intitule “#{titre}”#{f_description(:facebook)}. Bon visionnage à vous !
-https://www.youtube.com/watch?v=#{youtube_id}
+#{video_url}
       EOT
     end
   end
@@ -110,9 +110,9 @@ Bonjour à tous,
 
 🥁 Dans la série des « Vite-faits », je suis heureux de vous annoncer un nouveau tutoriel ! 📣
 
-[url=https://www.youtube.com/watch?v=#{youtube_id}][size=150][b]#{titre}[/b][/size] [i](#{titre_en})[/i]#{f_description(:scrivener)}[/url]
+[url=#{video_url}][size=150][b]#{titre}[/b][/size] [i](#{titre_en})[/i]#{f_description(:scrivener)}[/url]
 
-[url=https://www.youtube.com/watch?v=#{youtube_id}][attachment=0]Vignette.jpg[/attachment][/url]
+[url=#{video_url}][attachment=0]Vignette.jpg[/attachment][/url]
 
 [size=85]N'hésitez pas à le liker si vous l'appréciez (c'est une façon simple et gratuite d'encourager son créateur), à laisser des avis pour que les prochains soient encore meilleurs ou à proposer de nouveaux sujets que vous aimeriez voir développés. Merci à vous ![/size]
 

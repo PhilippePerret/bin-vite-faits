@@ -22,9 +22,11 @@ class ViteFait
   # Taper `vite-faits test` en console
   def self.test
     # Mettre ici du code à essayer
-    promptBlink('TITRE', 'TITRE de l’opération')
-    puts "\n\n"
-    # puts "\033[31;5m Title of the Program \033[0m"
+    if vitefait.video_sur_youtube?
+      notice "La vidéo a été trouvée sur YouTube"
+    else
+      error "La vidéo n'existe pas sur YouTube"
+    end
   end
 
   def self.finish
@@ -174,7 +176,7 @@ class ViteFait
     when 'voice', 'voix', 'texte'
       vitefait.name_is_required || vitefait.record_voice
     else
-      require_module('creation_assistant')
+      require_module('assistant')
       create_with_assistant
     end
   end
