@@ -9,15 +9,15 @@ class << self
     MSG({
       folder_chantier_unfound: "
 ERROR : le dossier des tutoriels en chantier (*) est introuvable…
-#{VITEFAIT_CHANTIER_FOLDER}
+(*) #{VITEFAIT_CHANTIER_FOLDER}
       ",
       folder_laptop_unfound: "
-ERROR : Le dossier vite-faits sur le disque est introuvable…
-#{VITEFAIT_FOLDER_ON_LAPTOP}
+ERROR : Le dossier vite-faits sur le disque (*) est introuvable…
+(*) #{VITEFAIT_FOLDER_ON_LAPTOP}
       ",
       folder_disque_unfound:"
-ERROR : Le dossier Vite-faits sur le disque est introuvable…
-#{VITEFAIT_FOLDER_ON_DISK}
+ERROR : Le dossier Vite-faits sur le disque (*) est introuvable…
+(*) #{VITEFAIT_FOLDER_ON_DISK}
       ",
       manuel_html_unfound: "
 ATTENTION : le fichier HTML du manuel (permettant de ce rendre
@@ -28,7 +28,7 @@ Markdown en HTML dans :
       manuel_html_outofdata: <<-EOT
 Le fichier HTML du manuel (*) n'est pas à jour. Il faut l'actualiser
 en exportant le manuel markdown en HTML à l'adresse :
-#{VITEFAIT_HTML_MANUAL_PATH}
+(*) #{VITEFAIT_HTML_MANUAL_PATH}
       EOT
       })
     # Le dossier sur l'ordinateur

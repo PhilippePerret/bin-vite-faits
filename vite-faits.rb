@@ -68,6 +68,8 @@ when 'groupe_facebook'
   vitefait.groupe_facebook
 when 'forum_scrivener'
   vitefait.forum_scrivener
+when 'operations'
+  return ViteFait.goto_manual('lesoperations') if COMMAND.options[:help]
 else
   error "Impossible de traiter l'action #{COMMAND.action}"
 end

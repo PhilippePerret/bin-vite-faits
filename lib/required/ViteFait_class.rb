@@ -5,7 +5,13 @@ end
 
 class ViteFait
 
-
+  class << self
+    def goto_manuel anchor
+      `open -a #{DEFAULT_BROWSER} "http://localhost/#{VITEFAIT_HTML_MANUAL_URI}##{anchor}"`
+    end
+    alias :goto_manual :goto_manuel
+  end #/<< self
+  
   # Initialisation de la commande
   def self.init
     require_module('check_init')
@@ -153,6 +159,9 @@ class ViteFait
   # le tutoriel aussi bien que les assistants qui permettent d'accompagner
   # l'enregistrement de la voix ou de lire les opérations à exécuter.
   def self.assistant
+    if COMMAND.options[:help]
+      return goto_manual('commandesassistant')
+    end
     case COMMAND.params[:pour]
     when 'operations'
       vitefait.is_required && vitefait.create_file_operations

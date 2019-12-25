@@ -18,6 +18,9 @@ class ViteFait
     check_tutoriel
   end
 
+  def goto_manual(anchor); self.class.goto_manual(anchor) end
+  alias :goto_manuel :goto_manual
+
   # ---------------------------------------------------------------------
   #   Les méthodes test et d'état
   # ---------------------------------------------------------------------
@@ -119,8 +122,12 @@ class ViteFait
 
   # Pour créer le vite-fait
   def create(nomessage = true)
-    require_module('create_vite_fait')
-    exec_create(nomessage)
+    if COMMAND.options[:help]
+      goto_manual('creationdossiertutoriel')
+    else
+      require_module('create_vite_fait')
+      exec_create(nomessage)
+    end
   end
 
   # ---
@@ -129,6 +136,7 @@ class ViteFait
 
   # Pour créer le fichier des opérations de façon assistées
   def create_file_operations
+    return goto_manual('lesoperations') if COMMAND.options[:help]
     require_module('operations')
     assistant_creation_file
   end
@@ -137,6 +145,7 @@ class ViteFait
   # Attention : il faut avoir vérifié avant que le fichier existait
   # à l'aide de `operations_are_defined?`
   def get_operations
+    return goto_manual('lesoperations') if COMMAND.options[:help]
     operations_are_defined? || return
     YAML.load_file(operations_path).to_sym
   end
@@ -144,6 +153,7 @@ class ViteFait
 
   # Pour lancer la lecture des opérations définies
   def record_operations
+    return goto_manual('lesoperations') if COMMAND.options[:help]
     require_module('assistant/record_operations')
     exec
   rescue NotAnError => e
@@ -193,6 +203,7 @@ class ViteFait
 
   # Pour afficher l'état du tutoriel
   def write_rapport
+    return goto_manual('lerapport') if COMMAND.options[:help]
     require_module('report')
     exec_print_report
   end
