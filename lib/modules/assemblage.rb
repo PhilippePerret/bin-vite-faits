@@ -128,9 +128,17 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
       version_path = File.join(exports_folder, "#{name}_v-#{version}.mp4")
       File.exists?(version_path) || break
     end
-    FileUtils.copy(completed_path, version_path)
-    notice "Version #{name}_v-#{version}.mp4 produite avec succès 👍"
-    notice "(mais la dernière est toujours la '#{name}_completed.mp4')"
+    FileUtils.move(completed_path, version_path)
+    if File.exists?(version_path)
+      notice "Version #{name}_v-#{version}.mp4 produite avec succès 👍"
+      notice "(mais la dernière est toujours la '#{name}_completed.mp4')"
+    else
+      raise NotAnError.new("Le fichier version (*) devrait exister…\n(*) #{version_path}")
+    end
+    if File.exists?(completed_path)
+      raise NotAnError.new("Le fichier completed (*) ne devrait plus exister…\n(*) #{completed_path}")
+    end
+    return true
   end
 
   # ---------------------------------------------------------------------
