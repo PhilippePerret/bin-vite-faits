@@ -14,7 +14,7 @@ if COMMAND.options[:help] && COMMAND.action.nil?
 end
 
 case COMMAND.action
-when 'help', 'manuel'
+when 'help', 'manuel', 'aide'
   ViteFait.open_help
 when 'conception'
   ViteFait.aide_conception
@@ -70,8 +70,14 @@ when 'forum_scrivener'
   vitefait.forum_scrivener
 when 'operations'
   return ViteFait.goto_manual('lesoperations') if COMMAND.options[:help]
+when NilClass
+  error <<-EOT
+🚫  Il faut définir la commande à jouer ! Taper
+`vite-faits aide` ou `vite-faits manuel` pour
+obtenir de l'aide en ouvrant le manuel.
+  EOT
 else
-  error "Impossible de traiter l'action #{COMMAND.action}"
+  error "🚫  Impossible de traiter la commande #{COMMAND.action}."
 end
 
 ViteFait.finish
