@@ -32,14 +32,7 @@ def exec(options=nil)
   # Si un fichier capture.mov existe déjà, on demande à l'utilisateur
   # si on doit le détruire pour le recommencer
   if operations_are_recorded?
-    error "\n[NON FATAL] Une capture des opérations existe déjà."
-    choix_final = false
-    if yesNo("Dois-je le détruire pour recommencer ?")
-      choix_final = yesNo("Confirmes-tu la DESTRUCTION DÉFINITIVE de l'enregistrement ?")
-    end
-    choix_final || return
-    IO.remove_with_care(src_path,'fichier source principal',false)
-
+    ask_for_new_version_or_destroy_record_operations
   end
 
   # Pour savoir si on doit enregistrer avec l'assistant des
@@ -98,12 +91,15 @@ peux interrompre la capture à l'aide de CTRL-C.
       get_operations.each do |operation|
         # TODO Exposer la class ViteFait::Operation pour pouvoir l'utiliser
         # ici aussi, et notamment récupérer `duree_estimee`
+        # Attention : ça changement tous les operation[:duration] et autres
+        # propriétés en operation.duration (mais on gardera quand même la
+        # méthode '[]' par prudence)
         op_start_time = Time.now.to_i
 
         # Il faudrait savoir si la voix à dire sera plus longue que la voix
         # de Thomas. On part du principe que la longueur * coefficiant donne
         # le temps du texte.
-        duree_definie = operation[:duration] || 0
+        duree_definie   = operation[:duration] || 0
         duree_assistant = (operation[:assistant].length * COEF_DICTION).with_decimal(1)
         duree_voice     = (operation[:voice].length * COEF_DICTION).with_decimal(1)
         duree_operationnelle = [duree_definie, duree_assistant, duree_voice].max
@@ -130,6 +126,7 @@ peux interrompre la capture à l'aide de CTRL-C.
 
     is_first_time = false # si on remonte, on n'attendra moins
   end while !yesNo("Cette capture est-elle bonne ? (tape 'n' pour la recommencer)")
+
 
   # On va prendre la dernière capture effectuée pour la mettre en
   # fichier capture
@@ -158,4 +155,65 @@ Tu peux modifier ce document, dans Vim, avec :
   end
 
   yesOrStop("Tape 'y' pour poursuivre.")
+end
+
+# Méthode appelée quand il existe déjà un enregistrement des opérations,
+# pour savoir s'il faut faire une nouvelle version ou détruire le fichier
+def ask_for_new_version_or_destroy_record_operations
+  puts <<-EOT
+
+Une capture des opérations existe déjà. Que dois-je
+faire ?
+
+  A Faire une nouvelle version (en mettant l'ancienne
+    de côté),
+
+  B Détruire la version existante pour la refaire
+    complètement.
+
+  EOT
+  while true
+    case (getChar("Ton choix :")||'').upcase
+    when 'A'
+      make_new_version_record_operations
+      break
+    when 'B'
+      if yesNo("Confirmes-tu la DESTRUCTION DÉFINITIVE de l'enregistrement ?")
+        IO.remove_with_care(src_path,'record des opérations',false)
+        IO.remove_with_care(mp4_path, 'record des opérations (.mp4)',false)
+        IO.remove_with_care(ts_path,'record des opérations (.ts)',false)
+        break
+      end
+    when 'Q'
+      raise NotAnError.new()
+    else
+      error("Je ne connais pas ce choix")
+    end
+  end #/fin de boucle en attendant un choix valide
+end #/ask_for_new_version_or_destroy_record_operations
+
+# Méthode pour produire une nouvelle version du fichier
+def make_new_version_record_operations
+  iversion = 0
+  path_version = nil
+  while path_version.nil?
+    iversion += 1
+    path_version = pathof(File.join('Operations',"capture-v#{iversion}.mp4"))
+    path_version = nil if File.exists?(path_version)
+  end
+  # Il faut faire le fichier mp4 s'il n'existe pas
+  # (noter qu'ici le fichier .mov existe forcément)
+  File.exists?(mp4_path) || capture_to_mp4
+  # On peut créer la nouvelle version
+  FileUtils.move(mp4_path, path_version)
+  notice "Version Operations/capture_v#{iversion}.mp4 produite 👍"
+  IO.remove_with_care(ts_path,'record des opérations',false)
+
+  if File.exists?(mp4_path)
+    raise NotAnError.new("Le fichier original (*) ne devrait pas exister…\n(*) #{mp4_path}")
+  end
+  unless File.exists?(path_version)
+    raise NotAnError.new("Le fichier version (*) devrait exister…\n(*) #{path_version}")
+  end
+  return true
 end

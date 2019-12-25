@@ -21,8 +21,10 @@ class ViteFait
     # capture des opérations, en ts)
     prepare_assemblage
 
-    # Le fichier final doit être détruit s'il existe
-    IO.remove_with_care(completed_path,'fichier tutoriel final',false)
+    # Si un fichier final existe, on produit une nouvelle version
+    # de façon silencieuse et systématique.
+    make_new_version_complete if File.exists?(completed_path)
+
     cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}|#{ts_path}|#{final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{completed_path}\""
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"
     if COMMAND.options[:verbose] && !nomessage
@@ -114,6 +116,21 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
   end
   def final_ts
     @final_ts ||= self.class.final_ts
+  end
+
+  # Méthode qui produit une nouvelle version de la vidéo complète
+  def make_new_version_complete
+    version_path  = nil
+    version       = nil
+    (0..199).each do |ivers|
+      iversion = 200 - ivers
+      version = iversion.to_s.rjust(3,'0')
+      version_path = File.join(exports_folder, "#{name}_v-#{version}.mp4")
+      File.exists?(version_path) || break
+    end
+    FileUtils.copy(completed_path, version_path)
+    notice "Version #{name}_v-#{version}.mp4 produite avec succès 👍"
+    notice "(mais la dernière est toujours la '#{name}_completed.mp4')"
   end
 
   # ---------------------------------------------------------------------

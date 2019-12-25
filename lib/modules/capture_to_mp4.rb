@@ -14,9 +14,10 @@ class ViteFait
     fichier_ref =
       unless COMMAND.options[:no_crop]
         # Pour raccourcir la vidéo (ne pas voir l'arrêt)
-        duree_initiale = Video.dureeOf(src_path).to_i.as_horloge
+        duree_initiale = Video.dureeOf(src_path)
+        duree_initiale_f = duree_initiale.to_i.as_horloge
         duree_raccourcie = (duree_initiale - 2).to_i.as_horloge
-        puts "Raccourcissement de #{duree_initiale} à #{duree_raccourcie} "
+        puts "Raccourcissement de #{duree_initiale_f} à #{duree_raccourcie} "
         cmd << " -ss 00:00:00 -t #{duree_raccourcie} #{mp4_cropped_path}"
         COMMAND.options[:verbose] || cmd << " 2> /dev/null"
         `#{cmd}`
