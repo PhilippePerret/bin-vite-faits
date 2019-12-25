@@ -62,6 +62,8 @@ Nous allons définir les opérations à exécuter dans ce
 tutoriel. Cela consiste à définir :
 
   id:           Un identifiant unique de l'opération,
+  titre:        Le titre qui résume l'opération en
+                question.
   assistant:    L'opération à exécuter, qui sera dite
                 par l'assistant lors de la création as-
                 sistée. Ce texte doit décrire ce qu'il
@@ -127,6 +129,12 @@ def get_all_operations_voulues(operations = nil)
     end while operation_id_invalid?(operation_id, operations_ids)
     raise NotAnError.new() if operation_id == 'q'
 
+    # Titre de l'opération
+    begin
+      operation_titre = prompt("TITRE de l'opération")
+    end while operation_titre.nil?
+    raise NotAnError.new() if operation_titre == 'q'
+
     # Manipulation à opérer
     begin
       operation_assistant = prompt("Message à DIRE par l'assistant")
@@ -145,6 +153,7 @@ def get_all_operations_voulues(operations = nil)
 
     operations << {
       id:         operation_id,
+      titre:      operation_titre,
       assistant:  operation_assistant,
       voice:      operation_voice,
       duration:   operation_duration

@@ -96,6 +96,8 @@ peux interrompre la capture à l'aide de CTRL-C.
       # --------------------------------
 
       get_operations.each do |operation|
+        # TODO Exposer la class ViteFait::Operation pour pouvoir l'utiliser
+        # ici aussi, et notamment récupérer `duree_estimee`
         op_start_time = Time.now.to_i
 
         # Il faudrait savoir si la voix à dire sera plus longue que la voix
