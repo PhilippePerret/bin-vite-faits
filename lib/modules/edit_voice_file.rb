@@ -12,8 +12,8 @@ Il faudra enregistrer le résultat au format AIFF en utilisant
 le menu "Fichier > Exporter > Exporter l'audio…" ou le raccour-
 ci CMD+MAJ+E. L'extension devra être “.aiff”.
 
-ATTENTION : quand on exporte depuis Audacity, on ne se retrouve
-pas obligatoirement dans le bon dossier.
+\033[1;31mATTENTION : quand on exporte depuis Audacity, on ne se retrouve
+pas dans le bon dossier.\033[0m
 
 Raccourcis pratiques à avoir en tête :
 
