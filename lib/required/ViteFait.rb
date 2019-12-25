@@ -230,6 +230,13 @@ class ViteFait
     what = SHORT_SUJET_TO_REAL_SUJET[what] || what
     send("assemble_#{what}".to_sym)
   end
+
+  def voir_something what
+    require_module('voir')
+    exec_voir(what)
+  end
+
+
   # Ouvrir le dossier du tutoriel où qu'il soit enregistré
   def open_in_finder(version = nil)
     if version.nil?

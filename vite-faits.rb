@@ -30,6 +30,8 @@ when /^open[\-_](.*)$/
   vitefait.is_required && vitefait.open_something($1)
 when /^record[\-_](.*)$/
   vitefait.is_required && vitefait.record_something($1)
+when /^voir[\-_](.*)$/
+  vitefait.is_required && vitefait.voir_something($1)
 when 'assistant'
   ViteFait.assistant
 when 'create'
