@@ -30,10 +30,7 @@ class ViteFait
       # Copie du fichier scrivener pour la capture des opérations
       unless File.exists?(scriv_file_path) # options --lack
         src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Vite-Faits.scriv')
-        FileUtils.copy_entry(src, scriv_file_path)
-        src_x = File.join(scriv_file_path,'Vite-Faits.scrivx')
-        dst_x = File.join(scriv_file_path, "#{name}.scrivx")
-        FileUtils.move(src_x, dst_x)
+        ViteFait.scrivener_copy(src,scriv_file_path)
         notice "--> Scrivener : #{scriv_file_name} 👍"
       end
 

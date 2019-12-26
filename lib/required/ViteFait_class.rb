@@ -181,6 +181,18 @@ class ViteFait
     end
   end
 
+  # Pour procéder à la copie d'un fichier Scrivener, en sachant que
+  # par le bash, il faut copier le fichier .scriv et modifier le
+  # nom du fichier .scrivx dans le paquet
+  def self.scrivener_copy(src, dst)
+    # FileUtils.cp_r(src, dst)
+    FileUtils.copy_entry(src, dst)
+    src_x = File.join(dst,File.basename(src)+'x')
+    dst_x = File.join(dst,"#{File.basename(dst,File.extname(dst))}.scrivx")
+    puts "Transformer :\n#{src_x}\nen\n#{dst_x}"
+    FileUtils.move(src_x,dst_x)
+  end
+
   class << self
     # Chemin d'accès au son de la machine à écrire
     def machine_a_ecrire_path

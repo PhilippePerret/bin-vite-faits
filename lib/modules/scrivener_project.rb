@@ -76,7 +76,7 @@ Que veux-tu faire :
           raise e
         end
       end
-      FileUtils.cp_r(path, copie_path)
+      ViteFait.scrivener_copy(path, copie_path)
       `open -a Scrivener "#{copie_path}"`
       COMMAND.options[:quiet] && (return true)
       puts <<-EOT
