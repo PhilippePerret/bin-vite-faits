@@ -35,7 +35,11 @@ when /^voir[\-_](.*)$/
 when 'assistant'
   ViteFait.assistant
 when 'create'
-  vitefait.name_is_required || vitefait.create
+  if COMMAND.options[:assistant]
+    ViteFait.assistant
+  else
+    vitefait.name_is_required || vitefait.create
+  end
 when 'move','deplace', 'deplacer'
   vitefait.is_required && vitefait.move
 when 'rapport', 'report'

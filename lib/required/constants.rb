@@ -12,6 +12,7 @@ class ViteFait
 end #/ViteFait
 
 MIN_OPT_TO_REAL_OPT = {
+  'a' => 'assistant',
   'e' => 'edit',
   'f' => 'force',
   'h' => 'help',
