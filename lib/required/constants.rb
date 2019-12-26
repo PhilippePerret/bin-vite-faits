@@ -35,7 +35,7 @@ DATA_KEYS_FILES_OPERATION = [
   :capture_mov,
   :capture_mp4,
   :voice_mp4,
-  :voice_aiff,
+  # :voice_aiff,
   :voice_aac,
   :titre_ts,
   :capture_ts,
@@ -100,11 +100,11 @@ DATA_ALL_FILES = {
     relpath: 'Voix/voice.mp4',
     from_update: 'capture_voix'
   },
-  voice_aiff:{
-    id: 'voice_aiff',
-    hname: "Capture de la voix modifié avec Audacity (ou autre)",
-    relpath: 'Voix/voice.aiff'
-  },
+  # voice_aiff:{
+  #   id: 'voice_aiff',
+  #   hname: "Capture de la voix modifié avec Audacity (ou autre)",
+  #   relpath: 'Voix/voice.aiff'
+  # },
   voice_aac:{
     id: 'voice_aac',
     hname: "Fichier voix pour assemblage avec opérations (.aac)",

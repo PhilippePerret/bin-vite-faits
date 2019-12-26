@@ -72,9 +72,16 @@ arrêté.
   rescue NotAnError => e
     # Interruption de la création
     e.puts_error_if_message
-    notice "\n\nOK, on s'arrête là."
-    unless tuto.nil?
-      notice "Tu pourras reprendre n'importe quand on tapant à nouveau le nom du dossier '#{tuto.name}'"
+    if tuto.nil?
+      notice "\n\nOK, on s'arrête là."
+    else
+      notice <<-EOM
+
+OK, on s'arrête là. Tu pourras reprendre n'importe
+quand on tapant à nouveau la commande :
+
+    vite-faits assistant #{tuto.name}
+      EOM
     end
   ensure
     print "\n\n\n"
@@ -305,7 +312,7 @@ commande :
   def ask_for_record_voice
     # Il n'est pas sûr que l'utilisateur veuille enregistrer une nouvelle
     # voix
-    yesNo("Veux-tu procéder à l'enregistrement de la voix ?") || return
+    yesOrStop("Veux-tu procéder à l'enregistrement de la voix ?")
     # S'il existe un fichier avec les opérations, on va écrire le texte à
     # l'écran, ou le faire défiler progressivement.
     require_relative('assistant/record_voice')
@@ -355,8 +362,11 @@ d'autres occupations en attendant.
 
     notice "👍  --> Assemblage complet effectué avec succès."
 
-    if yesNo("Veux-tu l'éditer dans Screenflow ?")
+    case yesNo("Veux-tu l'éditer dans Screenflow ?")
+    when true
       `open -a Screenflow "#{completed_path}"`
+    when NilClass
+      raise NotAnError.new
     end
 
     yesOrStop("Prêt à poursuivre ?")

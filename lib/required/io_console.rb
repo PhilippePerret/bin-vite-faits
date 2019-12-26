@@ -76,7 +76,7 @@ class << self
     print "\n#{question} (y/n/q) "
     begin
       char = getChar
-      char == 'y' if char == 'o'
+      char = 'y' if char == 'o'
     end while char != 'y' && char != 'n' && char != 'q'
     if char == 'q'
       return nil

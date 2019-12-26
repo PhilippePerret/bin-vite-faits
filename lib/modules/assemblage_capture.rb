@@ -16,7 +16,7 @@ class ViteFait
       COMMAND.options[:verbose] || cmd << " 2> /dev/null"
       res = `#{cmd}`
       if File.exists?(voice_aac)
-        notice "--> Fichier voix AAC produit avec succès 👍"
+        notice "---> Fichier voix AAC produit avec succès 👍"
       else
         return error "Impossible de produire le fichier voix AAC. Je dois renoncer."
       end

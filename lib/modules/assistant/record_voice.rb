@@ -103,11 +103,14 @@ L'enregistrement se terminera dans #{reste_secondes.to_i} secondes.
     raise NotAnError.new("Fichier voix (*) introuvable. La voix n'a pas été enregistrée.\n(*) #{vocal_capture_path}")
   end
 
-  yesNo("Paré pour la suite ?")
+  yesOrStop("Paré pour la suite ?")
 
-  if yesNo("Veux-tu l'ouvrir dans Audacity pour la peaufiner ?")
+  case yesNo("Veux-tu l'ouvrir dans Audacity pour la peaufiner ?")
+  when true
     require_module('edit_voice_file')
     edition_fichier_voix
+  when NilClass
+    raise NotAnError.new
   end
 
   yesOrStop("Prêt à poursuivre ?")

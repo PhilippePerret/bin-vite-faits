@@ -172,7 +172,7 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
       cmd = "ffmpeg -i \"#{src}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{dst}\""
       COMMAND.options[:verbose] || cmd << " 2> /dev/null"
       res = `#{cmd}`
-      notice "---> Production de #{dst} 👍"
+      notice "---> Production de #{relative_pathof(dst)} 👍"
     end
 
     def intro_prepared?
