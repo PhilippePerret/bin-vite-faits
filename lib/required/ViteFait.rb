@@ -843,7 +843,7 @@ class ViteFait
 
   # Introduction propre ?
   def has_own_intro?
-    File.exists?(own_intro_mp4) || File.exists(own_intro_ts)
+    File.exists?(own_intro_mp4) || File.exists?(own_intro_ts)
   end
   def own_intro_mp4
     @own_intro_mp4 ||= pathof('Assets/intro.mp4')
