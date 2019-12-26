@@ -321,7 +321,7 @@ class ViteFait
 
   # Assemble la vidéo complète
   # cf. le module 'assemblage.rb'
-  def assemble nomessage = true
+  def assemble nomessage = false
     require_module('assemblage')
     exec_assemble(nomessage)
   rescue NotAnError => e

@@ -36,7 +36,7 @@ class ViteFait
 
     # Message de fin (si on n'est pas avec l'assistant)
     unless nomessage
-      Command.clear_terminal
+      clear
       notice <<-EOT
 === Assemblage effectué avec succès ===
 
