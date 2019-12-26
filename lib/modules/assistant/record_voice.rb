@@ -121,8 +121,6 @@ end
 
 def assistant_voix_finale_with_video
 
-  operations = get_operations
-
   clear
   notice "=== Enregistrement de la voix avec la vidéo ==="
 
@@ -234,23 +232,16 @@ end
 
 def assistant_voix_finale_without_video
   clear
-  operations = get_operations
   notice "Enregistrement de la voix sans la vidéo"
   yesOrStop("Es-tu prêt à enregistrer ? (je compterai 5 secondes)")
   decompte("Start in… %{nombre_secondes}", 5)
   clear
   operations.each do |operation|
-    if operation[:duration]
-      end_sleep_time = Time.now.to_i + operation[:duration]
-    end
-    puts "\n\nDIRE : #{operation[:voice]}"
+    end_sleep_time = Time.now.to_i + operation.duree_estimee
+    puts "\n\nDIRE : #{operation.voice}"
     # On compte le temps qui reste à attendre par rapport à la durée
     # voulue.
-    if operation[:duration]
-      sleep_reste = end_sleep_time - Time.now.to_i
-    else
-      sleep_reste = 1
-    end
+    sleep_reste = end_sleep_time - Time.now.to_i
     sleep sleep_reste
   end
 

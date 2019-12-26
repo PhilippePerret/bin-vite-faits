@@ -142,14 +142,16 @@ class ViteFait
   end
 
   # Pour récupérer les opérations définies
-  # Attention : il faut avoir vérifié avant que le fichier existait
-  # à l'aide de `operations_are_defined?`
+  # Return un Hash vide si le fichier n'existe pas.
   def get_operations
     return goto_manual('lesoperations') if COMMAND.options[:help]
-    operations_are_defined? || return
+    operations_are_defined? || (return {})
     YAML.load_file(operations_path).to_sym
   end
 
+  def operations
+    @operations ||= get_operations.collect{|dope|Operation.new(dope)}
+  end
 
   # Pour lancer la lecture des opérations définies
   def record_operations

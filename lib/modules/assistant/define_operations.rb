@@ -15,8 +15,6 @@ def exec(options=nil)
 
   clear
 
-  operations = nil
-
   # Si un fichier des opérations existe déjà, il faut demander ce qu'il
   # faut faire avec, le refaire, le poursuivre ou continuer sans rien
   # toucher.
@@ -33,19 +31,18 @@ def exec(options=nil)
 
 >>>
     EOD
-    case getChar(demande).downcase
-    when 'a'
+    case (getChar(demande)||'').upcase
+    when 'A'
       # Détruire le fichier
       IO.remove_with_care(operations_path,'fichier des opérations',false)
-    when 'b'
+    when 'B'
       # Poursuivre le fichier
-      operations = get_operations
-    when 'c'
+    when 'C'
       # Éditer le fichier avec Vim
       puts texte_ouverture_dans_Vim
       open_operations_file
       return yesNo("Tape 'y' pour poursuivre.")
-    when 'd'
+    when 'D'
       return true
     else
       error "Je ne comprends pas ce choix. Je ne fais rien."
@@ -90,17 +87,17 @@ tutoriel. Cela consiste à définir :
 
   end
 
-  operations = get_all_operations_voulues(operations)
+  @operations = get_all_operations_voulues(operations)
 
   puts "Fichier qui va être produit :"
-  puts YAML.dump(operations)
+  puts YAML.dump(Operation.to_hash(self))
 
-  yesNo("\nDois-je procéder à la fabrication du fichier ?") || return
+  yesOrStop("\nDois-je procéder à la fabrication du fichier ?")
 
   # Créer le dossier s'il n'existe pas
   `mkdir -p "#{operations_folder}"`
 
-  File.open(operations_path,'wb'){|f| f.write YAML.dump(operations)}
+  File.open(operations_path,'wb'){|f| f.write YAML.dump(Operation.to_hash(self))}
 
   if operations_are_defined?
     notice "Fichier des opérations enregistré avec succès. 👍"
@@ -118,10 +115,9 @@ tutoriel. Cela consiste à définir :
   end
 end #/exec
 
-def get_all_operations_voulues(operations = nil)
-  operations ||= []
+def get_all_operations_voulues(operations)
   operations_ids = {}
-  operations.each { |op| operations_ids.merge!( op[:id] => true ) }
+  operations.each { |op| operations_ids.merge!( op.id => true ) }
 
   while true
     # identifiant de l'opération
@@ -157,17 +153,17 @@ def get_all_operations_voulues(operations = nil)
     raise NotAnError.new() if operation_duration == 'q'
     operation_duration.nil? || operation_duration = operation_duration.to_i
 
-    operations << {
+    @operations << Operation.new({
       id:         operation_id,
       titre:      operation_titre,
       assistant:  operation_assistant,
       voice:      operation_voice,
       duration:   operation_duration
-    }
+    })
 
     # Pour checker l'unicité des identifiants d'opération
     operations_ids.merge!(operation_id => true)
-    
+
     clear
   end
 end
