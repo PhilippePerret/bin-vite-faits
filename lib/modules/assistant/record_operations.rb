@@ -88,32 +88,15 @@ peux interrompre la capture à l'aide de CTRL-C.
       # Boucle sur toutes les opérations
       # --------------------------------
 
-      get_operations.each do |operation|
-        # TODO Exposer la class ViteFait::Operation pour pouvoir l'utiliser
-        # ici aussi, et notamment récupérer `duree_estimee`
-        # Attention : ça changement tous les operation[:duration] et autres
-        # propriétés en operation.duration (mais on gardera quand même la
-        # méthode '[]' par prudence)
+      operations.each do |operation|
         op_start_time = Time.now.to_i
-
-        # Il faudrait savoir si la voix à dire sera plus longue que la voix
-        # de Thomas. On part du principe que la longueur * coefficiant donne
-        # le temps du texte.
-        duree_definie   = operation[:duration] || 0
-        duree_assistant = (operation[:assistant].length * COEF_DICTION).with_decimal(1)
-        duree_voice     = (operation[:voice].length * COEF_DICTION).with_decimal(1)
-        duree_operationnelle = [duree_definie, duree_assistant, duree_voice].max
-
         # Calcul du temps de fin
-        end_sleep_time = op_start_time + duree_operationnelle
-
-        `say -v Thomas -r 140 "#{operation[:assistant]}"`
+        end_sleep_time = op_start_time + operation.duree_estimee
+        `say -v Thomas -r 140 "#{operation.assistant}"`
         sleep_reste = end_sleep_time - Time.now.to_i
         sleep_reste < 0 && sleep_reste = 0
         sleep sleep_reste
       end #/boucle sur toutes les opérations
-
-
 
       # À la fin, on laisse encore 3 secondes pour finir
       sleep 3

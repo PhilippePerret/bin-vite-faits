@@ -54,8 +54,7 @@ class ViteFait
   def overview_operations_by_titre
     puts "(aperçu par titre et durée)\n\n"
     duree_totale = 0
-    get_operations.each do |dope|
-      operation = Operation.new(dope)
+    operations.each do |operation|
       puts "    " + operation.line_with_duree(duree_totale)
       duree_totale += operation.duree_estimee
     end
@@ -74,10 +73,7 @@ class ViteFait
               (avant+'XXXX').ljust(colwidth).sub(/XXXX/,"\033[1;47m 🎤 \033[0m")
 
     puts entete
-    get_operations.each do |dope|
-      ope = Operation.new(dope)
-      ope.display
-    end
+    operations.each { |ope| ope.display }
     puts "\n\n(pour éditer les opérations : vite-faits operations #{name} -e/--edit)"
   end
 

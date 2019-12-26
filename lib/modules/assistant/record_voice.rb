@@ -206,18 +206,20 @@ EOS`
 
   if avec_assistant
     operations.each_with_index do |operation, index|
+      prev_ope = index > 0 ? operations[index - 1] : nil
+      next_ope = operations[index + 1]
       clear
       puts <<-EOT
 
-\033[1;90m(#{(operations[index-1]||{})[:voice]})\033[0m
+\033[1;90m(#{prev_ope ? prev_ope.voice : '---'})\033[0m
 
 
 
-\033[1;32m– #{operation[:voice]}\033[0m
+\033[1;32m– #{operation.voice}\033[0m
 
 
 
-\033[1;90m(#{(operations[index-1]||{})[:voice]})\033[0m
+\033[1;90m(#{next_ope ? next_ope.voice : '---'})\033[0m
 
 
       EOT

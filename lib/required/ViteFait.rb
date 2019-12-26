@@ -143,6 +143,8 @@ class ViteFait
 
   # Pour récupérer les opérations définies
   # Return un Hash vide si le fichier n'existe pas.
+  # Note : il vaut mieux utiliser la méthode-propriété 'operations' qui
+  # retourne une liste des instances d'Operation(s)
   def get_operations
     return goto_manual('lesoperations') if COMMAND.options[:help]
     operations_are_defined? || (return {})
