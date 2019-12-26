@@ -806,6 +806,9 @@ class ViteFait
     @operations_folder ||= pathof('Operations')
   end
 
+  def assets_folder
+    @assets_folder ||= pathof('Assets')
+  end
   # Le fichiers final de la voix, si elle est utilisée
   # mp4 car éditable par Audacity
   def vocal_capture_path
@@ -836,6 +839,28 @@ class ViteFait
   # Éléments pour la vignette
   def vignette_folder
     @vignette_folder ||= pathof("Vignette")
+  end
+
+  # Introduction propre ?
+  def has_own_intro?
+    File.exists?(own_intro_mp4) || File.exists(own_intro_ts)
+  end
+  def own_intro_mp4
+    @own_intro_mp4 ||= pathof('Assets/intro.mp4')
+  end
+  def own_intro_ts
+    @own_intro_ts ||= pathof('Assets/intro.ts')
+  end
+
+  # Final propre ?
+  def has_own_final?
+    File.exists?(own_final_mp4) || File.exists(own_final_ts)
+  end
+  def own_final_mp4
+    @own_final_mp4 ||= pathof('Assets/final.mp4')
+  end
+  def own_final_ts
+    @own_final_ts ||= pathof('Assets/final.ts')
   end
 
   # Chemin d'accès au dossier des exports

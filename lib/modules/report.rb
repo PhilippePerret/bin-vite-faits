@@ -26,6 +26,7 @@ class ViteFait
       puts "Titre anglais      : #{titre_en || '---'}"
       puts "Description        : #{description || '---'}"
       puts "Lieu actuel        : #{lieu} — #{hlieu}"
+      puts "Vrai Vite-Fait     : #{has_own_intro? ? 'non' : 'oui'}"
       write_last_step_conception
       puts "YoutTube ID        : #{youtube_id || '---'}"
       if informations[:annonce_FB]
@@ -55,6 +56,8 @@ class ViteFait
         line_exists_file(vocal_capture_path, 'Voix')
         line_exists_file(screenflow_path, 'ScreenFlow')
         line_exists_file(premiere_path, 'Adobe Premiere')
+        line_exists_file(own_intro_mp4, 'INTRO propre')
+        line_exists_file(own_final_mp4, 'FINAL propre')
 
         # fichier informations
         # fichier voice
