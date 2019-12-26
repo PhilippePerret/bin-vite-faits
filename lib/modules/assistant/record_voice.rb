@@ -184,7 +184,7 @@ commentaire de la vidéo.
   duree_voice = duree_capture + 20 # au cas où
 
   yesOrStop("Es-tu prêt ? (je vais compter 10 secondes avant de commencer)")
-  decompte("Enregistrement dans %{nombre_secondes}",5, 'Audrey')
+  decompte("Start in… %{nombre_secondes}",5, 'Audrey')
 
   # Mettre en route l'enregistrement
   # cmd = "ffmpeg -f avfoundation -i \":0\" -t 10 \"#{vocal_capture_path}\" &"
@@ -236,7 +236,7 @@ def assistant_voix_finale_without_video
   clear
   operations = get_operations
   notice "Enregistrement de la voix sans la vidéo"
-  yesNo("Es-tu prêt à enregistrer ? (je compterai 5 secondes)") || return
+  yesOrStop("Es-tu prêt à enregistrer ? (je compterai 5 secondes)")
   decompte("Start in… %{nombre_secondes}", 5)
   clear
   operations.each do |operation|

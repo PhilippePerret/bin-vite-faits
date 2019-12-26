@@ -21,30 +21,49 @@ def exec(options = nil)
 Je vais t'assister dans la réalisation de la
 capture du titre.
 
+  A   Me rappeler toutes les opérations de
+      préparation à faire.
+
+  B   Commencer tout de suite.
+
+  Q   Quitter l'assistant.
+
   EOT
 
   oldquiet = COMMAND.options[:quiet]
   COMMAND.options[:quiet] = true
   open_something('titre') || return
-  `open -a Terminal`
-  yesOrStop("Es-tu prêt ?")
+  activate_terminal
 
-  direEtFaire([
-    {exec: "`open -a Scrivener`"},
-    "Dans Scrivener, masque les autres applications (Command, Alte, H)",
-    "Assure-toi qu'on ne voie rien dans le Finder",
-    "Écrit le titre : “#{titre}“…",
-    "Règle la largeur de la fenêtre pour que le titre apparaisse bien…",
-    "Supprime le titre",
-    "Active la capture (Commande, Majuscule, 5) et règle ses options avec : Écran complet",
-    "Minuteur : 5 secondes, Microphone : aucun",
-    "Il faudra arrêter l'enregistrement assez rapidement (la dernière seconde sera supprimée)",
-    "À la fin, il faudra enregistrer le fichier et le fermer",
-    "Lance la capture et tape le titre : “#{titre}”"
-    ])
+  choix = nil
+  while choix.nil?
+    choix = (getChar("Quel est ton choix ?")||'').upcase
+    case choix
+    when 'Q'
+      raise NotAnError.new
+    when 'A' # avec assistant
+      direEtFaire([
+        {exec: "`open -a Scrivener`"},
+        "Dans Scrivener, masque les autres applications (Command, Alte, H)",
+        "Assure-toi qu'on ne voie rien dans le Finder",
+        "Écrit le titre : “#{titre}“…",
+        "Règle la largeur de la fenêtre pour que le titre apparaisse bien…",
+        "Supprime le titre",
+        "Active la capture (Commande, Majuscule, 5) et règle ses options avec : Écran complet",
+        "Minuteur : 5 secondes, Microphone : aucun",
+        "Il faudra arrêter l'enregistrement assez rapidement (la dernière seconde sera supprimée)",
+        "À la fin, il faudra enregistrer le fichier et le fermer",
+        "Lance la capture et tape le titre : “#{titre}”"
+        ])
+    when 'B'
+      `open -a Scrivener`
+    else
+      error "Je ne connais pas ce choix"
+      choix = nil
+    end
+  end
 
-
-  yesOrStop("Tape 'y' — pour 'yes' — lorsque tu auras fini.")
+  yesOrStop("Tape 'y' ou 'o' lorsque tu auras fini.")
   ViteFait.move_last_capture_in(default_titre_file_path) || raise(NotAError.new("Tu n'as pas enregistré le titre. je dois renoncer."))
 
   IO.check_existence(titre_mov, {thing: "capture du titre", success: "la capture du titre a bien été exécutée", failure: "La capture du titre a échoué…"})

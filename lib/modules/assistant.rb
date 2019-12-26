@@ -209,6 +209,7 @@ Que dois-je faire ?
   end
 
   def set_generales_informations
+    activate_terminal
     yesNo("Prêt à définir les informations générales ?") || raise(NotAnError.new)
     require_relative 'assistant/generales_informations'
     exec

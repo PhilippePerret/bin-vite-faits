@@ -3,6 +3,13 @@
   Les méthodes d'entrée/sortie utiles pour le Terminal
 =end
 
+# Pour mettre le focus à la fenêtre Terminal
+def activate_terminal
+  `open -a Terminal`
+  `open -a Terminal`
+  `open -a Terminal`
+end
+
 def promptBlink(amorce, question)
   return IOConsole.wait_for_string_with_blink_double_message(amorce, question)
 end
