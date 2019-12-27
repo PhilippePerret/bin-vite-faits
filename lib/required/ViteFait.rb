@@ -123,7 +123,7 @@ class ViteFait
   # Pour créer le vite-fait
   def create(nomessage = true)
     if COMMAND.options[:help]
-      goto_manual('creationdossiertutoriel')
+      goto_manual('commandescreation')
     else
       require_module('create_vite_fait')
       exec_create(nomessage)
@@ -133,6 +133,24 @@ class ViteFait
   # ---
   #   Pour les opérations
   # ---
+
+  # Méthode appelée lorsque l'on utilise la commande 'operations' seules,
+  # avec des options par exemple
+  def commande_operations
+    if COMMAND.options[:help]
+      return ViteFait.goto_manual('lesoperations')
+    else
+      is_required || return
+      if COMMAND.options[:edit]
+        open_something('operations')
+      elsif COMMAND.options[:record]
+        record_operations
+      else
+        # On veut simplement voir les opérations
+        open_something('operations')
+      end
+    end
+  end
 
   # Pour créer le fichier des opérations de façon assistées
   def create_file_operations

@@ -25,6 +25,7 @@ class ViteFait
     operations_are_defined?(required=true) || return
     if COMMAND.options[:edit]
       system('vim', operations_path)
+      # `open -a MacVim "#{operations_path}"`
     else
       clear
       notice "=== OPÉRATIONS DÉFINIES ===\n\n"

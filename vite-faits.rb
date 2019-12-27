@@ -75,7 +75,7 @@ when 'groupe_facebook'
 when 'forum_scrivener'
   vitefait.forum_scrivener
 when 'operations'
-  return ViteFait.goto_manual('lesoperations') if COMMAND.options[:help]
+  vitefait.commande_operations
 when NilClass
   error <<-EOT
 🚫  Il faut définir la commande à jouer ! Taper

@@ -189,7 +189,6 @@ class ViteFait
     FileUtils.copy_entry(src, dst)
     src_x = File.join(dst,File.basename(src)+'x')
     dst_x = File.join(dst,"#{File.basename(dst,File.extname(dst))}.scrivx")
-    puts "Transformer :\n#{src_x}\nen\n#{dst_x}"
     FileUtils.move(src_x,dst_x)
   end
 
