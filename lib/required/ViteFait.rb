@@ -220,7 +220,15 @@ class ViteFait
   end
 
   # ---
-  #   Méthodes d'écriture
+  #   Méthodes de tâches
+  # ---
+  def commande_taches
+    require_module('taches')
+    exec_commande_taches
+  end
+
+  # ---
+  #   Méthodes de rapport
   # ---
 
   # Pour afficher l'état du tutoriel

@@ -19,4 +19,12 @@ class NotAnError < StandardError
     return false
   end
 
+  def error_if_message
+    if self.message && self.message != '' && self.message != 'NotAnError'
+      "\033[1;31m#{self.message}\033[0m"
+    else
+      nil
+    end
+  end
+
 end
