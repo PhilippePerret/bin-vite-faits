@@ -46,14 +46,14 @@
 
 ## Prochains tutoriels
 
+- [ ] Numérotage automatique des pages
+  Tutoriel expliquant comment nommer ses documents pour qu'ils se numérotent automatiquement quand on les duplique (par exemple en terminant le nom par `-1`).
+  Voir les paramètres qui peuvent influencer cet automatisme.
 - [ ] Effectuer une recherche complexe (**search-with-regexp**)
-Pour expliquer comment effectuer une recherche complexe en se servant des expressions régulières.
-Quel exemple serait parlant ? Peut-être pour rechercher des ponctuations sans espace insécables. On utilise alors `_[?!;]` au lieu de rechercher pour chaque ponctuation.
-
+  Pour expliquer comment effectuer une recherche complexe en se servant des expressions régulières.
+  Quel exemple serait parlant ? Peut-être pour rechercher des ponctuations sans espace insécables. On utilise alors `_[?!;]` au lieu de rechercher pour chaque ponctuation.
 - [ ] Définir proprement ses objectifs
-
 - [ ] Modifier les couleurs de ses objectifs
-
 - [ ] Créer un **modèle de document** (create-model-project)
   En profiter aussi pour montrer comment on utilise et règle les modèles appliqués à un dossier en particulier.
 

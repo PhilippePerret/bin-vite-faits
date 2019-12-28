@@ -42,6 +42,14 @@ class ViteFait
     vitefait.conception.display
   end
 
+  def self.open_idee_file
+    if File.exists?(idees_file_path)
+      `open -a Atom "#{idees_file_path}"`
+    else
+      error "Marion a dû te faire une blague en cachant le fichier des idées. Ou alors, elle te les a toutes piquées, cette coquine."
+    end
+  end
+
   # Méthode pour afficher le nom du tutoriel courant, s'il existe
   def self.show_current_name
     if current_tutoriel
@@ -196,6 +204,10 @@ class ViteFait
     # Chemin d'accès au son de la machine à écrire
     def machine_a_ecrire_path
       @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aac')
+    end
+
+    def idees_file_path
+      @idees_file_path ||= File.join(BIN_FOLDER,'IDEES_TUTORIELS.md')
     end
   end #/ << self
 end

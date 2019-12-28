@@ -16,6 +16,8 @@ end
 case COMMAND.action
 when 'help', 'manuel', 'aide'
   ViteFait.open_help
+when 'idees'
+  ViteFait.open_idee_file
 when 'conception'
   ViteFait.aide_conception
 when 'test'
