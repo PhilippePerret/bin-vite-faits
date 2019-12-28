@@ -228,7 +228,9 @@ EOS`
 
 
       EOT
-      SPACEOrQuit("Passer au texte suivant ?")
+      SPACEOrQuit("Passer au texte suivant ?") || begin
+        raise NotAnError.new()
+      end
     end
   else
     # Quand on travaille sans liste d'opération
