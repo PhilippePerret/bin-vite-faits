@@ -166,7 +166,18 @@ class ViteFait
   def get_operations
     return goto_manual('lesoperations') if COMMAND.options[:help]
     operations_are_defined? || (return {})
-    YAML.load_file(operations_path).to_sym
+    # Dans un premier temps, on s'assure que le fichier
+    begin
+      conformize_operations_file
+    rescue Exception => e
+      raise e
+    end
+    begin
+      YAML.load_file(operations_path).to_sym
+    rescue Exception => e
+      error "Une erreur est survenue au cours de la lecture du fichier YAML. Je dois renoncer"
+      raise e
+    end
   end
 
   def operations
@@ -181,6 +192,33 @@ class ViteFait
   rescue NotAnError => e
     e.puts_error_if_message
     error "OK, on abandonne.\n\n"
+  end
+
+  # Méthode qui s'assure que le fichier YAML est correct. Pas seulement
+  # "parsable" mais aussi correct, c'est-à-dire, par exemple, qu'il ne
+  # contient pas de menu inscrits comme "Fichier > Ouvrir" car le signe
+  # supérieur signifierait un here-doc qui supprimerait donc toute ce
+  # qui le suit, pour ne prendre que la ligne suivante.
+  def conformize_operations_file
+    code = File.read(operations_path).force_encoding('utf-8')
+    hasBeenModified = false
+    if code.match(/>(?! ?\r?\n)/)
+      error <<-EOE
+J'ai trouvé un caractère '>' dans le code des opérations qui n'était
+pas utilisé comme marqueur de HEREDOC. J'ai corrigé le code mais il
+faut s'abstenir de cette utilisation. Si c'est pour un menu, utiliser
+plutôt une virgule comme délimiteur (Édition, Recherche, Rechercher
+et Remplacer).
+      EOE
+      code.gsub!(/ ?>(?! ?\r?\n)/){
+        # ",#{$1}"
+        ","
+      }
+      hasBeenModified = true
+    end
+    if hasBeenModified
+      File.open(operations_path,'wb'){|f| f.write(code)}
+    end
   end
 
   def update_from
@@ -661,7 +699,7 @@ class ViteFait
   # Détruit un fichier s'il existe
   def unlink_if_exist liste
     liste.each do |pth|
-      IO.remove_with_care(pth,"./#{relative_pathof(pth)}",true)
+      IO.remove_with_care(pth,"fichier #{relative_pathof(pth)}",true)
     end
   end
 

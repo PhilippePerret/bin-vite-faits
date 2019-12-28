@@ -63,15 +63,15 @@ tutoriel. Cela consiste à définir :
   titre:        Le titre qui résume l'opération en
                 question.
 
-  assistant:    L'opération à exécuter, qui sera dite
-                par l'assistant lors de la création as-
-                sistée. Ce texte doit décrire ce qu'il
-                faut faire précisément.
-
   voice:        Le texte que je devrais dire sur les
                 opérations exécutées pour expliquer au
                 spectateur de la vidéo ce qui doit être
                 fait.
+
+  assistant:    L'opération à exécuter, qui sera dite
+                par l'assistant lors de la création as-
+                sistée. Ce texte doit décrire ce qu'il
+                faut faire précisément.
 
   duration:     La durée optionnelle de l'opération, si
                 les textes sont trop courts par exemple.

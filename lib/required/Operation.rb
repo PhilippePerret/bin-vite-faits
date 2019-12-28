@@ -32,6 +32,7 @@ class Operation
   attr_reader :id, :titre, :assistant, :voice, :duration
   def initialize data
     data.each { |k, v| instance_variable_set("@#{k}", v) }
+    calc_reel_assistant_et_secondes_attente # produit assistant_pour_comptage et nombre_secondes_attente_assistant
   end
 
   def to_hash
@@ -124,13 +125,38 @@ class Operation
   def duree_estimee
     @duree_estimee ||= begin
       duree_definie   = duration || 0
-      duree_assistant = ((assistant||'').length * COEF_DICTION).with_decimal(1)
+      duree_assistant = ((assistant_pour_comptage||'').length * COEF_DICTION  + nombre_secondes_attente_assistant).with_decimal(1)
       duree_voice     = ((voice||'').length * COEF_DICTION).with_decimal(1)
       # On garde comme durée la durée la plus longue
       [duree_definie, duree_assistant, duree_voice].max
     end
   end
 
+  def formated_assistant
+    @formated_assistant ||= begin
+      ft = assistant.to_s
+      ft = ft.gsub(/"/, '\\"')
+      # TODO Traiter les ">" (mais il faut certainement le faire dans le
+      # le fichier lui-même, avant même de le parser en YAML)
+      # Traiter les "Attendre x secondes."
+      ft.gsub!(/Attendre ([0-9]+) secondes?\./){
+        "[[slnc #{1000 * $1.to_i}]]"
+      }
+
+      ft # le texte de l'assistant formaté
+    end
+  end
+
+  def calc_reel_assistant_et_secondes_attente
+    @nombre_secondes_attente_assistant = 0
+    @assistant_pour_comptage = assistant.gsub(/ ?Attendre ([0-9]+) secondes?\./){
+      nombre_secondes = $1.to_i
+      @nombre_secondes_attente_assistant += nombre_secondes
+      ''
+    }
+  end
+  def assistant_pour_comptage; @assistant_pour_comptage end
+  def nombre_secondes_attente_assistant; @nombre_secondes_attente_assistant end
 
   # Découpe un texte en une certaine longueur
   def split_in_column(text)

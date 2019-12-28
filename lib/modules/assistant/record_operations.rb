@@ -92,7 +92,7 @@ peux interrompre la capture à l'aide de CTRL-C.
         op_start_time = Time.now.to_i
         # Calcul du temps de fin
         end_sleep_time = op_start_time + operation.duree_estimee
-        `say -v Thomas -r 140 "#{operation.assistant}"`
+        `say -v Thomas -r 140 "#{operation.formated_assistant}"`
         sleep_reste = end_sleep_time - Time.now.to_i
         sleep_reste < 0 && sleep_reste = 0
         sleep sleep_reste
