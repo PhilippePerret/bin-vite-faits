@@ -6,6 +6,13 @@
 
 - [ ] Utiliser les signets pour la documentation (**signets-documentations**)
 
+- [ ] Comprendre le formatage dans Scrivener (**comprendre-styles**)
+  Ce "gros" tutoriel (gros au niveau du projet) doit permettre de bien comprendre les bases du formatage dans Scrivener, en abordant :
+  * La hiérarchie des documents (les types de section)
+  * L'affectation de la mise en page (layout) par type de section
+  * Définir la mise en page (layout)
+- [ ] Modifier ses styles en sortie
+
 - [ ] Voir les scènes du plan (**plan-et-scenes**)
 (trouver meilleur titre) - il s’agit de la façon de travailler en cliquant sur les scènes du plan pour les éditer dans l’autre éditeur.
   Titre : Afficher les scènes depuis le plan

@@ -248,13 +248,18 @@ Quitter
         puts "--- Aucune tâche pour le moment ---"
       else
         puts header(options)
+        listing.each { |tache| tache.display(options)}
+      end
+      display_commandes
+    end
+
+    def listing(options = {})
+      @listing ||= begin
         itemsById
           .values
           .select  { |tache| options[:all] || !tache.done }
           .sort_by { |tache| -((tache.priority.to_i + 1) * tache.created_at) + tache.created_at}
-          .each    { |tache| tache.display(options)}
       end
-      display_commandes
     end
 
     def header options = {}
@@ -353,9 +358,15 @@ Quitter
       end
 
       # Affichage de la tâche dans le listing des tâches
+      # +Params+
+      #   +options+:: [Hash] Options pour le format de sortie.
+      #     :simple     Affichage simple, avec seulement l'identifiant de
+      #                 la tâche et son libellé.
       def display options = {}
-        line = "#{indentation}#{mark_id}#{f_content.ljust(CONTENT_LENGTH)}"+
-          "#{mark_description.ljust(MARK_DESCRIPTION_LEN)}#{mark_priority.ljust(MARK_PRIORITY_LEN)}"
+        line = "#{indentation}#{mark_id}#{f_content.ljust(CONTENT_LENGTH)}"
+        unless options[:format] == :simple
+          # line << "#{mark_description.ljust(MARK_DESCRIPTION_LEN)}#{mark_priority.ljust(MARK_PRIORITY_LEN)}"
+        end
         if options[:all]
           # Quand c'est l'affichage d'absolument toutes les tâches
           line += "   #{mark_done.ljust(MARK_DONE_LEN)}"

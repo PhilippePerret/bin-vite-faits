@@ -54,7 +54,7 @@ class Operation
   # Pour l'affichage en ligne avec le titre et les durées
   def line_with_duree(duree_courante)
     des = "#{duree_estimee.to_i} s.".rjust(10)
-    fdc = "#{duree_courante} s.".rjust(10)
+    fdc = "#{duree_courante.to_i.as_horloge(full = false)} s.".rjust(10)
     "#{(titre||'')[0...50].ljust(50)} | #{des} | #{fdc}"
   end
 
@@ -124,8 +124,8 @@ class Operation
   def duree_estimee
     @duree_estimee ||= begin
       duree_definie   = duration || 0
-      duree_assistant = (assistant.length * COEF_DICTION).with_decimal(1)
-      duree_voice     = (voice.length * COEF_DICTION).with_decimal(1)
+      duree_assistant = ((assistant||'').length * COEF_DICTION).with_decimal(1)
+      duree_voice     = ((voice||'').length * COEF_DICTION).with_decimal(1)
       # On garde comme durée la durée la plus longue
       [duree_definie, duree_assistant, duree_voice].max
     end

@@ -11,10 +11,8 @@
 class ViteFait
 
   def exec_print_report
-    # TODO Poursuivre
-
     unless valid?
-      error "Désolé, mais ce tutoriel doit être fixé."
+      error "Désolé, mais ce tutoriel doit être réparé."
       return
     end
 
@@ -69,6 +67,11 @@ class ViteFait
         line_exists_file(mp4_path, 'Capture (mp4)')
         line_exists_file(titre_mp4, "Titre (mp4)")
         line_exists_file(voice_aac, 'Voix finale')
+
+        puts "\n\nTâches restant à faire"
+        puts "----------------------\n"
+        puts lines_taches
+
       else
         if COMMAND.options[:check]
           error "Le dossier travail vite-fait '#{vitefait.chantier_folder_path}' n'existe pas."
@@ -90,6 +93,14 @@ class ViteFait
     require_module('conception')
     laststep = conception.last_logic_step
     puts "Last Concept Step  : #{laststep.index}. #{laststep.hname}"
+  end
+
+  # Retourne les tâches restant à accomplir
+  def lines_taches
+    require_module('taches')
+    taches.listing.collect do |tache|
+      tache.display(format: :simple)
+    end
   end
 
 end
