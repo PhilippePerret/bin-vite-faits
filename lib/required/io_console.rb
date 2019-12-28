@@ -55,6 +55,9 @@ end
 
 class IOConsole
 class << self
+  def reset
+    @width = nil
+  end
   def getChar(question = nil)
     print "#{question} " if question
     old_state = `stty -g`
@@ -65,6 +68,11 @@ class << self
     return char
   ensure
     system "stty #{old_state}"
+  end
+
+  # Retourne la largeur de la console actuelle en nombre de caractère
+  def width
+    @width ||= `tput cols`.to_i
   end
 
   def waitForSpaceOrQuit(question)

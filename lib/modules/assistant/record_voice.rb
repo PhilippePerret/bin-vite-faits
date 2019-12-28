@@ -182,6 +182,11 @@ commentaire de la vidéo.
   duree_voice = duree_capture + 20 # au cas où
 
   yesOrStop("Es-tu prêt ? (je vais compter 10 secondes avant de commencer)")
+
+  # On resette IOConsole notamment pour rafraichir la largeur
+  # de la fenêtre après le split-screen de plein écran.
+  IOConsole.reset
+
   decompte("Start in… %{nombre_secondes}",5, 'Audrey')
 
   # Mettre en route l'enregistrement
@@ -211,15 +216,15 @@ EOS`
       clear
       puts <<-EOT
 
-\033[1;90m(#{prev_ope ? prev_ope.voice : '---'})\033[0m
+\033[1;90m(#{prev_ope ? prev_ope.f_voice : '---'})\033[0m
 
 
 
-\033[1;32m– #{operation.voice}\033[0m
+\033[1;32m#{operation.f_voice}\033[0m
 
 
 
-\033[1;90m(#{next_ope ? next_ope.voice : '---'})\033[0m
+\033[1;90m(#{next_ope ? next_ope.f_voice : '---'})\033[0m
 
 
       EOT

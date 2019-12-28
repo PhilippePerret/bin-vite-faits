@@ -9,7 +9,7 @@ class Operation
     end
 
     def window_width
-      @window_width ||= `tput cols`.to_i
+      @window_width ||= IOConsole.width
     end
     def column_width
       @column_width ||= (window_width - (titreWidth + gutter + 2 * margin)) / 2
@@ -116,8 +116,9 @@ class Operation
   end
 
   def colwidth
-    @colwidth ||= self.class.column_width
+    @colwidth ||= IOConsole.width
   end
+
 
 
   # Durée estimée de l'opération, en fonction de la longueur
@@ -158,6 +159,16 @@ class Operation
   def assistant_pour_comptage; @assistant_pour_comptage end
   def nombre_secondes_attente_assistant; @nombre_secondes_attente_assistant end
 
+  # Découper la phrase pour avoir des bonnes découpes en mots, sans que
+  # le mot soit coupé comme par défaut ou avec fmt
+  def f_voice
+    @f_voice ||= begin
+      `echo "#{voice.gsub(/"/,'\\"')}" | fmt #{IOConsole.width - 5}`.strip
+      # Note : le -5 est là pour tenir compte du fait que pour les voix
+      # avant et après par exemple, on ajoute des parenthèses autour dans
+      # la console.
+    end
+  end
   # Découpe un texte en une certaine longueur
   def split_in_column(text)
     words = text.split(' ')
