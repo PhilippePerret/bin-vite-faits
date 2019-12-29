@@ -101,6 +101,7 @@ tutoriel. Cela consiste à définir :
 
   if operations_are_defined?
     notice "Fichier des opérations enregistré avec succès. 👍"
+    save_last_logic_step
     puts <<-EOT
   Tu peux jouer la commande suivante pour que l'assistant
   te lise les opérations à exécuter :

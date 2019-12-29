@@ -84,6 +84,7 @@ class << self
   end #/remove_with_case
 
 
+  # +return+ [Boolean] True en cas d'existence, false en cas d'absence
   def check_existence path, params = nil
     params ||= {}
     params[:thing]    ||= "dosier/fichier “#{path && File.basename(path)}”"

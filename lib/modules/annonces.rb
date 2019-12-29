@@ -68,7 +68,8 @@ class ViteFait
 
     # Marquer l'annonce déposée ?
     if yesNo("Dois-je marquer l'annonce déposée sur Scrivener ?")
-      informations[:annonce_Scriv] = true
+      informations.set(annonce_Scriv: true)
+      save_last_logic_step
     end
 
   end #/ annonce_Scriv
@@ -90,7 +91,8 @@ class ViteFait
     groupe_facebook
 
     if yesNo("Dois-je marquer l'annonce sur Facebook faite ?")
-      informations[:annonce_FB] = true
+      informations.set({annonce_FB: true})
+      save_last_logic_step
     end
   end #/ annonce_FB
 

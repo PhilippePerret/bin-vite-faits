@@ -130,6 +130,12 @@ class ViteFait
     end
   end
 
+  # Lorsque des modifications ont été faites, ou une nouvelle étape
+  # créée.
+  def save_last_logic_step
+    require_module('conception')
+    conception.save_last_logic_step
+  end
   # ---
   #   Pour les opérations
   # ---

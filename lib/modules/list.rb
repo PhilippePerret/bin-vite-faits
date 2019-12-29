@@ -36,7 +36,13 @@ class ViteFait
           dlieu[:path] = path
           dlieu[:tutoriels] = Dir["#{path}/*"].collect{|p|File.basename(p)}
           dlieu[:tutoriels].each do |tutoriel|
-            table.merge!( tutoriel => {name: tutoriel, lieu: klieu, path:File.join(path,tutoriel)})
+            ptuto = File.join(path,tutoriel)
+            table.merge!( tutoriel => {
+              name: tutoriel,
+              lieu: klieu,
+              path: ptuto,
+              logic_step:getLogicStepFor({name:tutoriel, path:ptuto})
+              })
           end
         end
         table
@@ -44,7 +50,7 @@ class ViteFait
     end
 
     # Affichage de la liste des tutoriels
-    #  vite-faits list[e]
+    # Commande : vite-faits list[e]
     def display
       clear
 
@@ -53,7 +59,7 @@ class ViteFait
 
       # Si le paramètres ':sort' est défini, il faut classer la liste des
       # item
-      template_line = "- %{name} (%{lieu})"
+      template_line = "- %{name} (%{lieu}) - %{logic_step}"
       sorted_items =
         case key_sort
         when 'date', 'idate'
@@ -69,6 +75,11 @@ class ViteFait
           sort_hname << " inverse" if inverse
           template_line = "%{titre} (%{lieu} — %{name})"
           items.values.sort_by { |d| (d[:titre] ||= getTitreFor(d)).downcase}
+        when 'dev', 'developpement', 'development'
+          sort_hname = "par développement"
+          sort_hname << " inverse" if inverse
+          template_line = "%{titre} (%{lieu} — %{name}) - %{logic_step}"
+          items.values.sort_by { |d| - d[:logic_step] }
         else
           sort_hname = "naturel"
           items.values
@@ -80,9 +91,11 @@ class ViteFait
 
       sorted_items.each_with_index do |ditem, index|
         data_template = {
-          name: ditem[:name], lieu: DATA_LIEUX[ditem[:lieu]][:hname],
+          name: ditem[:name],
+          lieu: DATA_LIEUX[ditem[:lieu]][:hname],
           date: (ditem[:date] && Time.at(ditem[:date]).strftime("%d %m %Y")),
-          titre: (ditem[:titre]||ditem[:name])
+          titre: (ditem[:titre]||ditem[:name]),
+          logic_step: (ditem[:logic_step])
         }
         puts "\t#{template_line % data_template}"
       end
@@ -108,10 +121,22 @@ class ViteFait
       end
     end
 
+    # Retourne l'étape logique du tutoriel défini par +d+
+    # Si elle n'est pas encore définie dans les informations du tutoriel,
+    # on la cherche et on l'enregistre.
+    def getLogicStepFor(dtuto)
+      if getInfosFor(dtuto)[:logic_step]
+        getInfosFor(dtuto)[:logic_step][:value]
+      else
+        ViteFait.require_module('conception')
+        ViteFait.new(dtuto[:name]).conception.save_last_logic_step
+      end
+    end
+
     def getInfosFor(dtuto)
       path = File.join(dtuto[:path],'infos.json')
       if File.exists?(path)
-        JSON.parse(File.read(path).force_encoding('utf-8'))
+        JSON.parse(File.read(path).force_encoding('utf-8')).to_sym
       else
         {}
       end

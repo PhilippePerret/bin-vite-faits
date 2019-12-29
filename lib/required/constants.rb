@@ -40,7 +40,10 @@ DATA_KEYS_FILES_OPERATION = [
   :voice_aac,
   :titre_ts,
   :capture_ts,
-  :final_tutoriel
+  :final_tutoriel,
+  :upload,
+  :annonce_fb,
+  :annonce_scriv,
 ]
 
 DATA_ALL_FILES = {
@@ -126,6 +129,31 @@ DATA_ALL_FILES = {
     hname: "Fichier vidéo du tutoriel final (à uploader)",
     relpath: 'Exports/%{name}_completed.mp4',
     from_update: 'assemblage'
+  },
+
+  # = UPLOAD DE LA VIDÉO
+  upload:{
+    id:'upload',
+    hname: "Upload de la vidéo finale",
+    relpath: nil,
+    information: 'uploaded'
+  },
+
+  # = ANNONCES
+  annonce_fb:{
+    id:'annonce_fb',
+    hname: "Annonce sur le groupe Facebook",
+    relpath: nil,
+    information: 'annonce_FB',
+    from_update: 'annonces'
+  },
+
+  annonce_scriv:{
+    id: 'annonce_scriv',
+    hname: "Annonce sur le forum Scrivener",
+    relpath: nil,
+    information: 'annonce_Scriv',
+    from_update: 'annonces'
   }
 }
 

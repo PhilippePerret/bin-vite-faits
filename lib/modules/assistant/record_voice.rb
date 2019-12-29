@@ -99,6 +99,7 @@ L'enregistrement se terminera dans #{reste_secondes.to_i} secondes.
 
   if File.exists?(vocal_capture_path)
     notice "👍  Voix enregistrée avec succès dans le fichier ./Voix/voice.mp4."
+    save_last_logic_step
   else
     raise NotAnError.new("Fichier voix (*) introuvable. La voix n'a pas été enregistrée.\n(*) #{vocal_capture_path}")
   end
@@ -229,6 +230,15 @@ EOS`
 
       EOT
       SPACEOrQuit("Passer au texte suivant ?") || begin
+        # Il faut aussi arrêter Quick
+        `osascript <<EOS
+      tell application "QuickTime Player"
+      tell front document
+        stop
+        set current time to 0
+      end tell
+      end tell
+      EOS`
         raise NotAnError.new()
       end
     end

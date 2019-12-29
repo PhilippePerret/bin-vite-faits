@@ -89,8 +89,11 @@ class ViteFait
   end #/exec_print_report
 
   def write_last_step_conception
-    en_chantier? || return
     require_module('conception')
+    # On en profite pour définir la donnée logic_step si elle
+    # n'est pas définie.
+    informations[:logic_step] || conception.save_last_logic_step
+    # en_chantier? || return
     laststep = conception.last_logic_step
     puts "Last Concept Step  : #{laststep.index}. #{laststep.hname}"
   end

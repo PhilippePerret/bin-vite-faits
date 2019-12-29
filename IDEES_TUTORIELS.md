@@ -56,6 +56,13 @@
 - [ ] Modifier les couleurs de ses objectifs
 - [ ] Créer un **modèle de document** (create-model-project)
   En profiter aussi pour montrer comment on utilise et règle les modèles appliqués à un dossier en particulier.
+- [ ] Gestion des **liens**
+  * Comportement des liens (Préférences››Comportement››Liens de documents) pour décider où ils doivent s'ouvrir par exemple.
+  * Modification de la couleur des liens (Préférences››Apparence››Marques_Textuelles››Liens)
+- [ ] Mise en forme par défaut du texte (**mise-en-forme-defaut**)
+  Sur comment créer la mise en forme par défaut du texte et l'appliquer à ses nouveaux textes et les textes déjà présents.
+- [ ] Actions particulière du retour, de la barre espace, de la sélection et du double-clic
+  Préférences::Comportement::Navigation : choix de ce que fait la barre espace.
 
 
 ## Autres idées de tutoriels

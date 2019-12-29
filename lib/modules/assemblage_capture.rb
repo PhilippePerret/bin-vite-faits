@@ -55,6 +55,7 @@ class ViteFait
     res = `#{cmd}`
     if File.exists?(mp4_path)
       notice "---> Assemblage de la capture MP4 exécutée avec succès 📦 👍"
+      save_last_logic_step
     else
       error "Une erreur est survenue, je n'ai pas pu produire le fichier…"
       FileUtils.copy(mp4_copy_path, mp4_path)

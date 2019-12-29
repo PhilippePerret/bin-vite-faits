@@ -132,6 +132,7 @@ Tu peux modifier ce document, dans Vim, avec :
     vite-faits operations [#{name}] -e/--edit
 
     EOT
+    save_last_logic_step
   else
     # Le fichier .mov de la capture n'a pas été produit…
     raise NotAnError.new("Sans fichier capture.mov, je ne peux pas poursuivre…")

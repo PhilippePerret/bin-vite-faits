@@ -29,7 +29,9 @@ Le titre à écrire est :
 
   yesOrStop("Tape 'y' lorsque tu auras fini.")
 
-  unless vignette_finale_existe?
+  if vignette_finale_existe?
+    save_last_logic_step
+  else
     error "Tu n'as pas créé la vignette finale… Poursuivons quand même."
   end
 

@@ -73,6 +73,8 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
       EOT
     end #/si pas de no message
 
+    save_last_logic_step
+    
   end
 
 

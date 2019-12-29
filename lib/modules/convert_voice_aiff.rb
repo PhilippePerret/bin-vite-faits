@@ -12,6 +12,7 @@ class ViteFait
     if File.exists?(vocal_capture_path)
       notice "👍  Fichier voice AIFF converti avec succès en MP4."
       IO.remove_with_care(vocal_capture_aiff_path,'fichier voix AIFF',false)
+      save_last_logic_step
     else
       raise NotAnError.new("Le fichier voix n'a pas été converti…\n(*) #{vocal_capture_path}")
     end

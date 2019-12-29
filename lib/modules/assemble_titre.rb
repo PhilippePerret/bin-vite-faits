@@ -41,6 +41,7 @@ class ViteFait
 
     if File.exists?(titre_mp4)
       notice "--> 👍  Fichier titre mp4 fabriqué avec succès."
+      save_last_logic_step
     else
       error "Le fichier titre mp4 n'a pas pu être fabriqué…"
     end

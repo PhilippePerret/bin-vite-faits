@@ -1,6 +1,12 @@
 # encoding: UTF-8
 =begin
-  Module pour l'aide à la conception d'un tutoriel.
+  class ViteFait::Conception
+  --------------------------
+  Module pour l'aide à la conception d'un tutoriel
+  Tout ce qui concerne la conception au sens large.
+
+  Instance `vitefait.conception`
+
 =end
 
 def writeline lines, nombre_espaces
@@ -20,9 +26,9 @@ class ViteFait
   #   Gestion des données de conception
   # ---------------------------------------------------------------------
   class Conception
-    attr_reader :vitefait
-    def initialize vitefait
-      @vitefait = vitefait
+    attr_reader :tuto
+    def initialize tuto
+      @tuto = tuto
     end
 
     # = main =
@@ -62,7 +68,7 @@ class ViteFait
     end
 
     # Affiche la dernière étape accomplie, déduite en fonction
-    # des éléments qu'on trouve dans le dossier.
+    # des éléments qu'on trouve dans le dossier et les informations
     def display_last_logic_step
       clear
       notice "D'après les éléments présents, j'ai pu déterminer que la dernière étape accomplie était :"
@@ -85,36 +91,62 @@ class ViteFait
     def steps
       @steps ||= begin
         index = 0
-        YAML.load(YAML_DATA_CONCEPTION % {name: vitefait.name}).to_sym.collect do |dstep|
+        YAML.load(YAML_DATA_CONCEPTION % {name: tuto.name}).to_sym.collect do |dstep|
           dstep.merge!(index: (index += 1))
-          Step.new(vitefait, dstep)
+          Step.new(tuto, dstep)
         end
       end
     end
 
+    # Méthode qui enregistre la dernière étape logique de
+    # conception, pour savoir où en est le tutoriel en
+    # question.
+    # A été inauguré pour voir où en était chaque tutoriel
+    #
+    # Pour l'appeler : `self.conception.save_last_logic_step`
+    #
+    # +return+ {Integer}  L'index de l'étape courante (certaines
+    #                     méthodes en ont vraiment besoin)
+    def save_last_logic_step
+      tuto.informations.set({logic_step: last_logic_step.index})
+      return last_logic_step.index
+    end
 
     # Retourne l'instance ViteFait::Conception::Step de la
     # dernière étape logique.
     def last_logic_step
       @last_logic_step ||= search_for_last_logic_step
     end
+
     def search_for_last_logic_step
       steps.each do |step|
-        if step.produit
+        if step.produit || step.informations
           all_produits = true
           step.produit.each do |produit|
-            path = File.join(VITEFAIT_FOLDER_ON_LAPTOP, produit)
-            File.exists?(path) && next
+            path  = File.join(VITEFAIT_FOLDER_ON_LAPTOP, produit)
+            pathd = File.join(VITEFAIT_FOLDER_ON_DISK, produit)
+            (File.exists?(path) || File.exists?(pathd)) && next
             # puts "Impossible de trouver le path #{path}"
             all_produits = false
             break
           end
-          # Si tous les produits de cette étape n'ont pas été
-          # trouvés, on retourne l'étape précédente qui est,
-          # en toute logique, la dernière étape
-          unless all_produits
-            return steps[step.index - 2]
+          all_informations = true
+          step.informations.each do |kinfo|
+            tuto.informations[kinfo.to_sym] === true && next
+            all_informations = false
+            break
           end
+          # Si tous les produits de cette étape et toutes les informations
+          # n'ont pas été trouvées, on retourne l'étape précédente qui est,
+          # en toute logique, la dernière étape
+          unless all_produits && all_informations
+            real_index = step.index - 2
+            # On part du principe qu'il y a toujours le dossier du tutoriel
+            # et son fichier informations.
+            real_index = 1 if real_index < 1
+            return steps[real_index]
+          end
+
         else
           # Les dernières étapes ne produisent rien de
           # détectable sur le disque.
@@ -129,11 +161,11 @@ class ViteFait
     #   Pour une étape de conception
     # ---------------------------------------------------------------------
     class Step
-      attr_reader :vitefait
+      attr_reader :tuto
       attr_reader :data
-      def initialize vitefait, data
-        @vitefait = vitefait
-        @data     = data
+      def initialize tuto, data
+        @tuto = tuto
+        @data = data
       end
 
       MARGE_ESPACES = 5
@@ -146,10 +178,20 @@ class ViteFait
         supports.each do |support|
           support.display
         end
+        # Les fichiers qui doivent être produits (existants) poru que
+        # l'étape soit validée
         produit && begin
           writeline("\n= L'étape produit =", MARGE_ESPACES)
           produit.each do |prod|
             writeline("  --> #{File.basename(prod)}", MARGE_ESPACES)
+          end
+        end
+        # Les informations qui doivent être true pour que l'étape
+        # soit validée
+        informations && begin
+          writeline("\n= Les informations mises à true =", MARGE_ESPACES)
+          informations.each do |info|
+            writeline("  --> #{info}", MARGE_ESPACES)
           end
         end
       end
@@ -164,12 +206,13 @@ class ViteFait
       end
 
       # Fix Properties
-      def id;           @id           ||= data[:id]           end
-      def hname;        @hname        ||= data[:hname]        end
-      def index;        @index        ||= data[:index]        end
-      def description;  @description  ||= data[:description]  end
-      def support;      @support      ||= data[:support]      end
-      def produit;      @produit      ||= data[:produit]      end
+      def id;           @id           ||= data[:id]               end
+      def hname;        @hname        ||= data[:hname]            end
+      def index;        @index        ||= data[:index]            end
+      def description;  @description  ||= data[:description]      end
+      def support;      @support      ||= data[:support]          end
+      def produit;      @produit      ||= data[:produit]||[]      end
+      def informations; @informations ||= data[:informations]||[] end
 
 
       # ---------------------------------------------------------------------
@@ -367,6 +410,8 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: chaine_youtube
       manuel: gotoyoutube
   produit: null
+  informations:
+    - uploaded
 
 - id: publication_site_perso
   hname: Publication sur mon site perso
@@ -377,6 +422,8 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: site_perso
       manuel: null
   produit: null
+  informations:
+    - site_perso
 
 - id: annonces
   hname: Annonce du nouveau tutoriel
@@ -395,5 +442,8 @@ YAML_DATA_CONCEPTION = <<-YAML
     - hname: Annonce sur le forum Scrivener
       command: annonce type=scriv %{name}
   produit: null
+  informations:
+    - annonce_FB
+    - annonce_Scriv
 
 YAML
