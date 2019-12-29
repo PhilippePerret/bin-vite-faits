@@ -91,7 +91,7 @@ class ViteFait
     def steps
       @steps ||= begin
         index = 0
-        YAML.load(YAML_DATA_CONCEPTION % {name: tuto.name}).to_sym.collect do |dstep|
+        YAML.load(YAML_DATA_CONCEPTION % {folder: File.basename(File.dirname(tuto.current_folder)), name: tuto.name}).to_sym.collect do |dstep|
           dstep.merge!(index: (index += 1))
           Step.new(tuto, dstep)
         end
@@ -120,37 +120,8 @@ class ViteFait
 
     def search_for_last_logic_step
       steps.each do |step|
-        if step.produit || step.informations
-          all_produits = true
-          step.produit.each do |produit|
-            path  = File.join(VITEFAIT_FOLDER_ON_LAPTOP, produit)
-            pathd = File.join(VITEFAIT_FOLDER_ON_DISK, produit)
-            (File.exists?(path) || File.exists?(pathd)) && next
-            # puts "Impossible de trouver le path #{path}"
-            all_produits = false
-            break
-          end
-          all_informations = true
-          step.informations.each do |kinfo|
-            tuto.informations[kinfo.to_sym] === true && next
-            all_informations = false
-            break
-          end
-          # Si tous les produits de cette étape et toutes les informations
-          # n'ont pas été trouvées, on retourne l'étape précédente qui est,
-          # en toute logique, la dernière étape
-          unless all_produits && all_informations
-            real_index = step.index - 2
-            # On part du principe qu'il y a toujours le dossier du tutoriel
-            # et son fichier informations.
-            real_index = 1 if real_index < 1
-            return steps[real_index]
-          end
-
-        else
-          # Les dernières étapes ne produisent rien de
-          # détectable sur le disque.
-
+        step.valid? || begin
+          return steps[step.index - 2]
         end
       end
     end #search_for_last_logic_step
@@ -163,10 +134,42 @@ class ViteFait
     class Step
       attr_reader :tuto
       attr_reader :data
+      attr_reader :errors_validity
       def initialize tuto, data
         @tuto = tuto
         @data = data
       end
+
+      # Retourne true si l'étape de conception est valide
+      # +Params+::
+      #   +deep+::[Boolean] Si true, on fait une recherche sur tous les éléments
+      #                     requis. Sinon, au premier élément manquant, on
+      #                     s'arrête.
+      def valid?(deep = false)
+        errors = []
+        self.produit.each do |pth|
+          path  = File.join(VITEFAIT_FOLDER_ON_LAPTOP, pth)
+          pathd = File.join(VITEFAIT_FOLDER_ON_DISK, pth)
+          # puts "2 chemins testés :\n#{path}\n#{pathd}"
+          (File.exists?(path) || File.exists?(pathd)) && next
+          # puts "Impossible de trouver le path #{path}"
+          if deep
+            errors << "Dossier/fichier introuvable : #{pth}"
+          else
+            return false
+          end
+        end
+        self.informations.each do |kinfo|
+          tuto.informations[kinfo.to_sym] === true && next
+          if deep
+            errors << "Information à false : #{kinfo}"
+          else
+            return false
+          end
+        end
+        @errors_validity = errors
+        return errors.empty?
+      end #/valid?
 
       MARGE_ESPACES = 5
       # Affichage d'une étape
@@ -260,13 +263,13 @@ YAML_DATA_CONCEPTION = <<-YAML
       manuel: creationdossiertutoriel
       command: "create %{name}"
   produit:
-    - "2_En_chantier/%{name}"
-    - "2_En_chantier/%{name}/%{name}-prepared.scriv"
-    - "2_En_chantier/%{name}/Exports"
-    - "2_En_chantier/%{name}/Titre"
-    - "2_En_chantier/%{name}/Operations"
-    - "2_En_chantier/%{name}/Vignette"
-    - "2_En_chantier/%{name}/Voix"
+    - "%{folder}/%{name}"
+    - "%{folder}/%{name}/%{name}-prepared.scriv"
+    - "%{folder}/%{name}/Exports"
+    - "%{folder}/%{name}/Titre"
+    - "%{folder}/%{name}/Operations"
+    - "%{folder}/%{name}/Vignette"
+    - "%{folder}/%{name}/Voix"
 
 - id: define_infos
   hname: Définition des informations générales
@@ -282,7 +285,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - hname: Lire les informations générales
       command: "infos %{name}"
   produit:
-    - "2_En_chantier/%{name}/infos.json"
+    - "%{folder}/%{name}/infos.json"
 
 - id: prepared_project_and_operations
   hname: Projet Scrivener préparé et Opérations
@@ -307,8 +310,8 @@ YAML_DATA_CONCEPTION = <<-YAML
       manuel: operationsfile
       command: "lire_operations %{name}"
   produit:
-    - "2_En_chantier/%{name}/%{name}-prepared.scriv"
-    - "2_En_chantier/%{name}/Operations/operations.yaml"
+    - "%{folder}/%{name}/%{name}-prepared.scriv"
+    - "%{folder}/%{name}/Operations/operations.yaml"
 
 - id: record_titre
   hname: Enregistrement du titre du tutoriel
@@ -322,7 +325,7 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: "assistant pour=titre %{name}"
       manuel: recordtitre
   produit:
-    - "2_En_chantier/%{name}/Titre/Titre.mov"
+    - "%{folder}/%{name}/Titre/Titre.mov"
 
 - id: assemblage_titre
   hname: Assemblage du titre
@@ -334,7 +337,7 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: "assemble pour=titre %{name}"
       manuel: recordtitre
   produit:
-    - "2_En_chantier/%{name}/Titre/Titre.mp4"
+    - "%{folder}/%{name}/Titre/Titre.mp4"
 
 - id: capture_operations
   hname: Capturer les opérations
@@ -346,7 +349,7 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: "assistant pour=operations %{name}"
       manuel: captureoperations
   produit:
-    - "2_En_chantier/%{name}/Operations/capture.mov"
+    - "%{folder}/%{name}/Operations/capture.mov"
 
 - id: recordvoice
   hname: Enregistrement de la voix
@@ -360,7 +363,7 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: "assistant pour=voix [%{name}]"
       manuel: recordvoice
   produit:
-    - "2_En_chantier/%{name}/Voix/voice.mp4"
+    - "%{folder}/%{name}/Voix/voice.mp4"
 
 - id: affine_voix
   hname: Affinement de la voix
@@ -381,9 +384,9 @@ YAML_DATA_CONCEPTION = <<-YAML
     - hname: Assembler tous les éléments
       command: "assemble [%{name}]"
   produit:
-    - "2_En_chantier/%{name}/%{name}.ts"
-    - "2_En_chantier/%{name}/Titre/Titre.ts"
-    - "2_En_chantier/%{name}/Exports/%{name}_completed.mp4"
+    - "%{folder}/%{name}/%{name}.ts"
+    - "%{folder}/%{name}/Titre/Titre.ts"
+    - "%{folder}/%{name}/Exports/%{name}_completed.mp4"
 
 - id: production_vignette
   hname: Fabrication de la vignette YouTube
@@ -396,7 +399,7 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: "open_vignette [%{name}]"
       manuel: produirevignette
   produit:
-    - "2_En_chantier/%{name}/Vignette/vignette.jpg"
+    - "%{folder}/%{name}/Vignette/vignette.jpg"
 
 - id: upload_youtube
   hname: Upload sur YouTube

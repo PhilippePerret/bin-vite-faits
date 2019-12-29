@@ -130,6 +130,11 @@ class ViteFait
     end
   end
 
+  def check
+    require_module('check')
+    exec_check
+  end
+
   # Lorsque des modifications ont été faites, ou une nouvelle étape
   # créée.
   def save_last_logic_step

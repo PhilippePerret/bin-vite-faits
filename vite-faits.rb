@@ -46,6 +46,8 @@ when 'move','deplace', 'deplacer'
   vitefait.is_required && vitefait.move
 when 'rapport', 'report'
   vitefait.is_required && vitefait.write_rapport
+when 'check'
+  vitefait.is_required && vitefait.check
 when 'lire_operations'
   vitefait.is_required && vitefait.record_operations
 when 'capture_to_mp4', 'traite_capture'
