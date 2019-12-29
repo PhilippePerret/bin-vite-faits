@@ -30,26 +30,43 @@ class ViteFait
     def items
       @items ||= begin
         table = {}
-        # Rechercher dans tous les dossiers possibles
+        # Rechercher dans tous les dossiers possibles, sauf les dossiers
+        # achevés et publiés si l'option --all n'est pas activé.
         DATA_LIEUX.each do |klieu, dlieu|
-          path = eval("VITEFAIT_#{klieu.to_s.upcase}_FOLDER")
-          dlieu[:path] = path
-          dlieu[:tutoriels] = Dir["#{path}/*"].collect{|p|File.basename(p)}
-          dlieu[:tutoriels].each do |tutoriel|
-            ptuto = File.join(path,tutoriel)
-            dtuto = {name:tutoriel, path:ptuto}
-            table.merge!( tutoriel => {
-              name:   tutoriel,
-              lieu:   klieu,
-              path:   ptuto,
-              date:   getDateFor(dtuto),
-              titre:  getTitreFor(dtuto),
-              logic_step:getLogicStepFor(dtuto)
-              })
-          end
+          next if [:published, :completed].include?(klieu)
+          table = get_items_in_lieu(dlieu, table)
         end
         table
       end
+    end
+    def items_completed
+      @items_completed ||= begin
+        table = {}
+        [:published, :completed].each do |klieu|
+          table = get_items_in_lieu(DATA_LIEUX[klieu], table)
+        end
+        table
+      end
+    end
+
+    def get_items_in_lieu dlieu, table
+      klieu = dlieu[:id]
+      path = eval("VITEFAIT_#{klieu.to_s.upcase}_FOLDER")
+      dlieu[:path] = path
+      dlieu[:tutoriels] = Dir["#{path}/*"].collect{|p|File.basename(p)}
+      dlieu[:tutoriels].each do |tutoriel|
+        ptuto = File.join(path,tutoriel)
+        dtuto = {name:tutoriel, path:ptuto}
+        table.merge!( tutoriel => {
+          name:   tutoriel,
+          lieu:   klieu,
+          path:   ptuto,
+          date:   getDateFor(dtuto),
+          titre:  getTitreFor(dtuto),
+          logic_step:getLogicStepFor(dtuto)
+          })
+      end
+      return table
     end
 
     # Affichage de la liste des tutoriels
@@ -57,52 +74,92 @@ class ViteFait
     def display
       clear
 
-      key_sort = (COMMAND.params[:sort]||'').downcase
+      for_all = COMMAND.options[:all] === true
+
+      # Clé de classement (par défaut, par développement)
+      key_sort = (COMMAND.params[:sort]||'dev').downcase
       inverse = key_sort.start_with?('i')
 
       # = TRI DES TUTORIELS =
       # =====================
       # Si le paramètres ':sort' est défini, il faut classer la liste des
       # item
-      template_line = "- %{name} (%{lieu}) - %{logic_step}"
-      sorted_items =
+      sort_method =
         case key_sort
         when 'date', 'idate'
           sort_hname = inverse ? "depuis les plus récents" : "depuis les plus anciens"
-          template_line = "%{date} - %{name} (%{lieu})"
-          items.values.sort_by { |d| d[:date] }
+          :sort_by_date
         when 'name', 'iname'
           sort_hname = "par nom"
           sort_hname << " inversé" if inverse
-          items.values.sort_by { |d| d[:name].downcase }
+          :sort_by_name
         when 'titre', 'ititre'
           sort_hname = "par titre"
           sort_hname << " inverse" if inverse
-          template_line = "%{titre} (%{lieu} — %{name})"
-          items.values.sort_by { |d| d[:titre].downcase}
+          :sort_by_titre
         when 'dev', 'developpement', 'development'
           sort_hname = "par développement"
           sort_hname << " inverse" if inverse
-          template_line = "%{titre} (%{lieu} — %{name}) - %{logic_step}"
-          items.values.sort_by { |d| - d[:logic_step] }
-        else
-          sort_hname = "naturel"
-          items.values
+          sorted_items = items.values.sort_by { |d| - d[:logic_step] }
+          :sort_by_logic_step
         end
-      sorted_items = sorted_items.reverse if inverse
+
+      # On trie les listes
+      sorted_items = send(sort_method, items)
+      if for_all
+        sorted_completed_items = send(sort_method, items_completed)
+      end
+
+      if inverse
+        sorted_items = sorted_items.reverse
+        if for_all
+          sorted_completed_items = sorted_completed_items.reverse
+        end
+      end
 
       # = AFFICHAGE DE LA LISTE =
       # =========================
 
       puts "  === LISTE DES TUTORIELS (classement #{sort_hname}) ===\n\n"
 
-      sorted_items.each_with_index do |ditem, index|
+      sorted_items.each do |ditem|
         tutoline = TutoLine.new(ditem)
-        puts ' ' + tutoline.line(template_line)
+        puts ' ' + tutoline.line({name: COMMAND.options[:name]})
       end
       puts "\n\n"
+
+      if for_all
+        puts " = TUTORIELS ACHEVÉS ET PUBLIÉS =\n\n"
+        sorted_completed_items.each do |ditem|
+          tutoline = TutoLine.new(ditem)
+          puts ' ' + tutoline.line({name: COMMAND.options[:name]})
+        end
+        puts "\n\n"
+      end
+
+      puts aide
     end
 
+    def aide
+      puts <<-EOT
+
+--all: tous, --name: Nom dossier au lieu du titre
+
+      EOT
+    end
+
+    def sort_by_date hash
+      hash.values.sort_by{|d| d[:date]}
+    end
+    def sort_by_name hash
+      hash.values.sort_by{|d| d[:name].downcase}
+    end
+    def sort_by_titre hash
+      hash.values.sort_by{|d| d[:titre].downcase}
+    end
+    def sort_by_logic_step hash
+      hash.values.sort_by{|d| - d[:logic_step]}
+    end
 
     # Retourne le titre du tutoriel de données minimales +dtuto+
     def getTitreFor(dtuto)
@@ -163,13 +220,16 @@ class ViteFait
       end
 
       # La ligne finale à afficher
-      def line template
-        "#{mark_logic_step} #{mark_titre} #{mark_lieu} #{mark_date}"
+      # +Params+::
+      #   +options+:: [Hash] Table des options
+      #       :name   Si true, on met le nom au lieu du titre
+      def line(options = {})
+        "#{mark_logic_step} #{mark_titre(options[:name])} #{mark_lieu} #{mark_date}"
       end
 
-      def mark_titre
+      def mark_titre(with_name)
         @mark_titre ||= begin
-          str = titre || name
+          str = (with_name ? name : titre) || name
           if str.length >= self.class.titre_len
             str = str[0..self.class.titre_len - 3]+'…'
           end
