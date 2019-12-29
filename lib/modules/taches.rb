@@ -229,6 +229,7 @@ Quitter
     def save
       data2save = itemsById.values.collect{|tache|tache.data}
       File.open(path,'wb'){|f| f.write YAML.dump(data2save)}
+      @itemsById = nil
     end
 
     # Affichage des tâches
@@ -254,12 +255,12 @@ Quitter
     end
 
     def listing(options = {})
-      @listing ||= begin
-        itemsById
-          .values
-          .select  { |tache| options[:all] || !tache.done }
-          .sort_by { |tache| -((tache.priority.to_i + 1) * tache.created_at) + tache.created_at}
-      end
+      # @listing ||= begin
+      itemsById
+        .values
+        .select  { |tache| options[:all] || !tache.done }
+        .sort_by { |tache| -((tache.priority.to_i + 1) * tache.created_at) + tache.created_at}
+      # end
     end
 
     def header options = {}
@@ -384,7 +385,7 @@ Quitter
       end
 
       def mark_id
-        @mark_id ||= "##{id}".ljust(MARK_ID_LEN)
+        "##{id}".ljust(MARK_ID_LEN)
       end
 
       # Affichage complet
@@ -393,45 +394,37 @@ Quitter
       end
 
       def mark_description
-        @mark_description ||= description.to_s == '' ? '  -' : '  x'
+        description.to_s == '' ? '  -' : '  x'
       end
 
       def mark_done
-        @mark_done ||= done ? date_done(true) : '    ---'
+        done ? date_done(true) : '    ---'
       end
       def f_content
-        @f_content ||= begin
-          if content.length < CONTENT_LENGTH
-            content
-          else
-            content[0..CONTENT_LENGTH-2] + '…'
-          end
+        if content.length < CONTENT_LENGTH
+          content
+        else
+          content[0..CONTENT_LENGTH-2] + '…'
         end
       end
 
       def f_description
-        @f_description ||= begin
-          if description.to_s != ''
-            description.gsub(/\n/, "\n#{long_indent}").gsub(/\\n/, "\n#{long_indent}").strip
-          else
-            "- pas de description -"
-          end
+        if description.to_s != ''
+          description.gsub(/\n/, "\n#{long_indent}").gsub(/\\n/, "\n#{long_indent}").strip
+        else
+          "- pas de description -"
         end
       end
 
       def f_created_at
-        @f_created_at ||= begin
-          "créée le #{Time.at(created_at).strftime('%d %m %Y à %H:%M')}"
-        end
+        "créée le #{Time.at(created_at).strftime('%d %m %Y à %H:%M')}"
       end
 
       def f_done
-        @f_done ||= begin
-          if done
-            "terminée le #{date_done}"
-          else
-            "\033[1;31mÀ faire\033[0m"
-          end
+        if done
+          "terminée le #{date_done}"
+        else
+          "\033[1;31mÀ faire\033[0m"
         end
       end
 
@@ -449,7 +442,7 @@ Quitter
       end
 
       def mark_priority
-        @mark_priority ||= "  #{priority||0}"
+        "  #{priority||0}"
       end
     end #/ViteFait::Taches::Tache
   end #/ViteFaite::Taches
