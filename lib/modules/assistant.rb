@@ -130,9 +130,20 @@ end #/<<self
     DATA_KEYS_FILES_OPERATION.each do |kfile|
       data_file = {}
       data_file.merge!(DATA_ALL_FILES[kfile.to_sym])
-      path = File.join(current_folder, (data_file[:relpath] % {name: name}))
-      existe  = !!File.exists?(path)
-      mtime   = existe ? File.stat(path).mtime.to_i : nil
+      if data_file[:relpath]
+        path = File.join(current_folder, (data_file[:relpath] % {name: name}))
+        existe  = !!File.exists?(path)
+        mtime   = existe ? File.stat(path).mtime.to_i : nil
+      end
+      if data_file[:informations]
+        mtime = nil
+        existe = true # si tout est OK
+        data_file[:informations].each do |kinfo|
+          next if informations[kinfo] === true
+          existe = false
+          break
+        end
+      end
       data_file.merge!({
         exists: existe,
         time:   mtime

@@ -181,6 +181,8 @@ class ViteFait
       vitefait.is_required && vitefait.record_operations
     when 'titre', 'title'
       vitefait.is_required && vitefait.record_titre
+    when 'vignette'
+      vitefait.is_required && vitefait.open_something('vignette', edition = true)
     when 'voice', 'voix', 'texte'
       vitefait.name_is_required || vitefait.record_voice
     else
