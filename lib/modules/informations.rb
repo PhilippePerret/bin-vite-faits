@@ -33,6 +33,10 @@ class Informations
   #
   # Pour pouvoir utiliser la formule <ViteFait>#informations[key]
   def [] key
+    data[key] || begin
+      DEFAULT_INFORMATIONS.key?(key) || raise("La clé '#{key}' est inconnue des informations du tutoriel…")
+      data.merge!(key => DEFAULT_INFORMATIONS[key])
+    end
     data[key][:value]
   end
 

@@ -188,11 +188,11 @@ end
 # TODO Mettre leurs dossier ici, pour pouvoir les modifier facilement et que
 # ça se répercute partout ailleurs.
 DATA_LIEUX = {
-  chantier:   {folder_name:'2_En_chantier', place:'laptop', hname:"en chantier sur l'ordi"},
-  completed:  {folder_name:'3_Completed',   place:'disk',   hname:"fini (sur le disque)"},
-  chantierd:  {folder_name:'2_En_chantier', place:'disk',   hname:"en chantier, mais sur le disque"},
-  attente:    {folder_name:'1_En_attente',  place:'disk',   hname:"en attente (sur le disque)"},
-  published:  {folder_name:'4_Published',   place:'disk',   hname:"publié (sur le disque)"}
+  chantier:   {folder_name:'2_En_chantier', place:'laptop', hname:"en chantier sur l'ordi", short_hname:'ordi›chantier'},
+  completed:  {folder_name:'3_Completed',   place:'disk',   hname:"fini (sur le disque)", short_hname:'disk›fini'},
+  chantierd:  {folder_name:'2_En_chantier', place:'disk',   hname:"en chantier, mais sur le disque", short_hname:'disk›chantier'},
+  attente:    {folder_name:'1_En_attente',  place:'disk',   hname:"en attente (sur le disque)", short_hname:'disk›attente'},
+  published:  {folder_name:'4_Published',   place:'disk',   hname:"publié (sur le disque)", short_hname:'disk›publié'}
 }
 
 FOLDER_CAPTURES = File.join('/Volumes','MacOSCatalina','Captures')
