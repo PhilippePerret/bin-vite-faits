@@ -212,6 +212,7 @@ class ViteFait
       def id;           @id           ||= data[:id]               end
       def hname;        @hname        ||= data[:hname]            end
       def index;        @index        ||= data[:index]            end
+      def letter;       @letter       ||= data[:letter]           end
       def description;  @description  ||= data[:description]      end
       def support;      @support      ||= data[:support]          end
       def produit;      @produit      ||= data[:produit]||[]      end
@@ -253,6 +254,7 @@ end #/ViteFait
 YAML_DATA_CONCEPTION = <<-YAML
 ---
 - id: creation_dossier
+  letter: D
   hname: Création du dossier
   description: |
       Création du dossier du tutoriel et de tous ses éléments.
@@ -272,6 +274,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - "%{folder}/%{name}/Voix"
 
 - id: define_infos
+  letter: I
   hname: Définition des informations générales
   description: |
     Au cours de cette étape on définit les informations générales
@@ -288,6 +291,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - "%{folder}/%{name}/infos.json"
 
 - id: prepared_project_and_operations
+  letter: O
   hname: Projet Scrivener préparé et Opérations
   description: |
       Préparation du projet Scrivener qui va servir de base, tout
@@ -314,6 +318,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - "%{folder}/%{name}/Operations/operations.yaml"
 
 - id: record_titre
+  letter: T
   hname: Enregistrement du titre du tutoriel
   description: |
     Cette étape consiste à enregistrer la capture du titre qui
@@ -328,6 +333,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - "%{folder}/%{name}/Titre/Titre.mov"
 
 - id: assemblage_titre
+  letter: U
   hname: Assemblage du titre
   description: |
     Dans cette étape, on va assembler le titre capturé au cours
@@ -340,6 +346,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - "%{folder}/%{name}/Titre/Titre.mp4"
 
 - id: capture_operations
+  letter: C
   hname: Capturer les opérations
   description: |
     C'est le plus gros morceau du tutoriel, qui consiste à jouer
@@ -352,6 +359,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - "%{folder}/%{name}/Operations/capture.mov"
 
 - id: recordvoice
+  letter: V
   hname: Enregistrement de la voix
   description: |
     Au cours de cette étape, on va procéder à l'enregistrement
@@ -366,6 +374,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - "%{folder}/%{name}/Voix/voice.mp4"
 
 - id: affine_voix
+  letter: W
   hname: Affinement de la voix
   description: |
     On va utiliser Audacity ou autre logiciel de traitement de la
@@ -376,6 +385,7 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: edit_voice %{name}
 
 - id: assemblagecomplet
+  letter: A
   hname: Assemblage du tutoriel complet
   description: |
     C'est cette étape qui va produire le tutoriel complet à uploa-
@@ -389,6 +399,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - "%{folder}/%{name}/Exports/%{name}_completed.mp4"
 
 - id: production_vignette
+  letter: H
   hname: Fabrication de la vignette YouTube
   description: |
     Cette étape permet de produire le fichier JPEG de la vignette
@@ -402,6 +413,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - "%{folder}/%{name}/Vignette/vignette.jpg"
 
 - id: upload_youtube
+  letter: Y
   hname: Upload sur YouTube
   description: |
     Une fois tous les éléments préparés, on peut procéder au télé-
@@ -417,6 +429,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - uploaded
 
 - id: publication_site_perso
+  letter: P
   hname: Publication sur mon site perso
   description: |
     Le nouveau tutoriel doit être répertorié sur mon site perso.
@@ -429,6 +442,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - site_perso
 
 - id: annonces
+  letter: S
   hname: Annonce du nouveau tutoriel
   description: |
     La dernière chose à faire est d'annoncer le nouveau tutoriel

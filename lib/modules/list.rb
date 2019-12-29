@@ -72,6 +72,8 @@ class ViteFait
     # Affichage de la liste des tutoriels
     # Commande : vite-faits list[e]
     def display
+      ViteFait.require_module('conception')
+
       clear
 
       for_all = COMMAND.options[:all] === true
@@ -214,9 +216,13 @@ class ViteFait
           end
         end
       end # /<< self
+
+
       attr_reader :data
+      attr_reader :tuto
       def initialize data # data = données minimales
         @data = data
+        @tuto = ViteFait.new(data[:name])
       end
 
       # La ligne finale à afficher
@@ -224,7 +230,7 @@ class ViteFait
       #   +options+:: [Hash] Table des options
       #       :name   Si true, on met le nom au lieu du titre
       def line(options = {})
-        "#{mark_logic_step} #{mark_titre(options[:name])} #{mark_lieu} #{mark_date}"
+        "#{mark_logic_steps} #{mark_titre(options[:name])} #{mark_lieu} #{mark_date}"
       end
 
       def mark_titre(with_name)
@@ -248,6 +254,18 @@ class ViteFait
           lieu[:short_hname].ljust(LEN_LIEU)
         end
       end
+      def mark_logic_steps
+        @mark_logic_steps ||= begin
+          str = ''
+          tuto.conception.steps.each do |step|
+            color = step.valid? ? '32' : '31'
+            str << "\033[1;#{color}m#{step.letter}\033[0m"
+          end
+          str
+        end
+      end
+      # Contrairement à la méthode précédente, celle-ci n'affiche
+      # que des étoiles et seulement jusqu'à l'étape logique courante
       def mark_logic_step
         @mark_logic_step ||= begin
           stars_on  = "*" * logic_step
