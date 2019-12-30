@@ -14,6 +14,7 @@ class Informations
     titre_en:       {value:nil,   editable:true,  required:true},
     youtube_id:     {value:nil,   editable:true,  required:true},
     description:    {value:nil,   editable:true,  required:true},
+    accelerator:    {value:nil,   editable:true,  required:false},
     logic_step:     {value:nil,   editable:false, required:false},
     site_perso:     {value:false, editable:false, required:false},
     uploaded:       {value:false, editable:false, required:false},

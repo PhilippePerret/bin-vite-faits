@@ -26,11 +26,17 @@ class ViteFait
         record_operations_path
       end
 
+
     cmd = "ffmpeg -i \"#{fichier_ref}\""
 
-    COMMAND.params[:speed] && begin
-      coefficiant = accelerator_for_speed(COMMAND.params[:speed])
+    if operations[:accelerator] || COMMAND.params[:speed]
+      accel = COMMAND.params[:speed] || operations[:accelerator]
+      coefficiant = accelerator_for_speed(accel)
       cmd << " -vf \"setpts=#{coefficiant}*PTS\" -an"
+      if COMMAND.params[:speed]
+        # Il faut l'enregistrer dans les informations
+        informations.set(accelerator: COMMAND.params[:speed].to_f)
+      end
       # puts "Accelerator : speed=#{COMMAND.params[:speed]} / coefficiant=#{coefficiant}"
     end
     cmd << " \"#{record_operations_mp4}\""

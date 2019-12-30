@@ -57,6 +57,9 @@ les durées, sans vidéo.
 
 Pour lancer la capture : `vitefait assistant pour=capture #{name}`
 
+\033[1;31m(*) Si la capture des opérations doit être accélérée, il faut
+              accélérer en conséquence le débit de la voix, ce qui est
+              fait en définissant le paramètre `speed=...`.\033[0m
       EOA
       yesNo("Voulez-vous poursuivre ?") || (return false)
       only_with_durees = true
@@ -76,7 +79,12 @@ Pour pouvoir opérer confortablement, nous avons deux solutions.
       en passant aux textes suivant par une touche
       clavier (plus synchrone).
 
-  C:  renoncer pour préparer le fichier des opérations
+  C:  renoncer pour préparer le fichier des opérations ou
+      modifier l'accélérateur (qui vaut actuellement #{informations[:accelerator]}) (*).
+
+(*) Pour le modifier, ajouter le paramètre `speed=val` où val vaut
+    2 pour doubler le rythme, 1.5 pour l'augmenter de la moitié de
+    sa valeur, etc. Ou définir l'information `accelerator`.
 
     EOF
 
@@ -85,8 +93,17 @@ Pour pouvoir opérer confortablement, nous avons deux solutions.
     choix = 'A'
   end
 
-  # On va procéder vraiment à l'opération
-  # -------------------------------------
+  # Si une accélération a été définie, il faut la prendre
+  # en compte. On la met simplement dans le paramètre
+  # speed qui pourra être accédé par tous les calculs de
+  # durée estimée.
+  if COMMAND.params[:speed] || operations[:accelerator]
+    COMMAND.params[:speed] ||= operations[:accelerator]
+  end
+
+  # ENREGISTREMENT DE LA VOIX
+  # -------------------------
+
   case choix
   when 'A' then assistant_voix_finale_with_durees
   when 'B' then assistant_voix_finale_with_video
@@ -94,8 +111,9 @@ Pour pouvoir opérer confortablement, nous avons deux solutions.
   else raise NotAnError.new("Je ne connais pas le choix '#{choix}'.")
   end
 
-  # On passe ici quand on a fini d'enregistrer la
-  # voix.
+  # FIN DE L'ENREGISTREMENT DE LA VOIX
+  # ----------------------------------
+
 
   if Time.now.to_i < @fin_enregistrement_voix
     reste_secondes = @fin_enregistrement_voix - Time.now.to_i
@@ -244,6 +262,10 @@ end
 def assistant_voix_finale_with_durees
   clear
   notice "Enregistrement de la voix suivant les durées déterminées"
+
+  accelerator = COMMAND.params[:speed] || 1.0
+
+
   yesOrStop("Es-tu prêt à enregistrer ? (je compterai 5 secondes)")
   decompte("Start in… %{nombre_secondes}", 5)
 
@@ -256,13 +278,13 @@ def assistant_voix_finale_with_durees
       Video.dureeOf(record_operations_mp4)
     else
       require_module('operations')
-      duree_totale_estimee
+      (duree_totale_estimee.to_f / accelerator).round
     end + 10 # marge
   start_voice_recording(duree_voice)
 
   clear
   operations.each_with_index do |operation, index|
-    end_sleep_time = Time.now.to_i + operation.duree_estimee
+    end_sleep_time = Time.now.to_i + (operation.duree_estimee.to_f / accelerator).round
     prev_ope = index > 0 ? operations[index - 1] : nil
     next_ope = operations[index + 1]
     clear
