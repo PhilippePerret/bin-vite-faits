@@ -29,8 +29,8 @@ class ViteFait
 
     cmd = "ffmpeg -i \"#{fichier_ref}\""
 
-    if operations[:accelerator] || COMMAND.params[:speed]
-      accel = COMMAND.params[:speed] || operations[:accelerator]
+    if informations[:accelerator] || COMMAND.params[:speed]
+      accel = COMMAND.params[:speed] || informations[:accelerator]
       coefficiant = accelerator_for_speed(accel)
       cmd << " -vf \"setpts=#{coefficiant}*PTS\" -an"
       if COMMAND.params[:speed]

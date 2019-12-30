@@ -97,8 +97,8 @@ Pour pouvoir opérer confortablement, nous avons deux solutions.
   # en compte. On la met simplement dans le paramètre
   # speed qui pourra être accédé par tous les calculs de
   # durée estimée.
-  if COMMAND.params[:speed] || operations[:accelerator]
-    COMMAND.params[:speed] ||= operations[:accelerator]
+  if COMMAND.params[:speed] || informations[:accelerator]
+    COMMAND.params[:speed] ||= informations[:accelerator]
   end
 
   # ENREGISTREMENT DE LA VOIX

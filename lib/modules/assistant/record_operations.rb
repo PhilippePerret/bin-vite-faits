@@ -116,7 +116,7 @@ peux interrompre la capture à l'aide de CTRL-C.
   ViteFait.move_last_capture_in(default_record_operations_path)
 
   if operations_recorded?
-    require_module('duree')
+    require_module('durees')
 
     notice <<-EOT
 
