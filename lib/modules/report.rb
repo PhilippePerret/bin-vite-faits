@@ -55,7 +55,7 @@ class ViteFait
         line_exists_file(titre_path, 'Titre (Scrivener)')
         line_exists_file(titre_mov, 'Titre (capture)')
         line_exists_file(vignette_gimp, 'Vignette Gimp')
-        line_exists_file(vocal_capture_path, 'Voix')
+        line_exists_file(record_voice_path, 'Voix')
         line_exists_file(screenflow_path, 'ScreenFlow')
         line_exists_file(premiere_path, 'Adobe Premiere')
         line_exists_file(own_intro_mp4, 'INTRO propre')
@@ -69,8 +69,8 @@ class ViteFait
         line_exists_file(record_operations_completed, 'VIDÉO FINALE')
         line_exists_file(vignette_path, 'Vignette JPEG')
         line_exists_file(record_operations_mp4, 'Capture (mp4)')
-        line_exists_file(titre_mp4, "Titre (mp4)")
-        line_exists_file(voice_aac, 'Voix finale')
+        line_exists_file(record_titre_mp4, "Titre (mp4)")
+        line_exists_file(record_voice_aac, 'Voix finale')
 
         puts "\n\nTâches restant à faire"
         puts "----------------------\n"

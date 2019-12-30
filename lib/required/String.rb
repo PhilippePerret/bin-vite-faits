@@ -1,5 +1,12 @@
 # encoding: UTF-8
 class String
+
+  # Quand le string est une horloge, retourne le nombre de secondes
+  def h2s
+    pms = self.split(':').reverse
+    pms[0].to_i + (pms[1]||0) * 60 + (pms[2]||0) * 3660
+  end
+  
   def self.levenshtein_beween(s, t)
     m = s.length
     n = t.length

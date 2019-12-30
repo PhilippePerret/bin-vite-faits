@@ -36,6 +36,7 @@ end
 
 class TempMSG
 class << self
+  attr_reader :MSG_DATA
   # Retourne le message d'identifiant +msg_id+ avec les
   # variables +params+
   def get msg_id, params = nil
@@ -79,4 +80,9 @@ def MSG msg_id, params = nil
   else
     TempMSG.add_messages(msg_id)
   end
+end
+
+# Retourne true si la donnée message +msg_id+ existe
+def msg_exists? msg_id
+  return TempMSG.MSG_DATA && TempMSG.MSG_DATA.key?(msg_id.to_sym)
 end

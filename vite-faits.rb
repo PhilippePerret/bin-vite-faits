@@ -34,6 +34,8 @@ when /^record[\-_](.*)$/
   vitefait.is_required && vitefait.record_something($1)
 when /^voir[\-_](.*)$/
   vitefait.is_required && vitefait.voir_something($1)
+when 'crop'
+  vitefait.is_required && vitefait.crop
 when 'assistant'
   ViteFait.assistant
 when 'create'

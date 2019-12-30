@@ -91,8 +91,8 @@ def exec_open what, edition = nil
       # Enregistrer la voix
       record_voice
     else
-      if File.exists?(vocal_capture_path)
-        `open "#{vocal_capture_path}"`
+      if File.exists?(record_voice_path)
+        `open "#{record_voice_path}"`
       end
     end
   when 'montage'

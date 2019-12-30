@@ -9,7 +9,7 @@ class ViteFait
       raise "🖐  Impossible de trouver le son de machine à écrire (#{self.class.machine_a_ecrire_path}). Or j'en ai besoin pour créer le titre."
     end
 
-    unlink_if_exist([titre_mp4, titre_prov_mp4, titre_ts])
+    unlink_if_exist([record_titre_mp4, titre_prov_mp4, record_titre_ts])
 
     # On enregistre le titre avec 1 secondes en moins
     notice "📦  Fabrication du fichier de titre assemblé. Merci de patienter…"
@@ -25,7 +25,7 @@ class ViteFait
     res = `#{cmd}`
 
     cmd = "ffmpeg -i \"#{titre_prov_mp4}\""
-    cmd << " -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{titre_mp4}\""
+    cmd << " -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{record_titre_mp4}\""
     # Pas d'option verbose, ici, il faut obligatoirement envoyer à /dev/null
     # lorsqu'on assemble du son
     cmd << " 2> /dev/null"
@@ -39,7 +39,7 @@ class ViteFait
 
     IO.remove_with_care(titre_prov_mp4,'fichier titre provisoire',false)
 
-    if File.exists?(titre_mp4)
+    if File.exists?(record_titre_mp4)
       notice "--> 👍  Fichier titre mp4 fabriqué avec succès."
       save_last_logic_step
     else

@@ -80,7 +80,7 @@ class << self
     end
   rescue Exception => e
     error e.message
-    error "Je ne procède pas à la destruction."
+    error "Je ne procède pas à la destruction de '#{path}'."
   end #/remove_with_case
 
 

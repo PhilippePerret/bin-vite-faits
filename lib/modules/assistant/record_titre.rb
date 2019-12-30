@@ -8,7 +8,7 @@ def exec(options = nil)
 
   if titre_recorded?
     if yesNo("L'enregistrement du titre existe déjà. Dois-je le refaire ?")
-      unlink_if_exist([titre_mov, titre_mp4, titre_ts])
+      unlink_if_exist([titre_mov, record_titre_mp4, record_titre_ts])
     else
       return
     end
@@ -64,7 +64,7 @@ capture du titre.
   end
 
   yesOrStop("Tape 'y' ou 'o' lorsque tu auras fini.")
-  ViteFait.move_last_capture_in(default_titre_file_path) || raise(NotAError.new("Tu n'as pas enregistré le titre. je dois renoncer."))
+  ViteFait.move_last_capture_in(record_titre_mov) || raise(NotAError.new("Tu n'as pas enregistré le titre. je dois renoncer."))
 
   if IO.check_existence(titre_mov, {thing: "capture du titre", success: "la capture du titre a bien été exécutée", failure: "La capture du titre a échoué…"})
     save_last_logic_step

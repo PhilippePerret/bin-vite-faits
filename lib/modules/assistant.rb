@@ -54,7 +54,7 @@ arrêté.
 
     # S'il existe un fichier .aiff on regarde s'il est plus jeune que le
     # fichier mp4 dans lequel cas on demande à refaire le mp4.
-    tuto.check_for_reconvert_voice    if File.exists?(tuto.vocal_capture_aiff_path)
+    tuto.check_for_reconvert_voice    if File.exists?(tuto.record_voice_aiff)
 
     # Assemblage de la capture des opérations et de la capture de
     # la voix (ou du fichier voix)
@@ -332,8 +332,8 @@ commande :
   end
 
   def check_for_reconvert_voice
-    mtime_aiff  = File.stat(vocal_capture_aiff_path).mtime.to_i
-    mtime_mp4   = File.stat(vocal_capture_path).mtime.to_i
+    mtime_aiff  = File.stat(record_voice_aiff).mtime.to_i
+    mtime_mp4   = File.stat(record_voice_path).mtime.to_i
 
     # Si le fichier mp4 est plus vieux que le fichier aiff, rien à
     # faire. Sinon, ça signifie que le fichier aiff a été modifié après
@@ -483,7 +483,7 @@ yahoo et le code normal.
   end
 
   def titre_final_converted?(nomessage = true)
-    vrai = titre_mov && File.exists?(titre_mp4)
+    vrai = titre_mov && File.exists?(record_titre_mp4)
     if !nomessage && vrai
       notice "--- Fichier titre final préparé."
     end

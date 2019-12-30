@@ -81,7 +81,7 @@ class ViteFait
   def titre_duration
     @titre_duration ||= begin
       if titre_finalized?
-        Video.dureeOf(titre_mp4)
+        Video.dureeOf(record_titre_mp4)
       elsif titre_recorded?
         Video.dureeOf(titre_mov) - 1
       else

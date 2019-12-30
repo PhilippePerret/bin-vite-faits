@@ -31,9 +31,9 @@ def exec(options = nil)
   # de la voix directement (alors que lorsque l'on est sur
   # l'assistant de création, on ne passe pas par là si le
   # fichier existe déjà)
-  if File.exists?(vocal_capture_path)
+  if File.exists?(record_voice_path)
     yesOrStop("Un fichier voix existe déjà… Dois-je vraiment le détruire et le remplacer ?")
-    IO.remove_with_care(vocal_capture_path,'fichier voix',false)
+    IO.remove_with_care(record_voice_path,'fichier voix',false)
   end
 
   # Précaution : le fichier capture.mp4 doit impérativement
@@ -110,11 +110,11 @@ terminé. Il reste #{reste_secondes.to_i} secondes.
     decompte("Stop in… %{nombre_secondes}", reste_secondes)
   end
 
-  if File.exists?(vocal_capture_path)
+  if File.exists?(record_voice_path)
     notice "👍  Voix enregistrée avec succès dans le fichier ./Voix/voice.mp4."
     save_last_logic_step
   else
-    raise NotAnError.new("Fichier voix (*) introuvable. La voix n'a pas été enregistrée.\n(*) #{vocal_capture_path}")
+    raise NotAnError.new("Fichier voix (*) introuvable. La voix n'a pas été enregistrée.\n(*) #{record_voice_path}")
   end
 
   yesOrStop("Paré pour la suite ?")
@@ -300,8 +300,8 @@ end
 #   +duree_voice+::[Integer]  Il est impératif de préciser la durée
 #                             de l'enregistrement avec cet argument.
 def start_voice_recording(duree_voice)
-  # cmd = "ffmpeg -f avfoundation -i \":0\" -t 10 \"#{vocal_capture_path}\" &"
-  cmd = "#{VOICE_RECORDER_PATH} \"#{vocal_capture_path}\" #{duree_voice}"
+  # cmd = "ffmpeg -f avfoundation -i \":0\" -t 10 \"#{record_voice_path}\" &"
+  cmd = "#{VOICE_RECORDER_PATH} \"#{record_voice_path}\" #{duree_voice}"
   system(cmd)
   # Ici, on doit utiliser system pour que ça joue vraiment dans
   # le background

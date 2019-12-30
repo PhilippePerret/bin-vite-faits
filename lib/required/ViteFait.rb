@@ -305,6 +305,14 @@ et Remplacer).
     send("record_#{what}".to_sym)
   end
 
+  # Méthode générique pour cropper un enregistrement
+  def crop
+    require_module('crop')
+    exec_crop
+  rescue NotAnError => e
+    e.puts_error_if_message
+  end
+
   def assemble_something what
     what = SHORT_SUJET_TO_REAL_SUJET[what] || what
     send("assemble_#{what}".to_sym)
@@ -450,7 +458,7 @@ et Remplacer).
 
   # True s'il existe un fichier vocal séparé
   def voice_capture_exists?(required=false,nomessage=true)
-    existe = File.exists?(vocal_capture_path)
+    existe = File.exists?(record_voice_path)
     if !existe && required
       error "Le fichier voix est requis. Pour le produire de façon assistée, utiliser :\n\n\tvite-faits assistant #{name} pour=voix\n\n"
     elsif existe && !nomessage
@@ -777,6 +785,7 @@ et Remplacer).
       end
     end
   end
+  alias :record_operations_mov :record_operations_path
 
   def get_first_mov_file
     Dir["#{operations_folder}/*.mov"].each do |pth|
@@ -844,7 +853,7 @@ et Remplacer).
 
   # Retourne true si le titre.mp4 a été produit
   def titre_finalized?
-    titre_recorded? && File.exists?(titre_mp4)
+    titre_recorded? && File.exists?(record_titre_mp4)
   end
 
   # Éléments pour le titre
@@ -853,7 +862,7 @@ et Remplacer).
   end
   def titre_mov
     @titre_mov ||= begin
-      default_path = default_titre_file_path
+      default_path = record_titre_mov
       unless File.exists?(default_path)
         # Il faut chercher le fichier mov dans le dossier
         current_path = Dir["#{titre_folder}/*.mov"].first
@@ -867,17 +876,17 @@ et Remplacer).
       default_path
     end
   end
-  def default_titre_file_path
-    @default_titre_file_path ||= File.join(titre_folder, "Titre.mov")
+  def record_titre_mov
+    @record_titre_mov ||= File.join(titre_folder, "Titre.mov")
   end
-  def titre_mp4
-    @titre_mp4 ||= File.join(titre_folder, "Titre.mp4")
+  def record_titre_mp4
+    @record_titre_mp4 ||= File.join(titre_folder, "Titre.mp4")
   end
   def titre_prov_mp4
     @titre_prov_mp4 ||= File.join(titre_folder, "Titre-prov.mp4")
   end
-  def titre_ts
-    @titre_ts ||= File.join(titre_folder, "Titre.ts")
+  def record_titre_ts
+    @record_titre_ts ||= File.join(titre_folder, "Titre.ts")
   end
   # Chemin d'accès au dossier titre
   def titre_folder
@@ -897,16 +906,17 @@ et Remplacer).
   end
   # Le fichiers final de la voix, si elle est utilisée
   # mp4 car éditable par Audacity
-  def vocal_capture_path
-    @vocal_capture_path ||= File.join(voice_folder,'voice.mp4')
+  def record_voice_path
+    @record_voice_path ||= File.join(voice_folder,'voice.mp4')
   end
-  def vocal_capture_aiff_path
-    @vocal_capture_aiff_path ||= File.join(voice_folder,'voice.aiff')
+  alias :record_voice_mp4 :record_voice_path
+  def record_voice_aiff
+    @record_voice_aiff ||= File.join(voice_folder,'voice.aiff')
   end
   # Le fichiers pour l'assemblage
   # aac car assemblable
-  def voice_aac
-    @voice_aac ||= File.join(voice_folder,'voice.aac')
+  def record_voice_aac
+    @record_voice_aac ||= File.join(voice_folder,'voice.aac')
   end
   # Le dossier voix
   def voice_folder

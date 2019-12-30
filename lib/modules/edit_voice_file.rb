@@ -26,7 +26,7 @@ Raccourcis pratiques à avoir en tête :
 
     EOT
     sleep 4
-    `open -a Audacity "#{vocal_capture_path}"`
+    `open -a Audacity "#{record_voice_path}"`
     sleep 15
     if yesNo("Dois-je convertir le fichier AIFF en fichier MP4 (normal) ?")
       require_module('convert_voice_aiff')

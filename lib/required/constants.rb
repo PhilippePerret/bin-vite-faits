@@ -30,15 +30,15 @@ MIN_OPT_TO_REAL_OPT = {
 DATA_KEYS_FILES_OPERATION = [
   :informations,
   :titre_mov,
-  :titre_mp4,
+  :record_titre_mp4,
   :vignette_jpg,
   :operations,
   :capture_mov,
   :capture_mp4,
   :voice_mp4,
   # :voice_aiff,
-  :voice_aac,
-  :titre_ts,
+  :record_voice_aac,
+  :record_titre_ts,
   :capture_ts,
   :final_tutoriel,
   :upload,
@@ -86,13 +86,13 @@ DATA_ALL_FILES = {
     relpath: 'Titre/Titre.mov',
     from_update: 'titre'
   },
-  titre_mp4: {
-    id: 'titre_mp4',
+  record_titre_mp4: {
+    id: 'record_titre_mp4',
     hname: "Assemblage du titre",
     relpath: 'Titre/Titre.mp4'
   },
-  titre_ts: {
-    id: 'titre_mp4',
+  record_titre_ts: {
+    id: 'record_titre_mp4',
     hname: "Vidéo titre final pour assemblage (.ts)",
     relpath: 'Titre/Titre.ts'
   },
@@ -109,8 +109,8 @@ DATA_ALL_FILES = {
   #   hname: "Capture de la voix modifié avec Audacity (ou autre)",
   #   relpath: 'Voix/voice.aiff'
   # },
-  voice_aac:{
-    id: 'voice_aac',
+  record_voice_aac:{
+    id: 'record_voice_aac',
     hname: "Fichier voix pour assemblage avec opérations (.aac)",
     relpath: 'Voix/voice.aac',
     from_update: 'improve_voice'

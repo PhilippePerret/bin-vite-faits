@@ -26,7 +26,7 @@ class ViteFait
     # de façon silencieuse et systématique.
     make_new_version_complete if File.exists?(record_operations_completed)
 
-    cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}|#{record_operations_ts}|#{final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{record_operations_completed}\""
+    cmd = "ffmpeg -i \"concat:#{intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{record_operations_completed}\""
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"
     if COMMAND.options[:verbose] && !nomessage
       puts "\n---- Commande finale : '#{cmd}'"
@@ -91,7 +91,7 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
 
   def prepare_assemblage
     if COMMAND.options[:force]
-      unlink_if_exist([record_operations_ts, titre_mp4, titre_ts])
+      unlink_if_exist([record_operations_ts, record_titre_mp4, record_titre_ts])
     end
     prepare_source  unless source_prepared?
     prepare_titre   unless titre_prepared?
@@ -102,8 +102,8 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
     self.class.make_ts_file( record_operations_mp4, record_operations_ts )
   end
   def prepare_titre
-    File.exists?(titre_mp4) || assemble_titre
-    self.class.make_ts_file(titre_mp4, titre_ts)
+    File.exists?(record_titre_mp4) || assemble_titre
+    self.class.make_ts_file(record_titre_mp4, record_titre_ts)
   end
 
   def source_prepared?
@@ -111,7 +111,7 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
   end
 
   def titre_prepared?
-    File.exists?(titre_ts)
+    File.exists?(record_titre_ts)
   end
 
   # Méthode qui produit une nouvelle version de la vidéo complète

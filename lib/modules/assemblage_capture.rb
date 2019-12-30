@@ -11,11 +11,11 @@ class ViteFait
     voice_capture_exists?(true) || return
 
     # Produire le fichier aac si nécessaire
-    unless File.exists?(voice_aac)
-      cmd = "ffmpeg -i \"#{vocal_capture_path}\" \"#{voice_aac}\""
+    unless File.exists?(record_voice_aac)
+      cmd = "ffmpeg -i \"#{record_voice_path}\" \"#{record_voice_aac}\""
       COMMAND.options[:verbose] || cmd << " 2> /dev/null"
       res = `#{cmd}`
-      if File.exists?(voice_aac)
+      if File.exists?(record_voice_aac)
         notice "---> Fichier voix AAC produit avec succès 👍"
       else
         return error "Impossible de produire le fichier voix AAC. Je dois renoncer."
@@ -51,7 +51,7 @@ class ViteFait
     # Commande finale pour assembler l'image et le son
     notice "📦  Assemblage en cours, merci de patienter…"
     # version avec la copie sans le son :
-    cmd = "ffmpeg -i \"#{mp4_copy_path}\" -i \"#{vocal_capture_path}\" -codec copy -shortest \"#{record_operations_mp4}\" 2> /dev/null"
+    cmd = "ffmpeg -i \"#{mp4_copy_path}\" -i \"#{record_voice_path}\" -codec copy -shortest \"#{record_operations_mp4}\" 2> /dev/null"
     res = `#{cmd}`
     if File.exists?(record_operations_mp4)
       notice "---> Assemblage de la capture MP4 exécutée avec succès 📦 👍"
