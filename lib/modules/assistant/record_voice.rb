@@ -43,41 +43,55 @@ def exec(options = nil)
   # Noter que dans la version de l'assistant complet, on serait
   # arrêté bien avant d'arrive là. Le fichier mp4 est forcément
   # fabriqué.
+  only_with_durees = false
   unless File.exists?(record_operations_mp4)
     unless record_operations_path(noalert=true).nil?
-      notice "Je dois fabriquer le mp4 de la capture des opérations."
+      notice "Je dois fabriquer le mp4 de la capture des opérations…"
       capture_to_mp4
     else
-      raise NotAnError.new("Il faut impérativement capture les opérations au préalable.\n\tvite-faits assistant #{name} pour=capture")
-      return false
+      # Sans fichier de capture des opérations
+      error <<-EOA
+\033[1;31mLe fichier de capture des opérations n'existe pas\033[0m, ce qui signifie
+que pour enregistrer la voix vous n'avez que la solution avec
+les durées, sans vidéo.
+
+Pour lancer la capture : `vitefait assistant pour=capture #{name}`
+
+      EOA
+      yesNo("Voulez-vous poursuivre ?") || (return false)
+      only_with_durees = true
     end
   end
 
-  puts <<-EOF
+  unless only_with_durees
+    puts <<-EOF
 
 Pour pouvoir opérer confortablement, nous avons deux solutions.
 
   A:  enregistrer la voix sans la vidéo, en la
       lisant au rythme déterminé par le fichier
-      des opérations.
+      des opérations (plus sûre).
 
   B:  enregistrer la voix en suivant la vidéo,
       en passant aux textes suivant par une touche
-      clavier.
+      clavier (plus synchrone).
 
   C:  renoncer pour préparer le fichier des opérations
 
-(Note : pour le moment, A n'est pas opérationnel)
+    EOF
 
-  EOF
+    choix = (getChar("Quelle solution choisis-tu ?")||'').upcase
+  else
+    choix = 'A'
+  end
 
   # On va procéder vraiment à l'opération
   # -------------------------------------
-  case (getChar("Quelle solution choisis-tu ?")||'').upcase
-  when 'A' then assistant_voix_finale_without_video
+  case choix
+  when 'A' then assistant_voix_finale_with_durees
   when 'B' then assistant_voix_finale_with_video
   when 'C' then raise NotAnError.new
-  else raise NotAnError.new("Je ne connais pas ce choix.")
+  else raise NotAnError.new("Je ne connais pas le choix '#{choix}'.")
   end
 
   # On passe ici quand on a fini d'enregistrer la
@@ -85,15 +99,14 @@ Pour pouvoir opérer confortablement, nous avons deux solutions.
 
   if Time.now.to_i < @fin_enregistrement_voix
     reste_secondes = @fin_enregistrement_voix - Time.now.to_i
-    puts <<-EOT
+    if reste_secondes > 5
+      puts <<-EOT
 
 Attention, l'enregistrement du son n'est pas encore
-terminé. Par prudence, j'enregistre toujours 20 secondes
-de plus que la vidéo de capture, pour être sûr.
+terminé. Il reste #{reste_secondes.to_i} secondes.
 
-L'enregistrement se terminera dans #{reste_secondes.to_i} secondes.
-
-    EOT
+      EOT
+    end
     decompte("Stop in… %{nombre_secondes}", reste_secondes)
   end
 
@@ -191,24 +204,10 @@ commentaire de la vidéo.
   decompte("Start in… %{nombre_secondes}",5, 'Audrey')
 
   # Mettre en route l'enregistrement
-  # cmd = "ffmpeg -f avfoundation -i \":0\" -t 10 \"#{vocal_capture_path}\" &"
-  cmd = "#{VOICE_RECORDER_PATH} \"#{vocal_capture_path}\" #{duree_voice}"
-  system(cmd)
-  # La fin de l'enregistrement
-  @fin_enregistrement_voix = Time.now.to_i + duree_voice
-    # Ici, on doit utiliser system pour que ça joue vraiment dans
-    # le background
+  start_voice_recording(duree_voice)
 
   # Lancement de la vidéo dans QuickTime
-  `osascript <<EOS
-tell application "QuickTime Player"
-tell front document
-  set audio volume to 0
-  set current time to 0
-  play
-end tell
-end tell
-EOS`
+  start_quicktime
 
   if avec_assistant
     operations.each_with_index do |operation, index|
@@ -230,15 +229,7 @@ EOS`
 
       EOT
       SPACEOrQuit("Passer au texte suivant ?") || begin
-        # Il faut aussi arrêter Quick
-        `osascript <<EOS
-      tell application "QuickTime Player"
-      tell front document
-        stop
-        set current time to 0
-      end tell
-      end tell
-      EOS`
+        stop_quicktime
         raise NotAnError.new()
       end
     end
@@ -249,20 +240,93 @@ EOS`
   return true
 end
 
-def assistant_voix_finale_without_video
+
+def assistant_voix_finale_with_durees
   clear
-  notice "Enregistrement de la voix sans la vidéo"
+  notice "Enregistrement de la voix suivant les durées déterminées"
   yesOrStop("Es-tu prêt à enregistrer ? (je compterai 5 secondes)")
   decompte("Start in… %{nombre_secondes}", 5)
+
+  # Durée d'enregistrement (obligatoire)
+  # Si le fichier de capture des opérations existe, on prend simplement
+  # sa durée, et dans le cas contraire, on estime la durée d'après
+  # le fichier des opérations.
+  duree_voice =
+    if operations_recorded?
+      Video.dureeOf(record_operations_mp4)
+    else
+      require_module('operations')
+      duree_totale_estimee
+    end + 10 # marge
+  start_voice_recording(duree_voice)
+
   clear
-  operations.each do |operation|
+  operations.each_with_index do |operation, index|
     end_sleep_time = Time.now.to_i + operation.duree_estimee
-    puts "\n\nDIRE : #{operation.voice}"
+    prev_ope = index > 0 ? operations[index - 1] : nil
+    next_ope = operations[index + 1]
+    clear
+    puts <<-EOT
+
+\033[1;90m(#{prev_ope ? prev_ope.f_voice : '---'})\033[0m
+
+
+
+\033[1;32m#{operation.f_voice}\033[0m
+
+
+
+\033[1;90m(#{next_ope ? next_ope.f_voice : '---'})\033[0m
+
+
+    EOT
     # On compte le temps qui reste à attendre par rapport à la durée
     # voulue.
     sleep_reste = end_sleep_time - Time.now.to_i
-    sleep sleep_reste
+    decompte('Suite dans %{nombre_secondes}', sleep_reste)
+    # TODO Il faudrait pouvoir capter une touche pour pouvoir
+    # interrompre en douceur sans passer par Ctrl-C
   end
 
   return true
+end
+
+# ---------------------------------------------------------------------
+#   Méthodes fonctionnelles
+# ---------------------------------------------------------------------
+
+# Mise en route de l'enregistrement
+# +Params+::
+#   +duree_voice+::[Integer]  Il est impératif de préciser la durée
+#                             de l'enregistrement avec cet argument.
+def start_voice_recording(duree_voice)
+  # cmd = "ffmpeg -f avfoundation -i \":0\" -t 10 \"#{vocal_capture_path}\" &"
+  cmd = "#{VOICE_RECORDER_PATH} \"#{vocal_capture_path}\" #{duree_voice}"
+  system(cmd)
+  # Ici, on doit utiliser system pour que ça joue vraiment dans
+  # le background
+  # La fin de l'enregistrement (pour bien l'attendre à la fin)
+  @fin_enregistrement_voix = Time.now.to_i + duree_voice
+end
+
+def start_quicktime
+  `osascript <<EOS
+tell application "QuickTime Player"
+tell front document
+  set audio volume to 0
+  set current time to 0
+  play
+end tell
+end tell
+EOS`
+end
+def stop_quicktime
+  `osascript <<EOS
+tell application "QuickTime Player"
+tell front document
+  stop
+  set current time to 0
+end tell
+end tell
+EOS`
 end

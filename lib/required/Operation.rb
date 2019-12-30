@@ -163,7 +163,7 @@ class Operation
   # le mot soit coupé comme par défaut ou avec fmt
   def f_voice
     @f_voice ||= begin
-      `echo "#{voice.gsub(/"/,'\\"')}" | fmt #{IOConsole.width - 5}`.strip
+      `echo "#{(voice||'--- rien à dire ---').gsub(/"/,'\\"')}" | fmt #{IOConsole.width - 5}`.strip
       # Note : le -5 est là pour tenir compte du fait que pour les voix
       # avant et après par exemple, on ajoute des parenthèses autour dans
       # la console.
