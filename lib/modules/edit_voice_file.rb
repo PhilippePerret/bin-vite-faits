@@ -18,9 +18,13 @@ pas dans le bon dossier.\033[0m
 Raccourcis pratiques à avoir en tête :
 
 ---------------------------------------------------------------------
-|  ⌘L         | Pour rendre silencieuse la portion sélectionnée.    |
+|  ⌘  L       | Pour rendre silencieuse la portion sélectionnée.    |
 ---------------------------------------------------------------------
-|  ⌘⇧E        | Exporter le fichier son                             |
+|  ⌘  ⇧  E    | Exporter le fichier son                             |
+---------------------------------------------------------------------
+|  ⌘  ⌥  K    | Supprimer la sélection sans rapprocher              |
+---------------------------------------------------------------------
+|  ⌘  I       | Scinder au curseur                                  |
 ---------------------------------------------------------------------
 
 
