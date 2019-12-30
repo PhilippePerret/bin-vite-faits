@@ -218,8 +218,8 @@ class ViteFait
 J'ai trouvé un caractère '>' dans le code des opérations qui n'était
 pas utilisé comme marqueur de HEREDOC. J'ai corrigé le code mais il
 faut s'abstenir de cette utilisation. Si c'est pour un menu, utiliser
-plutôt une virgule comme délimiteur (Édition, Recherche, Rechercher
-et Remplacer).
+plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
+(Édition››Recherche››Rechercher››Remplacer).
       EOE
       code.gsub!(/ ?>(?! ?\r?\n)/){
         # ",#{$1}"

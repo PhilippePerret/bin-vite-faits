@@ -14,8 +14,8 @@ class Informations
     titre_en:       {value:nil,   editable:true,  required:true},
     youtube_id:     {value:nil,   editable:true,  required:true},
     description:    {value:nil,   editable:true,  required:true},
-    accelerator:    {value:nil,   editable:true,  required:false},
-    logic_step:     {value:nil,   editable:false, required:false},
+    accelerator:    {value:nil,   editable:true,  required:false, method: :to_f},
+    logic_step:     {value:nil,   editable:false, required:false, method: :to_i},
     site_perso:     {value:false, editable:false, required:false},
     uploaded:       {value:false, editable:false, required:false},
     annonce_FB:     {value:false, editable:false, required:false},
@@ -68,8 +68,21 @@ class Informations
   def set params
     hasBeenModified = false
     params.each do |ikey, new_value|
-      data.key?(ikey) || next # pour ne prendre que les infos pertinentes
-      idata = data[ikey]
+      data.key?(ikey) || begin
+        if DEFAULT_INFORMATIONS.key?(ikey)
+          # <= Une clé connue des informations par défaut
+          # => C'est un vieil enregistrement qui ne connaissait pas cette
+          #     information.
+          data.merge!(ikey => DEFAULT_INFORMATIONS[ikey])
+        else
+          error "Je ne connais pas l'information #{ikey.inspect}. Je ne peux\nprendre cette information que si l'option --force\nest activée."
+          next # pour ne prendre que les infos pertinentes
+        end
+      end
+      idata = data[ikey] || DEFAULT_INFORMATIONS[ikey]
+      if DEFAULT_INFORMATIONS[ikey][:method]
+        new_value = new_value.send(DEFAULT_INFORMATIONS[ikey][:method])
+      end
       data[ikey][:value] != new_value || next # pas de modification
       data[ikey].merge!(value: new_value)
       hasBeenModified = true
