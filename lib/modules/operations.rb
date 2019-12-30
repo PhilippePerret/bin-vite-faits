@@ -22,7 +22,7 @@ class ViteFait
   # Avec l'option '-t/--titre', on affiche une vision simple avec seulement
   # les titres et les durées approximatives des opérations.
   def exec_open_operations_file
-    operations_are_defined?(required=true) || return
+    operations_defined?(required=true) || return
     if COMMAND.options[:edit]
       system('vim', operations_path)
       # `open -a MacVim "#{operations_path}"`
@@ -59,6 +59,13 @@ class ViteFait
       puts "    " + operation.line_with_duree(duree_totale)
       duree_totale += operation.duree_estimee
     end
+  end
+
+  # Retourne la durée totale (*) du tutoriel estimée d'après
+  # la durée des opérations.
+  # (*) En fait, c'est la durée hors titre, intro et final
+  def duree_totale_estimee
+    operations.collect{|o|o.duree_estimee}.inject(:+)
   end
 
   def full_overview_operations

@@ -39,10 +39,10 @@ arrêté.
     tuto.convert_titre_final          unless tuto.titre_final_converted?(false)
     tuto.build_vignette_jpeg          unless tuto.vignette_finale_existe?(false)
 
-    tuto.define_operations            unless tuto.operations_are_defined?(false,false)
+    tuto.define_operations            unless tuto.operations_defined?(false,false)
 
     # Enregistrement des opérations
-    tuto.record_operations            unless tuto.operations_are_recorded?(false,false)
+    tuto.record_operations            unless tuto.operations_recorded?(false,false)
 
     # On finalise le fichier capture, pour qu'il corresponde à ce dont
     # on a besoin pour enregistrer la voix. Notamment au niveau de la
@@ -376,7 +376,7 @@ d'autres occupations en attendant.
 
     case yesNo("Veux-tu l'éditer dans Screenflow ?")
     when true
-      `open -a Screenflow "#{completed_path}"`
+      `open -a Screenflow "#{record_operations_completed}"`
     when NilClass
       raise NotAnError.new
     end
@@ -459,7 +459,7 @@ yahoo et le code normal.
   # --- STATES ---
 
   def completed_and_published?
-    File.exists?(completed_path) &&
+    File.exists?(record_operations_completed) &&
       video_uploaded? &&
       annonce_FB_deposed? &&
       annonce_facebook_deposed?
@@ -491,11 +491,11 @@ yahoo et le code normal.
   end
 
   def capture_ts_existe?
-    src_path(noalert = true) && File.exists?(mp4_path)
+    record_operations_path(noalert = true) && File.exists?(record_operations_mp4)
   end
 
   def video_finale_existe?(nomessage = true)
-    existe = File.exists?(completed_path)
+    existe = File.exists?(record_operations_completed)
     if existe && !nomessage
       notice "--- Tutoriel final assemblé."
     end

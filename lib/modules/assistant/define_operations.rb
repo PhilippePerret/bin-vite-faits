@@ -18,7 +18,7 @@ def exec(options=nil)
   # Si un fichier des opérations existe déjà, il faut demander ce qu'il
   # faut faire avec, le refaire, le poursuivre ou continuer sans rien
   # toucher.
-  if operations_are_defined?
+  if operations_defined?
     notice "=== Définitions des opérations ==="
     demande = <<-EOD
 
@@ -99,7 +99,7 @@ tutoriel. Cela consiste à définir :
 
   File.open(operations_path,'wb'){|f| f.write YAML.dump(Operation.to_hash(self))}
 
-  if operations_are_defined?
+  if operations_defined?
     notice "Fichier des opérations enregistré avec succès. 👍"
     save_last_logic_step
     puts <<-EOT

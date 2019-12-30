@@ -9,45 +9,49 @@
 
 =end
 class ViteFait
+  RAPPORT_LABELS_LEN = 22
 
+  # Pour construire et écrire une ligne avec des labels d'une
+  # certaine longueur
+  def puts_line(label, value)
+    puts "#{label.ljust(RAPPORT_LABELS_LEN,'.')} #{value}"
+  end
   def exec_print_report
     unless valid?
       error "Désolé, mais ce tutoriel doit être réparé."
       return
     end
+    require_module('durees')
 
     clear
     puts "=== INFORMATION SUR UN TUTORIEL ===\n\n"
-      puts "Nom du dossier     : #{name}"
+    puts_line('Nom du dossier', name)
     if exists?
-      puts "Titre              : #{titre || '---'}"
-      puts "Titre anglais      : #{titre_en || '---'}"
-      puts "Description        : #{description || '---'}"
-      puts "Lieu actuel        : #{lieu} — #{hlieu}"
-      puts "Vrai Vite-Fait     : #{has_own_intro? ? 'non' : 'oui'}"
+      puts_line('Titre',titre || '---')
+      puts_line('Titre anglais', titre_en || '---')
+      puts_line('Description', description || '---')
+      puts_line('Lieu actuel', hlieu)
+      puts_line('Vrai Vite-Fait', has_own_intro? ? 'non' : 'oui')
       write_last_step_conception
-      puts "YoutTube ID        : #{youtube_id || '---'}"
-      if informations[:annonce_FB]
-        notice "Annonce Facebook   : oui"
-      else
-        error "Annonce Facebook   : non"
-      end
-      if informations[:annonce_Scriv]
-        notice "Annonce Lat&Lit    : oui"
-      else
-        error "Annonce Lat&Lit    : non"
-      end
+      puts_line(htype_duration, tutoriel_hduration)
+      puts_line('YoutTube ID', youtube_id || '---')
+      fb_OK = informations[:annonce_FB] === true
+      color = fb_OK ? '32' : '31'
+      puts_line('Annonce Facebook', "\033[1;#{color}m#{fb_OK ? 'oui' : 'non'}\033[0m")
+      sc_OK =  informations[:annonce_Scriv] === true
+      color = sc_OK ? '32' : '31'
+      puts_line('Annonce Scrivener', "\033[1;#{color}m#{sc_OK ? 'oui' : 'non'}\033[0m")
     else
-      puts "Lieu actuel      : aucun — le dossier n'est pas créé"
+      puts_line('Lieu actuel', "aucun — le dossier n'est pas créé")
     end
     if self.defined?
       if self.exists?
-        puts "\nFichiers de travail"
+        puts "\n\nFichiers de travail"
         puts "-------------------\n"
         line_exists_file(informations.path, 'Informations')
         line_exists_file(operations_path, 'Opérations')
         line_exists_file(scriv_file_path, 'Scrivener')
-        line_exists_file(src_path(noalert=true), 'source MOV')
+        line_exists_file(record_operations_path(noalert=true), 'source MOV')
         line_exists_file(titre_path, 'Titre (Scrivener)')
         line_exists_file(titre_mov, 'Titre (capture)')
         line_exists_file(vignette_gimp, 'Vignette Gimp')
@@ -62,9 +66,9 @@ class ViteFait
         # fichier operations
         puts "\nFichiers finaux"
         puts "---------------\n"
-        line_exists_file(completed_path, 'VIDÉO FINALE')
+        line_exists_file(record_operations_completed, 'VIDÉO FINALE')
         line_exists_file(vignette_path, 'Vignette JPEG')
-        line_exists_file(mp4_path, 'Capture (mp4)')
+        line_exists_file(record_operations_mp4, 'Capture (mp4)')
         line_exists_file(titre_mp4, "Titre (mp4)")
         line_exists_file(voice_aac, 'Voix finale')
 
@@ -95,7 +99,7 @@ class ViteFait
     informations[:logic_step] || conception.save_last_logic_step
     # en_chantier? || return
     laststep = conception.last_logic_step
-    puts "Last Concept Step  : #{laststep.index}. #{laststep.hname}"
+    puts_line('Étape conception', "#{laststep.index}. #{laststep.hname}")
   end
 
   # Retourne les tâches restant à accomplir

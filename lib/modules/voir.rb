@@ -27,7 +27,7 @@ class ViteFait
       `open -a #{DEFAULT_BROWSER} "#{video_url}"`
     else
       # Montrer la vidéo sur le disque ou l'ordinateur
-      `open -a 'QuickTime Player' "#{completed_path}"`
+      `open -a 'QuickTime Player' "#{record_operations_completed}"`
     end
   end
 end #/ViteFait

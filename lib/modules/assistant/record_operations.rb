@@ -31,13 +31,13 @@ def exec(options=nil)
 
   # Si un fichier capture.mov existe déjà, on demande à l'utilisateur
   # si on doit le détruire pour le recommencer
-  if operations_are_recorded?
+  if operations_recorded?
     ask_for_new_version_or_destroy_record_operations
   end
 
   # Pour savoir si on doit enregistrer avec l'assistant des
   # opérations ou sans.
-  avec_assistant_operations = operations_are_defined?
+  avec_assistant_operations = operations_defined?
 
 
   puts <<-EOT
@@ -113,13 +113,17 @@ peux interrompre la capture à l'aide de CTRL-C.
 
   # On va prendre la dernière capture effectuée pour la mettre en
   # fichier capture
-  ViteFait.move_last_capture_in(default_source_path)
+  ViteFait.move_last_capture_in(default_record_operations_path)
 
-  if operations_are_recorded?
+  if operations_recorded?
+    require_module('duree')
 
     notice <<-EOT
 
 Opérations enregistrées avec succès ! 👍
+
+Durée capturée : #{operations_duration.as_horloge}
+Durée tutoriel : #{tutoriel_duration.as_horloge}
 
 Tu peux enregistrer la voix finale avec :
     vite-faits assistant #{name} pour=voice
@@ -163,9 +167,9 @@ faire ?
       break
     when 'B'
       if yesNo("Confirmes-tu la DESTRUCTION DÉFINITIVE de l'enregistrement ?")
-        IO.remove_with_care(src_path,'record des opérations',false)
-        IO.remove_with_care(mp4_path, 'record des opérations (.mp4)',false)
-        IO.remove_with_care(ts_path,'record des opérations (.ts)',false)
+        IO.remove_with_care(record_operations_path,'record des opérations',false)
+        IO.remove_with_care(record_operations_mp4, 'record des opérations (.mp4)',false)
+        IO.remove_with_care(record_operations_ts,'record des opérations (.ts)',false)
         break
       end
     when 'Q'
@@ -187,14 +191,14 @@ def make_new_version_record_operations
   end
   # Il faut faire le fichier mp4 s'il n'existe pas
   # (noter qu'ici le fichier .mov existe forcément)
-  File.exists?(mp4_path) || capture_to_mp4
+  File.exists?(record_operations_mp4) || capture_to_mp4
   # On peut créer la nouvelle version
-  FileUtils.move(mp4_path, path_version)
+  FileUtils.move(record_operations_mp4, path_version)
   notice "Version Operations/capture_v#{iversion}.mp4 produite 👍"
-  IO.remove_with_care(ts_path,'record des opérations',false)
+  IO.remove_with_care(record_operations_ts,'record des opérations',false)
 
-  if File.exists?(mp4_path)
-    raise NotAnError.new("Le fichier original (*) ne devrait pas exister…\n(*) #{mp4_path}")
+  if File.exists?(record_operations_mp4)
+    raise NotAnError.new("Le fichier original (*) ne devrait pas exister…\n(*) #{record_operations_mp4}")
   end
   unless File.exists?(path_version)
     raise NotAnError.new("Le fichier version (*) devrait exister…\n(*) #{path_version}")

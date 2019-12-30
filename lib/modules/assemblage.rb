@@ -24,9 +24,9 @@ class ViteFait
 
     # Si un fichier final existe, on produit une nouvelle version
     # de façon silencieuse et systématique.
-    make_new_version_complete if File.exists?(completed_path)
+    make_new_version_complete if File.exists?(record_operations_completed)
 
-    cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}|#{ts_path}|#{final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{completed_path}\""
+    cmd = "ffmpeg -i \"concat:#{intro_ts}|#{titre_ts}|#{record_operations_ts}|#{final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{record_operations_completed}\""
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"
     if COMMAND.options[:verbose] && !nomessage
       puts "\n---- Commande finale : '#{cmd}'"
@@ -74,13 +74,13 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
     end #/si pas de no message
 
     save_last_logic_step
-    
+
   end
 
 
   def required_files_exists?
     # Le fichier capture des opérations, bien entendu
-    src_path || raise("Le fichier capture des opérations est introuvable")
+    record_operations_path || raise("Le fichier capture des opérations est introuvable")
     # Le fichier capture de la voix
     voice_capture_exists?(true) || raise("Le fichier voix est introuvable")
     # Le fichier contenant le titre du tutoriel
@@ -91,15 +91,15 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
 
   def prepare_assemblage
     if COMMAND.options[:force]
-      unlink_if_exist([ts_path, titre_mp4, titre_ts])
+      unlink_if_exist([record_operations_ts, titre_mp4, titre_ts])
     end
     prepare_source  unless source_prepared?
     prepare_titre   unless titre_prepared?
   end
 
   def prepare_source
-    File.exists?(mp4_path) || capture_to_mp4
-    self.class.make_ts_file( mp4_path, ts_path )
+    File.exists?(record_operations_mp4) || capture_to_mp4
+    self.class.make_ts_file( record_operations_mp4, record_operations_ts )
   end
   def prepare_titre
     File.exists?(titre_mp4) || assemble_titre
@@ -107,18 +107,11 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
   end
 
   def source_prepared?
-    File.exists?(ts_path)
+    File.exists?(record_operations_ts)
   end
 
   def titre_prepared?
     File.exists?(titre_ts)
-  end
-
-  def intro_ts
-    @intro_ts ||= self.class.intro_ts
-  end
-  def final_ts
-    @final_ts ||= self.class.final_ts
   end
 
   # Méthode qui produit une nouvelle version de la vidéo complète
@@ -131,15 +124,15 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
       version_path = File.join(exports_folder, "#{name}_v-#{version}.mp4")
       File.exists?(version_path) || break
     end
-    FileUtils.move(completed_path, version_path)
+    FileUtils.move(record_operations_completed, version_path)
     if File.exists?(version_path)
       notice "Version #{name}_v-#{version}.mp4 produite avec succès 👍"
       notice "(mais la dernière est toujours la '#{name}_completed.mp4')"
     else
       raise NotAnError.new("Le fichier version (*) devrait exister…\n(*) #{version_path}")
     end
-    if File.exists?(completed_path)
-      raise NotAnError.new("Le fichier completed (*) ne devrait plus exister…\n(*) #{completed_path}")
+    if File.exists?(record_operations_completed)
+      raise NotAnError.new("Le fichier completed (*) ne devrait plus exister…\n(*) #{record_operations_completed}")
     end
     return true
   end
@@ -183,49 +176,6 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
     end
     def final_prepared?
       File.exists?(final_ts)
-    end
-
-    def intro_mp4
-      @intro_mp4 ||= begin
-        if vitefait.has_own_intro?
-          vitefait.own_intro_mp4
-        else
-          File.join(VITEFAIT_MATERIEL_FOLDER,"#{intro_affixe}.mp4")
-        end
-      end
-    end
-    def intro_ts
-      @intro_ts ||= begin
-        if vitefait.has_own_intro?
-          vitefait.own_intro_ts
-        else
-          File.join(VITEFAIT_MATERIEL_FOLDER,"#{intro_affixe}.ts")
-        end
-      end
-    end
-    def final_mp4
-      @final_mp4 ||= begin
-        if vitefait.has_own_final?
-          vitefait.own_final_mp4
-        else
-          File.join(VITEFAIT_MATERIEL_FOLDER,"#{final_affixe}.mp4")
-        end
-      end
-    end
-    def final_ts
-      @final_ts ||= begin
-        if vitefait.has_own_final?
-          vitefait.own_final_ts
-        else
-          File.join(VITEFAIT_MATERIEL_FOLDER,"#{final_affixe}.ts")
-        end
-      end
-    end
-    def intro_affixe
-      @intro_affixe ||= "INTRO-vite-faits-sonore"
-    end
-    def final_affixe
-      @final_affixe ||= "FINAL-vite-faits-sonore"
     end
 
     def prepare_assemblage

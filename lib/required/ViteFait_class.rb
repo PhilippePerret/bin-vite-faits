@@ -203,6 +203,62 @@ class ViteFait
   end
 
   class << self
+
+    # Chemin d'accès au fichier d'intro au format .mp4 (pour
+    # assemblage)
+    def intro_mp4
+      @intro_mp4 ||= begin
+        if vitefait.has_own_intro?
+          vitefait.own_intro_mp4
+        else
+          File.join(VITEFAIT_MATERIEL_FOLDER,"#{intro_affixe}.mp4")
+        end
+      end
+    end
+
+    # Chemin d'accès au fichier d'intro au format .ts (pour
+    # assemblage)
+    def intro_ts
+      @intro_ts ||= begin
+        if vitefait.has_own_intro?
+          vitefait.own_intro_ts
+        else
+          File.join(VITEFAIT_MATERIEL_FOLDER,"#{intro_affixe}.ts")
+        end
+      end
+    end
+
+    # Chemin d'accès au fichier du final au format .mp4 (pour
+    # assemblage)
+    def final_mp4
+      @final_mp4 ||= begin
+        if vitefait.has_own_final?
+          vitefait.own_final_mp4
+        else
+          File.join(VITEFAIT_MATERIEL_FOLDER,"#{final_affixe}.mp4")
+        end
+      end
+    end
+
+    # Chemin d'accès au fichier du final au format .ts (pour
+    # assemblage)
+    def final_ts
+      @final_ts ||= begin
+        if vitefait.has_own_final?
+          vitefait.own_final_ts
+        else
+          File.join(VITEFAIT_MATERIEL_FOLDER,"#{final_affixe}.ts")
+        end
+      end
+    end
+
+    def intro_affixe
+      @intro_affixe ||= "INTRO-vite-faits-sonore"
+    end
+    def final_affixe
+      @final_affixe ||= "FINAL-vite-faits-sonore"
+    end
+
     # Chemin d'accès au son de la machine à écrire
     def machine_a_ecrire_path
       @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aac')

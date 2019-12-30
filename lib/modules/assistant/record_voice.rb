@@ -13,7 +13,7 @@
 =end
 def exec(options = nil)
 
-  avec_assistant = operations_are_defined?
+  avec_assistant = operations_defined?
 
   clear
   notice "=== Enregistrement de la voix ===\n\n"
@@ -43,8 +43,8 @@ def exec(options = nil)
   # Noter que dans la version de l'assistant complet, on serait
   # arrêté bien avant d'arrive là. Le fichier mp4 est forcément
   # fabriqué.
-  unless File.exists?(mp4_path)
-    unless src_path(noalert=true).nil?
+  unless File.exists?(record_operations_mp4)
+    unless record_operations_path(noalert=true).nil?
       notice "Je dois fabriquer le mp4 de la capture des opérations."
       capture_to_mp4
     else
@@ -126,7 +126,7 @@ def assistant_voix_finale_with_video
   notice "=== Enregistrement de la voix avec la vidéo ==="
 
   # On ouvre la vidéo dans quicktime
-  `open -a "QuickTime Player" "#{mp4_path}"`
+  `open -a "QuickTime Player" "#{record_operations_mp4}"`
   `open -a Terminal`
 
   puts <<-EOT
@@ -153,7 +153,7 @@ vidéo, au bout du décompte. Tu n'auras rien à faire
 à ce niveau-là.
   EOT
 
-  avec_assistant = operations_are_defined?
+  avec_assistant = operations_defined?
 
   if avec_assistant
     puts <<-EOT
@@ -179,7 +179,7 @@ commentaire de la vidéo.
 
   # Déterminer la longueur de la vidéo pour savoir combien de
   # temps il faut enregistrer le son
-  duree_capture = Video.dureeOf(mp4_path)
+  duree_capture = Video.dureeOf(record_operations_mp4)
   duree_voice = duree_capture + 20 # au cas où
 
   yesOrStop("Es-tu prêt ? (je vais compter 10 secondes avant de commencer)")

@@ -6,7 +6,7 @@
 =end
 def exec(options = nil)
 
-  if record_titre_exists?
+  if titre_recorded?
     if yesNo("L'enregistrement du titre existe déjà. Dois-je le refaire ?")
       unlink_if_exist([titre_mov, titre_mp4, titre_ts])
     else

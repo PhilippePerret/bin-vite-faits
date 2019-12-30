@@ -176,7 +176,7 @@ class ViteFait
   # retourne une liste des instances d'Operation(s)
   def get_operations
     return goto_manual('lesoperations') if COMMAND.options[:help]
-    operations_are_defined? || (return {})
+    operations_defined? || (return {})
     # Dans un premier temps, on s'assure que le fichier
     begin
       conformize_operations_file
@@ -240,8 +240,8 @@ et Remplacer).
   # opérations existe, false dans le cas contraire.
   # Si +required+ est true, produit une erreur en
   # cas d'absence
-  def operations_are_recorded?(required = false, nomessage = true)
-    existe = src_path(noalert = true) && File.exists?(src_path)
+  def operations_recorded?(required = false, nomessage = true)
+    existe = record_operations_path(noalert = true) && File.exists?(record_operations_path)
     if required && !existe
       error "Le fichier Operations/capture.mov devrait exister.\nPour le créer, tu peux utiliser l'assistant :\n\tvite-faits assistant #{name} pour=capture"
     end
@@ -256,8 +256,8 @@ et Remplacer).
   # racine du dossier du tutoriel
   # Mettre +required+ à true pour générer une alerte ne cas d'absence
   # avec le message d'aide. Utilisation :
-  #   operations_are_defined?(true) || return
-  def operations_are_defined?(required = false, nomessage = true)
+  #   operations_defined?(true) || return
+  def operations_defined?(required = false, nomessage = true)
     existe = File.exists?(operations_path)
     if !existe && required
       return error "Le fichier des opérations n'existe pas. Pour le créer, jouer :\n\n\tvite-faits assistant #{name} pour=operations\n\n"
@@ -386,7 +386,7 @@ et Remplacer).
 
   # Pour transformer le fichier capture en vidéo mp4
   def capture_to_mp4
-    operations_are_recorded?(required=true) || return
+    operations_recorded?(required=true) || return
     require_module('capture_to_mp4')
     exec_capture_to_mp4
   end
@@ -614,7 +614,7 @@ et Remplacer).
   end
 
   def mp4_capture_exists?(required = false, nomessage=true)
-    existe = File.exists?(mp4_path)
+    existe = File.exists?(record_operations_mp4)
     if !existe && required
       error "Impossible de trouver le fichier mp4 de la capture…\nVous devez au préalable :\n\n\t- Enregistrer le fichier .mov de la capture\n\n\t- le convertir en fichier .mp4\n\n"
     elsif existe && !nomessage
@@ -758,21 +758,21 @@ et Remplacer).
   # Le fichier .mov de la capture des opérations
   # Noter que si on trouve un fichier .mov, il sera renommé par le
   # nom par défaut, qui est "<nom-dossier-tuto>.mov"
-  def src_path(no_alert = false)
-    @src_path ||= begin
-      if File.exists?(default_source_path)
-        @src_name = default_source_fname
-        default_source_path
+  def record_operations_path(no_alert = false)
+    @record_operations_path ||= begin
+      if File.exists?(default_record_operations_path)
+        @record_operations_name = default_record_operations_fname
+        default_record_operations_path
       else
-        src_name = COMMAND.params[:name] || get_first_mov_file()
-        if src_name.nil?
+        record_operations_name = COMMAND.params[:name] || get_first_mov_file()
+        if record_operations_name.nil?
           unless no_alert
             error "🖐  Je ne trouve aucun fichier .mov à traiter.\nSi le fichier est dans une autre extension, préciser explicement son nom avec :\n\t`vite-faits capture_to_mp4 #{name} name=nom_du_fichier.ext`."
           end
           nil
         else
-          @src_name = File.basename(src_name)
-          pathof(src_name)
+          @record_operations_name = File.basename(record_operations_name)
+          pathof(record_operations_name)
         end
       end
     end
@@ -781,24 +781,24 @@ et Remplacer).
   def get_first_mov_file
     Dir["#{operations_folder}/*.mov"].each do |pth|
       fname = File.basename(pth)
-      if fname === default_source_fname
-        return default_source_fname
+      if fname === default_record_operations_fname
+        return default_record_operations_fname
       elsif fname.downcase != 'capture.mov'
         # On va renommer ce fichier pour qu'il porte le bon nom
-        FileUtils.move(pth, default_source_path)
-        return default_source_fname
+        FileUtils.move(pth, default_record_operations_path)
+        return default_record_operations_fname
       end
     end
     return nil # non trouvé
   end
 
-  def src_name; @src_name end
+  def record_operations_name; @record_operations_name end
 
-  def default_source_fname
-    @default_source_fname ||= "capture.mov"
+  def default_record_operations_fname
+    @default_record_operations_fname ||= "capture.mov"
   end
-  def default_source_path
-    @default_source_path ||= File.join(operations_folder, default_source_fname)
+  def default_record_operations_path
+    @default_record_operations_path ||= File.join(operations_folder, default_record_operations_fname)
   end
 
   # Chemin d'accès au fichier contenant peut-être les opérations
@@ -807,17 +807,19 @@ et Remplacer).
     @operations_path ||= File.join(operations_folder,'operations.yaml')
   end
 
-  def mp4_path
-    @mp4_path ||= File.join(operations_folder, "capture.mp4")
+  def record_operations_mp4
+    @record_operations_mp4 ||= File.join(operations_folder, "capture.mp4")
   end
-  def mp4_cropped_path
-    @mp4_cropped_path ||= File.join(operations_folder, "capture-cropped.mp4")
+  def record_operations_cropped_mp4
+    @record_operations_cropped_mp4 ||= File.join(operations_folder, "capture-cropped.mp4")
   end
-  def ts_path
-    @ts_path ||= File.join(operations_folder, "capture.ts")
+  def record_operations_ts
+    @record_operations_ts ||= File.join(operations_folder, "capture.ts")
   end
-  def completed_path
-    @completed_path ||= File.join(exports_folder, "#{name}_completed.mp4")
+
+  # Le fichier vidéo final
+  def record_operations_completed
+    @record_operations_completed ||= File.join(exports_folder, "#{name}_completed.mp4")
   end
   def scriv_file_path
     @scriv_file_path ||= pathof(scriv_file_name)
@@ -832,12 +834,17 @@ et Remplacer).
     @premiere_path ||= pathof("Montage.prproj")
   end
 
-  def record_titre_exists?(required = false)
+  def titre_recorded?(required = false)
     existe = titre_mov && File.exists?(titre_mov)
     if !existe && required
       error "L'enregistrement du titre devrait exister. Pour le produire, jouer :\n\n\tvite-faits assistant #{name} pour=titre\n\n"
     end
     return existe
+  end
+
+  # Retourne true si le titre.mp4 a été produit
+  def titre_finalized?
+    titre_recorded? && File.exists?(titre_mp4)
   end
 
   # Éléments pour le titre
@@ -876,6 +883,10 @@ et Remplacer).
   def titre_folder
     @titre_folder ||= pathof("Titre")
   end
+
+  # ---
+  #   Dossiers
+  # ---
 
   def operations_folder
     @operations_folder ||= pathof('Operations')
@@ -929,7 +940,7 @@ et Remplacer).
 
   # Final propre ?
   def has_own_final?
-    File.exists?(own_final_mp4) || File.exists(own_final_ts)
+    File.exists?(own_final_mp4) || File.exists?(own_final_ts)
   end
   def own_final_mp4
     @own_final_mp4 ||= pathof('Assets/final.mp4')
