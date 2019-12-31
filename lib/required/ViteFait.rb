@@ -277,6 +277,14 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   end
 
   # ---
+  #   Méthodes pour les notifications
+  # ---
+  def commande_notifications
+    require_module('notifications')
+    exec_commande_notifications
+  end
+
+  # ---
   #   Méthodes de rapport
   # ---
 

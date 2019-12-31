@@ -90,6 +90,8 @@ when 'operations'
   vitefait.commande_operations
 when 'taches', 'tache'
   vitefait.is_required && vitefait.commande_taches
+when 'notifications', 'notification'
+  vitefait.is_required && vitefait.commande_notifications
 when NilClass
   error <<-EOT
 🚫  Il faut définir la commande à jouer ! Taper

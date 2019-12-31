@@ -1,12 +1,25 @@
 # encoding: UTF-8
 class String
-
+  MOIS = {
+    1 => {long:'janvier', short:'jan'},
+    2 => {long:'février', short:'fév'},
+    3 => {long:'mars', short:'mars'},
+    4 => {long:'avril', short:'avr'},
+    5 => {long:'mai', short:'mai'},
+    6 => {long:'juin', short:'juin'},
+    7 => {long:'juillet', short:'juil'},
+    8 => {long:'aout', short:'aou'},
+    9 => {long:'septembre', short:'sept'},
+    10  => {long:'octobre', short:'oct'},
+    11  => {long:'novembre', short:'nov'},
+    12  => {long:'décembre', short:'déc'}
+  }
   # Quand le string est une horloge, retourne le nombre de secondes
   def h2s
     pms = self.split(':').reverse
     pms[0].to_i + (pms[1]||0) * 60 + (pms[2]||0) * 3660
   end
-  
+
   def self.levenshtein_beween(s, t)
     m = s.length
     n = t.length

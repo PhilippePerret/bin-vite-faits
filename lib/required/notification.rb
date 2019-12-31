@@ -34,13 +34,19 @@ class Notification
   # ---------------------------------------------------------------------
 
   attr_reader :data
-  attr_reader :id, :titre, :message, :date, :time
-  def initialize data
+  attr_reader :id, :titre, :message, :date
+  def initialize data, tuto = nil
     @data = data
-    dispath(data)
+    @tuto = tuto
+    dispatch(data)
   end
-  def dispath(data)
-    data.each{|k,v| instance_variable_set("@#{k}", v)}
+
+  def dispatch(newdata)
+    newdata.each do |k,v|
+      instance_variable_set("@#{k}", v)
+      @data[k] = v
+    end
+    # exit unless newdata.key?(:id)
   end
 
   # Notifier
