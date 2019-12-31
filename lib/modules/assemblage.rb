@@ -8,32 +8,63 @@ class ViteFait
     # minimum pour procéder à l'opération
     required_files_exists? # raise en cas d'erreur
 
-    # On procède d'abord à l'assemblage de la capture des opérations
-    # et la capture de la voix
-    require_module('assemblage_capture')
-    exec_assemble_capture
+    # Si l'opération est forcée, on doit refaire tous les fichiers
+    if COMMAND.options[:force]
+      unlink_if_exist([record_operations_ts, record_titre_mp4, record_titre_ts])
+    end
 
     # On s'assure que les fichiers communs soient prêts (intro et final,
     # en version .ts). Note : ils peuvent appartenir à d'autres séries
     # de tutoriels que les vite-faits.
     self.class.prepare_assemblage
 
+    # On procède d'abord à l'assemblage des opérations
+    # et de la voix, sauf si le fichier capture existe et que l'option
+    # --force n'est pas invoquée
+    unless source_prepared?
+      require_module('assemblage_capture')
+      exec_assemble_capture # => capture.mp4
+      prepare_source # => capture.ts
+    else
+      notice "Fichier #{name}/Operations/capture.ts déjà prêt"
+    end
+
     # On s'assure que les fichiers du tutoriel soient prêts (titre et
     # capture des opérations, en ts)
-    prepare_assemblage
+    unless titre_prepared?
+      prepare_titre
+    end
 
     # Si un fichier final existe, on produit une nouvelle version
     # de façon silencieuse et systématique.
     make_new_version_complete if File.exists?(record_operations_completed)
 
-    cmd = "ffmpeg -i \"concat:#{intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{record_operations_completed}\""
+    # cmd = "ffmpeg -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{record_operations_completed}\""
+    # cmd = "ffmpeg -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy \"#{record_operations_completed}\""
+    # cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy \"#{record_operations_completed}\""
+    cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy -copytb 1 \"#{record_operations_completed}\""
+    # À essayer :
+    # cmd = "ffmpeg -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy -copytb 1 \"#{record_operations_completed}\""
+    # Ne fonctionne pas :
+    # cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:v copy -c:a copy \"#{record_operations_completed}\""
+    # cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -map 0:0 -map 0:1 -c:v copy -c:a copy \"#{record_operations_completed}\""
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"
     if COMMAND.options[:verbose] && !nomessage
       puts "\n---- Commande finale : '#{cmd}'"
     else
       notice "📦  Assemblage final, merci de patienter…"
     end
+    start_time = Time.now.to_i
     res = `#{cmd}`
+    end_time = Time.now.to_i
+
+    if end_time < start_time + 10
+      # <= Le temps de travail est trop court
+      # => Un problème est survenu
+      error "Un problème est survenu avec la commande FFMPEG (*). Je m'arrête là."
+      error "--- Commande : #{cmd}"
+      return
+    end
 
     # Message de fin (si on n'est pas avec l'assistant)
     unless nomessage
@@ -82,19 +113,17 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
     # Le fichier capture des opérations, bien entendu
     record_operations_path || raise("Le fichier capture des opérations est introuvable")
     # Le fichier capture de la voix
-    voice_capture_exists?(true) || raise("Le fichier voix est introuvable")
+    unless voice_capture_exists?
+      if File.exists?(record_voice_aiff)
+        require_module('convert_voice_aiff')
+        convert_voice_aiff_to_voice_mp4
+      end
+    end
+    voice_capture_exists?(true) || raise
     # Le fichier contenant le titre du tutoriel
     (titre_mov && File.exists?(titre_mov)) || raise("Le titre doit être enregistré, pour procéder à l'assemblage.\nUtiliser la commande `vite-faits assistant #{name} pour=titre` pour l'ouvrir et l'enregistrer.")
   rescue Exception => e
     raise NotAnError.new(e.message)
-  end
-
-  def prepare_assemblage
-    if COMMAND.options[:force]
-      unlink_if_exist([record_operations_ts, record_titre_mp4, record_titre_ts])
-    end
-    prepare_source  unless source_prepared?
-    prepare_titre   unless titre_prepared?
   end
 
   def prepare_source
@@ -150,8 +179,8 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
       unless File.exists?(final_mp4)
         raise("Le fichier MP4 du final est introuvable (#{final_mp4}).")
       end
-      unless File.exists?(machine_a_ecrire_path)
-        raise("Le fichier son de la machine à écrire est introuvable (#{machine_a_ecrire_path}).")
+      unless File.exists?(machine_a_ecrire_aac)
+        raise("Le fichier son de la machine à écrire est introuvable (#{machine_a_ecrire_aac}).")
       end
     end
 
@@ -168,7 +197,9 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
       cmd = "ffmpeg -i \"#{src}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{dst}\""
       COMMAND.options[:verbose] || cmd << " 2> /dev/null"
       res = `#{cmd}`
-      notice "---> Production de #{relative_pathof(dst)} 👍"
+      relpath = vitefait.relative_pathof(dst)
+      relpath != dst || (relpath = File.basename(dst))
+      notice "---> Production de #{relpath} 👍"
     end
 
     def intro_prepared?

@@ -35,10 +35,12 @@ class ViteFait
     # On produit une copie sans son, qui servira de base
     mp4_copy_path = pathof("#{name}-copie.mp4")
     IO.remove_with_care(mp4_copy_path,'fichier copie mp4',false)
-    res = `ffmpeg -i "#{record_operations_mp4}" -c copy -an "#{mp4_copy_path}" 2> /dev/null`
+    cmd = "ffmpeg -i \"#{record_operations_mp4}\" -c copy -an \"#{mp4_copy_path}\" 2> /dev/null"
+    # cmd = "ffmpeg -fflags +igndts -i \"#{record_operations_mp4}\" -c copy -an \"#{mp4_copy_path}\" 2> /dev/null"
     # ATTENTION : ici, pas question de supprimer le 2> /dev/null,
-    # mêmem si la verbosité a été demandée, car cela empêcherait
+    # même si la verbosité a été demandée, car cela empêcherait
     # l'assemblage.
+    res = `#{cmd}`
     if File.exists?(mp4_copy_path)
       notice "---> Production de la copie de travail 👍"
     else
@@ -51,7 +53,8 @@ class ViteFait
     # Commande finale pour assembler l'image et le son
     notice "📦  Assemblage en cours, merci de patienter…"
     # version avec la copie sans le son :
-    cmd = "ffmpeg -i \"#{mp4_copy_path}\" -i \"#{record_voice_path}\" -codec copy -shortest \"#{record_operations_mp4}\" 2> /dev/null"
+    cmd = "ffmpeg -i \"#{mp4_copy_path}\" -i \"#{record_voice_path}\" -codec copy -shortest \"#{record_operations_mp4}\""
+    COMMAND.options[:verbose] || cmd << " 2> /dev/null"
     res = `#{cmd}`
     if File.exists?(record_operations_mp4)
       notice "---> Assemblage de la capture MP4 exécutée avec succès 📦 👍"

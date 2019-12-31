@@ -13,6 +13,12 @@ if COMMAND.options[:help] && COMMAND.action.nil?
   COMMAND.action = 'help'
 end
 
+# Pré-transformations de commandes
+COMMAND.action =  case COMMAND.action
+                  when 'montage' then 'open-montage'
+                  else COMMAND.action
+                  end
+
 case COMMAND.action
 when 'help', 'manuel', 'aide'
   ViteFait.open_help

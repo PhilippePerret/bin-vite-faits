@@ -5,8 +5,16 @@ class ViteFait
     unless File.exists?(titre_mov)
       raise "🖐  Le fichier `Titre.mov` est introuvable. Il faut capturer le titre en se servant du fichier Titre.scriv"
     end
-    unless File.exists?(self.class.machine_a_ecrire_path)
-      raise "🖐  Impossible de trouver le son de machine à écrire (#{self.class.machine_a_ecrire_path}). Or j'en ai besoin pour créer le titre."
+    unless File.exists?(self.class.machine_a_ecrire_aac)
+      if File.exists?(self.class.machine_a_ecrire_aiff)
+        cmd = "ffmpeg -i \"#{self.class.machine_a_ecrire_aiff}\" \"#{self.class.machine_a_ecrire_aac}\""
+        COMMAND.options[:verbose] || cmd << " 2> /dev/null"
+        res = `#{cmd}`
+        IO.check_existence(self.class.machine_a_ecrire_aac, {interactive:true})
+      end
+      unless File.exists?(self.class.machine_a_ecrire_aac)
+        raise "🖐  Impossible de trouver le son de machine à écrire (#{self.class.machine_a_ecrire_aac}). Or j'en ai besoin pour créer le titre."
+      end
     end
 
     unlink_if_exist([record_titre_mp4, titre_prov_mp4, record_titre_ts])
@@ -15,17 +23,33 @@ class ViteFait
     notice "📦  Fabrication du fichier de titre assemblé. Merci de patienter…"
     cmd = "ffmpeg -i \"#{titre_mov}\""
     # On doit la raccourcir
-    unless COMMAND.options[:no_crop]
+    if COMMAND.options[:no_crop]
+      # On n'ajoute pas de modification de durée
+    elsif COMMAND.params[:crop]
+      # Pour raccourcir la vidéo (ne pas voir l'arrêt)
+      #  crop=0.6 =>
+      secs, frms = COMMAND.params[:crop].split('.')
+      frms = frms.to_i
+      secs = secs.to_i
+      if frms > 0
+        secs = secs + 1
+        frms = 24 - frms
+      end
+      duree_raccourcie = (Video.dureeOf(titre_mov) - secs).to_i.as_horloge
+      duree_raccourcie += ".#{frms}" unless frms == 0
+      cmd << " -ss 00:00:00 -t #{duree_raccourcie}"
+    else
       # Pour raccourcir la vidéo (ne pas voir l'arrêt)
       duree_raccourcie = (Video.dureeOf(titre_mov) - 1).to_i.as_horloge
       cmd << " -ss 00:00:00 -t #{duree_raccourcie}"
     end
+
     cmd << " #{titre_prov_mp4}"
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"
     res = `#{cmd}`
 
     cmd = "ffmpeg -i \"#{titre_prov_mp4}\""
-    cmd << " -i \"#{self.class.machine_a_ecrire_path}\" -codec copy -shortest \"#{record_titre_mp4}\""
+    cmd << " -i \"#{self.class.machine_a_ecrire_aac}\" -codec copy -shortest \"#{record_titre_mp4}\""
     # Pas d'option verbose, ici, il faut obligatoirement envoyer à /dev/null
     # lorsqu'on assemble du son
     cmd << " 2> /dev/null"

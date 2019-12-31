@@ -260,8 +260,11 @@ class ViteFait
     end
 
     # Chemin d'accès au son de la machine à écrire
-    def machine_a_ecrire_path
-      @machine_a_ecrire_path ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aac')
+    def machine_a_ecrire_aac
+      @machine_a_ecrire_aac ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aac')
+    end
+    def machine_a_ecrire_aiff
+      @machine_a_ecrire_aiff ||= File.join(VITEFAIT_MATERIEL_FOLDER,'machine-a-ecrire.aiff')
     end
 
     def idees_file_path

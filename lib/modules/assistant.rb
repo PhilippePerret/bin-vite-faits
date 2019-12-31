@@ -77,8 +77,9 @@ arrêté.
     else
       notice <<-EOM
 
-OK, on s'arrête là. Tu pourras reprendre n'importe
-quand on tapant à nouveau la commande :
+OK, on s'arrête là pour la construction du
+tutoriel “#{tuto.name}”. Tu pourras reprendre
+n'importe quand on tapant à nouveau la commande :
 
     vite-faits assistant #{tuto.name}
       EOM
@@ -175,9 +176,10 @@ end #/<<self
         if cbilan[:exists]
           # => Il faut demander
           question = <<-EOQ
-L'élément #{bilan[:hname]} n'existe plus, mais l'élément
-suivant #{cbilan[:hname]} existe (ainsi, peut-être, que
-d'autres éléments encore après).
+Pour “#{name}”, l'élément #{bilan[:hname]}
+n'existe plus, mais l'élément suivant #{cbilan[:hname]}
+existe (ainsi, peut-être, que d'autres éléments
+encore après).
 
 Que dois-je faire ?
 
@@ -221,19 +223,19 @@ Que dois-je faire ?
 
   def set_generales_informations
     activate_terminal
-    yesNo("Prêt à définir les informations générales ?") || raise(NotAnError.new)
+    yesNo("Prêt à définir les informations générales pour “#{name}” ?") || raise(NotAnError.new)
     require_relative 'assistant/generales_informations'
     exec
   end
 
   def record_titre
-    yesNo("Prêt pour enregistrer le titre animé ?") || raise(NotAnError.new)
+    yesNo("Prêt pour enregistrer le titre animé de “#{name}” ?") || raise(NotAnError.new)
     require_relative 'assistant/record_titre'
     exec
   end
 
   def build_vignette_jpeg
-    yesNo("Prêt pour fabriquer la vignette ?") || raise(NotAnError.new)
+    yesNo("Prêt pour fabriquer la vignette de “#{name}” ?") || raise(NotAnError.new)
     require_relative 'assistant/build_vignette_jpeg'
     exec
   end
@@ -244,7 +246,7 @@ Que dois-je faire ?
 
   # Convertir le titre final
   def convert_titre_final
-    notice "* Conversion du titre.mov en titre.mp4…"
+    notice "* “#{name}”, conversion du titre.mov en titre.mp4…"
     assemble_titre
     unless titre_final_converted?
       error "Bizarrement, le titre n'a pas pu être converti…"
@@ -271,7 +273,7 @@ Que dois-je faire ?
 
   def ask_capture_mov_to_mp4
     clear
-    notice "=== Conversion capture.mov -> capture.mp4 ==="
+    notice "=== “#{name}”, conversion capture.mov -> capture.mp4 ==="
     puts <<-EOT
 
 Dois-je modifier la vitesse de la capture des
@@ -324,7 +326,7 @@ commande :
   def ask_for_record_voice
     # Il n'est pas sûr que l'utilisateur veuille enregistrer une nouvelle
     # voix
-    yesOrStop("Veux-tu procéder à l'enregistrement de la voix ?")
+    yesOrStop("Veux-tu procéder à l'enregistrement de la voix pour “#{name}” ?")
     # S'il existe un fichier avec les opérations, on va écrire le texte à
     # l'écran, ou le faire défiler progressivement.
     require_relative('assistant/record_voice')
@@ -342,11 +344,12 @@ commande :
 
     puts <<-EOT
 
-Le fichier voix AIFF a été modifié depuis la production du
-fichier voix MP4.
+Le fichier voix AIFF de “#{name}”
+a été modifié depuis la production du fichier
+voix MP4.
 
     EOT
-    if yesNo("Dois-je reconvertir le fichier .aiff en .mp4 final ?")
+    if yesNo("Dois-je reconvertir le fichier .aiff en .mp4 final pour “#{name}” ?")
       require_module('convert_voice_aiff')
       convert_voice_aiff_to_voice_mp4
     end
@@ -356,7 +359,7 @@ fichier voix MP4.
   # Méthode qui procède à l'assemblage final des éléments
   def proceed_assemblage
     clear
-    notice "=== Assemblage ==="
+    notice "=== Assemblage de “#{name}” ==="
     puts <<-EOT
 
 Je vais procéder à plusieurs assemblages : celui de la
@@ -372,23 +375,23 @@ d'autres occupations en attendant.
     sleep 5
     assemble(nomessage = true)
 
-    notice "👍  --> Assemblage complet effectué avec succès."
+    notice "👍  --> Assemblage complet de “#{name}” effectué avec succès."
 
-    case yesNo("Veux-tu l'éditer dans Screenflow ?")
+    case yesNo("Veux-tu éditer “#{name}” dans Screenflow ?")
     when true
       `open -a Screenflow "#{record_operations_completed}"`
     when NilClass
       raise NotAnError.new
     end
 
-    yesOrStop("Prêt à poursuivre ?")
+    yesOrStop("Prêt à poursuivre “#{name}” ?")
   end #/proceed_assemblage
 
 
   # Assiste à l'upload de la vidéo sur YouTube
   def ask_for_upload_video
     clear
-    notice "Tu dois procéder à l'UPLOAD SUR YOUTUBE."
+    notice "Tu dois procéder à l'UPLOAD SUR YOUTUBE de “#{name}”."
     puts <<-EOT
 Je vais ouvrir ta chaine et il te suffira de déposer la vidéo.
 

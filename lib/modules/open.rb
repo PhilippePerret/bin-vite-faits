@@ -1,6 +1,6 @@
 # encoding: UTF-8
 class ViteFait
-class << self  
+class << self
   def exec_open what
     case what
     when 'folder_captures', 'folder-captures'
@@ -96,11 +96,7 @@ def exec_open what, edition = nil
       end
     end
   when 'montage'
-    if File.exists?(screenflow_path)
-      `open -a ScreenFlow "#{screenflow_path}"`
-    elsif File.exists?(premiere_path)
-      `open "#{premiere_path}"`
-    else
+    unless File.exists?(screenflow_path) ||  File.exists?(premiere_path)
       choix = getChar("Dois-je initier un projet Screenflow (s) ou Premiere (p) ?")
       choix || return
       case choix.upcase
@@ -117,6 +113,11 @@ def exec_open what, edition = nil
       end
     end
     notice "Bon montage ! 👍"
+    if File.exists?(screenflow_path)
+      `open -a ScreenFlow "#{screenflow_path}"`
+    elsif File.exists?(premiere_path)
+      `open "#{premiere_path}"`
+    end
   else
     ViteFait.exec_open(what)
   end
