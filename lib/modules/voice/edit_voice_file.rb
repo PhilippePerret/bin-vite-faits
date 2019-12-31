@@ -33,7 +33,7 @@ Raccourcis pratiques à avoir en tête :
     `open -a Audacity "#{record_voice_path}"`
     sleep 15
     if yesNo("Dois-je convertir le fichier AIFF en fichier MP4 (normal) ?")
-      require_module('convert_voice_aiff')
+      require_module('voice/convert_voice_aiff')
       convert_voice_aiff_to_voice_mp4
     end
   end

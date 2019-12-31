@@ -166,7 +166,7 @@ class ViteFait
   # Pour créer le fichier des opérations de façon assistées
   def create_file_operations
     return goto_manual('lesoperations') if COMMAND.options[:help]
-    require_module('operations')
+    require_module('operations/operations')
     assistant_creation_file
   end
 
@@ -403,7 +403,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   # Pour transformer le fichier capture en vidéo mp4
   def capture_to_mp4
     operations_recorded?(required=true) || return
-    require_module('capture_to_mp4')
+    require_module('operations/capture_to_mp4')
     exec_capture_to_mp4
   end
 
@@ -457,7 +457,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   end
 
   def edit_voice_file
-    require_module('edit_voice_file')
+    require_module('voice/edit_voice_file')
     edition_fichier_voix
   rescue NotAnError => e
     e.puts_error_if_message

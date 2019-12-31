@@ -115,7 +115,7 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
     # Le fichier capture de la voix
     unless voice_capture_exists?
       if File.exists?(record_voice_aiff)
-        require_module('convert_voice_aiff')
+        require_module('voice/convert_voice_aiff')
         convert_voice_aiff_to_voice_mp4
       end
     end

@@ -69,7 +69,7 @@ class ViteFait
       elsif operations_defined?
         # Si le fichier des opérations est déterminé, on
         # peut estimer le temps en fonction des opérations
-        require_module('operations')
+        require_module('operations/operations')
         duree_totale_estimee
       else
         # Sinon, on donne une valeur vraiment arbitraire

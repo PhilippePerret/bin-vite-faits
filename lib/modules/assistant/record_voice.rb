@@ -139,7 +139,7 @@ terminé. Il reste #{reste_secondes.to_i} secondes.
 
   case yesNo("Veux-tu l'ouvrir dans Audacity pour la peaufiner ?")
   when true
-    require_module('edit_voice_file')
+    require_module('voice/edit_voice_file')
     edition_fichier_voix
   when NilClass
     raise NotAnError.new
@@ -277,7 +277,7 @@ def assistant_voix_finale_with_durees
     if operations_recorded?
       Video.dureeOf(record_operations_mp4)
     else
-      require_module('operations')
+      require_module('operations/operations')
       (duree_totale_estimee.to_f / accelerator).round
     end + 10 # marge
   start_voice_recording(duree_voice)

@@ -317,7 +317,7 @@ commande :
 
     # On a la vitesse, on peut convertir
     COMMAND.params.merge!(speed: speed)
-    require_module('capture_to_mp4')
+    require_module('operations/capture_to_mp4')
     exec_capture_to_mp4
   end #/
 
@@ -350,7 +350,7 @@ voix MP4.
 
     EOT
     if yesNo("Dois-je reconvertir le fichier .aiff en .mp4 final pour “#{name}” ?")
-      require_module('convert_voice_aiff')
+      require_module('voice/convert_voice_aiff')
       convert_voice_aiff_to_voice_mp4
     end
 

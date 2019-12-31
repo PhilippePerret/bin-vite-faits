@@ -50,7 +50,7 @@ def exec_open what, edition = nil
 
   case what
   when 'operations'
-    require_module('operations')
+    require_module('operations/operations')
     exec_open_operations_file
   when 'scrivener'
     if edition
