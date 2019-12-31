@@ -10,18 +10,18 @@
 class Informations
 
   DEFAULT_INFORMATIONS = {
-    titre:          {value:nil,   editable:true,  required:true},
-    titre_en:       {value:nil,   editable:true,  required:true},
-    youtube_id:     {value:nil,   editable:true,  required:true},
-    description:    {value:nil,   editable:true,  required:true},
-    accelerator:    {value:nil,   editable:true,  required:false, method: :to_f},
-    logic_step:     {value:nil,   editable:false, required:false, method: :to_i},
-    site_perso:     {value:false, editable:false, required:false},
-    uploaded:       {value:false, editable:false, required:false},
-    annonce_FB:     {value:false, editable:false, required:false},
-    annonce_Scriv:  {value:false, editable:false, required:false},
-    updated_at:     {value:nil,   editable:false, required:false},
-    created_at:     {value:nil,   editable:false, required:false}
+    titre:          {value:nil,   editable:true,  required:true,  type: 'string'},
+    titre_en:       {value:nil,   editable:true,  required:true,  type: 'string'},
+    youtube_id:     {value:nil,   editable:true,  required:true,  type: 'string'},
+    description:    {value:nil,   editable:true,  required:true,  type: 'string'},
+    accelerator:    {value:nil,   editable:true,  required:false, type: 'float'},
+    logic_step:     {value:nil,   editable:false, required:false, type: 'integer'},
+    site_perso:     {value:false, editable:false, required:false, type: 'boolean'},
+    uploaded:       {value:false, editable:false, required:false, type: 'boolean'},
+    annonce_FB:     {value:false, editable:false, required:false, type: 'boolean'},
+    annonce_Scriv:  {value:false, editable:false, required:false, type: 'boolean'},
+    updated_at:     {value:nil,   editable:false, required:false, type: 'integer'},
+    created_at:     {value:nil,   editable:false, required:false, type: 'integer'}
   }
 
   attr_reader :vitefait
@@ -80,10 +80,24 @@ class Informations
         end
       end
       idata = data[ikey] || DEFAULT_INFORMATIONS[ikey]
-      if DEFAULT_INFORMATIONS[ikey][:method]
-        new_value = new_value.send(DEFAULT_INFORMATIONS[ikey][:method])
-      end
+      # En fonction du type, il faut changer la valeur
+      new_value =
+        case DEFAULT_INFORMATIONS[ikey][:type]
+        when 'string'   then new_value != '' ? new_value : nil
+        when 'boolean'  then new_value === 'true' || new_value === '1'
+        when 'integer'  then new_value.to_i
+        when 'float'    then new_value.to_f
+        end
       data[ikey][:value] != new_value || next # pas de modification
+
+      # Des contrôles à faire
+      if ikey == :uploaded && new_value === true
+        if vitefait.video_on_youtube?
+          notice "J'ai trouvé la vidéo sur YouTube, super !"
+        else
+          return error("Je n'ai pas trouvé la vidéo sur YouTube, je ne peux pas mettre loaded à true.")
+        end
+      end
       data[ikey].merge!(value: new_value)
       hasBeenModified = true
     end

@@ -17,4 +17,13 @@ et traitée.
     end while yid.nil?
     informations.set(youtube_id: yid)
   end
+
+  # Méthode pour vérifier que la vidéo se trouve bien sur YouTube
+  def is_video_on_youtube?
+    url = "https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=#{youtube_id}"
+    res = `cUrl "#{url}" 2> /dev/null`
+    return res != 'Not Found'
+  end
+
+
 end #/ViteFait

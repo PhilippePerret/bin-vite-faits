@@ -647,10 +647,9 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     existe
   end
 
-  def video_sur_youtube?
-    url = "https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=#{youtube_id}"
-    res = `cUrl "#{url}" 2> /dev/null`
-    return res != 'Not Found'
+  def video_on_youtube?
+    require_module('youtube')
+    is_video_on_youtube?
   end
 
   # ---------------------------------------------------------------------
