@@ -455,7 +455,7 @@ yahoo et le code normal.
   # --- STATES ---
 
   def completed_and_published?
-    File.exists?(final_tutoriel_mp4) &&
+    final_tutoriel_exists? &&
       video_uploaded? &&
       annonce_FB_deposed? &&
       annonce_facebook_deposed?
@@ -491,7 +491,7 @@ yahoo et le code normal.
   end
 
   def video_finale_existe?(nomessage = true)
-    existe = File.exists?(final_tutoriel_mp4)
+    existe = !!final_tutoriel_exists?
     if existe && !nomessage
       notice "--- Tutoriel final assemblé."
     end
