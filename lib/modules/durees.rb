@@ -43,7 +43,7 @@ class ViteFait
   # Plus le chiffre est élevée, plus la durée est proche du final
   def type_duration
     @type_duration ||= begin
-      if File.exists?(record_operations_completed)
+      if File.exists?(final_tutoriel_mp4)
         100 # le max
       else
         bitvalue = 0

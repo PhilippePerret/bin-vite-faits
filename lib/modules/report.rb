@@ -66,7 +66,7 @@ class ViteFait
         # fichier operations
         puts "\nFichiers finaux"
         puts "---------------\n"
-        line_exists_file(record_operations_completed, 'VIDÉO FINALE')
+        line_exists_file(final_tutoriel_mp4, 'VIDÉO FINALE')
         line_exists_file(vignette_path, 'Vignette JPEG')
         line_exists_file(record_operations_mp4, 'Capture (mp4)')
         line_exists_file(record_titre_mp4, "Titre (mp4)")

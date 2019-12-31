@@ -528,14 +528,8 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   # En fait, ça ouvre l'interface pour le faire + le dossier contenant
   # la vidéo à uploader
   def upload
-    notice "\n\nJ'ouvre le dossier contenant la vidéo finale\n+ Safari sur la page d'upload de la chaine."
-    `open -a Safari "https://studio.youtube.com/channel/UCWuW11zTGdNfoChranzBMxQ/videos/upload?d=ud&filter=%5B%5D&sort=%7B%22columnType%22%3A%22date%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D"`
-    notice "Pour s'identifier, utiliser le compte Yahoo normal avec le mot de passe normal."
-    if File.exists?(exports_folder)
-      `open -a Finder "#{exports_folder}"`
-    else
-      error "Impossible de trouver le dossier des exports,\nje ne peux pas vous présenter la vidéo à uploader\n#{exports_folder}"
-    end
+    require_module('tutoriel/upload')
+    exec_upload
   end
 
   # ---------------------------------------------------------------------
@@ -826,10 +820,23 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     @record_operations_ts ||= File.join(operations_folder, "capture.ts")
   end
 
-  # Le fichier vidéo final
-  def record_operations_completed
-    @record_operations_completed ||= File.join(exports_folder, "#{name}_completed.mp4")
+  # Fichier vidéo final
+  # -------------------
+  def final_tutoriel_mp4
+    @final_tutoriel_mp4 ||= File.join(exports_folder, "#{name}_completed.mp4")
   end
+  def final_tutoriel_exists?(required=false)
+    existe = File.exists?(final_tutoriel_mp4)
+    if !existe && required
+      error "Le fichier tutoriel final (*) est requis…\n(*) #{final_tutoriel_mp4}"
+      return false
+    else
+      return true
+    end
+  end
+
+  # Projet scrivener
+  # ----------------
   def scriv_file_path
     @scriv_file_path ||= pathof(scriv_file_name)
   end

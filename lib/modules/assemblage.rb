@@ -37,17 +37,17 @@ class ViteFait
 
     # Si un fichier final existe, on produit une nouvelle version
     # de façon silencieuse et systématique.
-    make_new_version_complete if File.exists?(record_operations_completed)
+    make_new_version_complete if File.exists?(final_tutoriel_mp4)
 
-    # cmd = "ffmpeg -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{record_operations_completed}\""
-    # cmd = "ffmpeg -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy \"#{record_operations_completed}\""
-    # cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy \"#{record_operations_completed}\""
-    cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy -copytb 1 \"#{record_operations_completed}\""
+    # cmd = "ffmpeg -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy -bsf:a aac_adtstoasc \"#{final_tutoriel_mp4}\""
+    # cmd = "ffmpeg -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy \"#{final_tutoriel_mp4}\""
+    # cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy \"#{final_tutoriel_mp4}\""
+    cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy -copytb 1 \"#{final_tutoriel_mp4}\""
     # À essayer :
-    # cmd = "ffmpeg -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy -copytb 1 \"#{record_operations_completed}\""
+    # cmd = "ffmpeg -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:a copy -copytb 1 \"#{final_tutoriel_mp4}\""
     # Ne fonctionne pas :
-    # cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:v copy -c:a copy \"#{record_operations_completed}\""
-    # cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -map 0:0 -map 0:1 -c:v copy -c:a copy \"#{record_operations_completed}\""
+    # cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -c:v copy -c:a copy \"#{final_tutoriel_mp4}\""
+    # cmd = "ffmpeg -fflags +igndts -i \"concat:#{self.class.intro_ts}|#{record_titre_ts}|#{record_operations_ts}|#{self.class.final_ts}\" -map 0:0 -map 0:1 -c:v copy -c:a copy \"#{final_tutoriel_mp4}\""
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"
     if COMMAND.options[:verbose] && !nomessage
       puts "\n---- Commande finale : '#{cmd}'"
@@ -153,15 +153,15 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
       version_path = File.join(exports_folder, "#{name}_v-#{version}.mp4")
       File.exists?(version_path) || break
     end
-    FileUtils.move(record_operations_completed, version_path)
+    FileUtils.move(final_tutoriel_mp4, version_path)
     if File.exists?(version_path)
       notice "Version #{name}_v-#{version}.mp4 produite avec succès 👍"
       notice "(mais la dernière est toujours la '#{name}_completed.mp4')"
     else
       raise NotAnError.new("Le fichier version (*) devrait exister…\n(*) #{version_path}")
     end
-    if File.exists?(record_operations_completed)
-      raise NotAnError.new("Le fichier completed (*) ne devrait plus exister…\n(*) #{record_operations_completed}")
+    if File.exists?(final_tutoriel_mp4)
+      raise NotAnError.new("Le fichier completed (*) ne devrait plus exister…\n(*) #{final_tutoriel_mp4}")
     end
     return true
   end

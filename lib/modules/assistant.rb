@@ -379,7 +379,7 @@ d'autres occupations en attendant.
 
     case yesNo("Veux-tu éditer “#{name}” dans Screenflow ?")
     when true
-      `open -a Screenflow "#{record_operations_completed}"`
+      `open -a Screenflow "#{final_tutoriel_mp4}"`
     when NilClass
       raise NotAnError.new
     end
@@ -420,15 +420,8 @@ yahoo et le code normal.
 
   # Demande l'identifiant de la vidéo YouTube
   def ask_for_youtube_id
-    clear
-    notice "Nous devons définir l'ID YOUTUBE de la vidéo."
-    begin
-      yid = prompt("ID youtube")
-      if yid.nil?
-        yesOrStop("Il faut entrer l'ID de la vidéo. Dois-je poursuivre ?")
-      end
-    end while yid.nil?
-    informations.set(youtube_id: yid)
+    require_module('youtube')
+    set_youtube_id
   end #/ask_for_youtube_id
 
 
@@ -462,7 +455,7 @@ yahoo et le code normal.
   # --- STATES ---
 
   def completed_and_published?
-    File.exists?(record_operations_completed) &&
+    File.exists?(final_tutoriel_mp4) &&
       video_uploaded? &&
       annonce_FB_deposed? &&
       annonce_facebook_deposed?
@@ -498,7 +491,7 @@ yahoo et le code normal.
   end
 
   def video_finale_existe?(nomessage = true)
-    existe = File.exists?(record_operations_completed)
+    existe = File.exists?(final_tutoriel_mp4)
     if existe && !nomessage
       notice "--- Tutoriel final assemblé."
     end
