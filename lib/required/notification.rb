@@ -34,7 +34,7 @@ class Notification
   # ---------------------------------------------------------------------
 
   attr_reader :data
-  attr_reader :id, :titre, :message, :date
+  attr_reader :id, :titre, :message, :date, :tuto_name
   def initialize data, tuto = nil
     @data = data
     @tuto = tuto
@@ -54,7 +54,7 @@ class Notification
   # avec ', -appIcon \"#{mere.appIcon}\"', qui pourrait changer à
   # l'avenir du développement de terminal-notifier
   def notify
-    cmd = "#{NOTIFIER_CMD} -ignoreDnD -title \"#{titre}\" -message \"#{real_message}\" -sound 'default' -sender 'com.apple.ViteFait'"
+    cmd = "#{NOTIFIER_CMD} -ignoreDnD -title \"#{real_titre}\" -message \"#{real_message}\" -sound 'default' -sender 'com.apple.ViteFait'"
     `#{cmd}`
   end
 
@@ -66,6 +66,13 @@ class Notification
         message
       end
     end
+  end
+
+  # Le titre qui sera affiché, notamment avec le
+  # titre du tutoriel (son dossier) pour savoir qui
+  # envoie cette notification.
+  def real_titre
+    "#{tuto_name} ›› #{titre}"
   end
 
   # ---

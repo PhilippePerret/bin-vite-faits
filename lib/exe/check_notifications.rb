@@ -36,10 +36,10 @@ DATA_LIEUX.each do |klieu, dlieu|
   folder = eval("VITEFAIT_#{klieu.to_s.upcase}_FOLDER")
   # puts "--- in: #{folder}"
   Dir["#{folder}/**/notifications.yaml"].each do |pth|
+    tuto_name = File.basename(File.dirname(pth))
     notifications = YAML.load_file(pth)
     notifications.each do |dnotify|
-      notify = Notification.new(dnotify)
-
+      notify = Notification.new(dnotify.merge!(tuto_name: tuto_name))
       if notify.today? || notify.out_of_date?
         notify.notify
         sleep 3
