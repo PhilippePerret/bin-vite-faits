@@ -21,10 +21,11 @@ avec le mot de passe normal.
 Rappels :
 
 TITRE
-#{titre}
+\033[1;36m#{titre}\033[0m
 
 DESCRIPTION
-Dans la série des “vite faits”, #{description}
+\033[1;36mDans la série des “vite faits”, #{description}.\033[0m
+
 
     EOT
 
