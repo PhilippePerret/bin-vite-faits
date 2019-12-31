@@ -1,8 +1,36 @@
 # encoding: UTF-8
 =begin
   Module de raccourcissement des vidéos et des sons
+
+  Ajout de nouveaux fichiers
+  --------------------------
+  Pour ajouter de nouveaux fichiers, on doit définir
+    - une lettre pour les choisir
+    - ajouter ses données à la constante DATA_CROPPABLE_FILES
+      ci-dessous, tout le reste sera géré automatiquement
+
 =end
 class ViteFait
+
+  DATA_CROPPABLE_FILES = [
+    {letter: 'V', rpath: 'Operations/capture.mov',  param: 'mov'},
+    {letter: 'P', rpath: 'Operations/capture.mp4',  param: 'mp4'},
+    {letter: 'X', rpath: 'Voix/voice.mp4',          param: 'voix'},
+    {letter: 'T', rpath: 'Titre/titre.mov',         param: 'titre'},
+    {letter: 'M', rpath: 'Titre/titre.mp4',         param: 'titmp4'}
+  ]
+  h = {}
+  DATA_CROPPABLE_FILES.each do |dfile|
+    h.merge!(dfile[:letter] => dfile[:param])
+  end
+  CROPPABLE_LETTER_TO_PARAM = h
+  # Pour obtenir le path en fonction du paramètre
+  h = {}
+  DATA_CROPPABLE_FILES.each do |dfile|
+    h.merge!(dfile[:param] => dfile[:rpath])
+  end
+  CROPPABLE_PARAM_TO_PATH = h
+
 
   MSG({
     duree_required: "Durée à obtenir non définie (interactivement ou avec 'duree=\"h:mm:ss\"')",
@@ -89,7 +117,8 @@ class ViteFait
   # Les "fichiers logiques" sont les fichiers qui dépendent
   # du fichier +file+ (i.e. qui sont assemblés d'après lui)
   def remove_logic_files_after file
-    notice "* Destruction des fichiers logiques après le fichier raboté…"
+    notice "* Destruction des fichiers logiques de “#{name}” après le fichier raboté…"
+    notice "  (pour pouvoir actualiser la sortie finale)"
     pth = self.relative_pathof(file)
     liste = []
     # Dans tous les cas, il faut détuire la vidéo finale
@@ -115,6 +144,15 @@ class ViteFait
     liste.each do |relpath|
       IO.remove_with_care(pathof(relpath),"fichier #{relpath}",interactive = true)
     end
+    notice <<-EOT
+
+Relance l'assemblage de “#{name}” pour actualiser
+la sortie finale :
+
+    vitefait assemble #{name}
+
+    EOT
+
   end
 
 
@@ -194,11 +232,12 @@ class ViteFait
     prompt("Quelle durée (horloge) doit faire le fichier '#{File.basename(file2crop)}' à cropper (durée actuelle : #{duree}) ?")
   end
 
+
   def ask_for_file_to_crop
     liste = []
-    File.exists?(default_record_operations_path) && liste << 'V -> Operations/capture.mov'
-    File.exists?(record_operations_mp4) && liste << 'P -> Operations/capture.mp4'
-    File.exists?(record_voice_mp4)      && liste << 'X -> Voix/voice.mp4'
+    DATA_CROPPABLE_FILES.each do |dfile|
+      File.exists?(pathof(dfile[:rpath])) && liste << "#{dfile[:letter]} = #{dfile[:rpath]}"
+    end
     @croppable_files = liste
     if liste.empty?
       raise 'any_croppable_file'
@@ -208,7 +247,7 @@ class ViteFait
     else
       puts <<-EOT
 
-  Fichier à raccourcir :
+  Fichier de “#{name}” à raccourcir :
 
     #{liste.join("\n    ")}
 
@@ -218,11 +257,8 @@ class ViteFait
       EOT
       choix = getChar("Fichier à cropper : ").upcase
     end
-    case choix
-    when 'V'  then get_file2crop_from_pour('mov')
-    when 'P'  then get_file2crop_from_pour('mp4')
-    when 'T'  then get_file2crop_from_pour('titre')
-    when 'X'  then get_file2crop_from_pour('voix')
+    if CROPPABLE_LETTER_TO_PARAM.key?(choix)
+      get_file2crop_from_pour(CROPPABLE_LETTER_TO_PARAM[choix])
     else
       raise 'bad_choix_croppable'
     end
@@ -240,15 +276,10 @@ class ViteFait
   end
 
   def get_file2crop_from_pour(pour)
-    case pour
-    when 'titre'
-      record_titre_mov
-    when 'mov'
-      record_operations_mov
-    when 'mp4'
-      record_operations_mp4
-    when 'voix', 'voice'
-      record_voice_path
+    if CROPPABLE_PARAM_TO_PATH.key?(pour)
+      pathof(CROPPABLE_PARAM_TO_PATH[pour])
+    else
+      raise "Le fichier à cropper désigné par “#{pour}” n'est pas défini…"
     end
   end
 end #/ViteFait
