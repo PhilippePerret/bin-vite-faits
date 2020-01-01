@@ -5,6 +5,11 @@ end
 def notice msg, options = {}
   COMMAND.options[:silence] || puts("\033[1;32m#{msg}\033[0m")
 end
+# Pour écrire une ligne qui va disparaitre au prochain
+# message.
+def notice_prov msg
+  COMMAND.options[:silence] || print("\033[1;32m#{msg}\033[0m\r")
+end
 def warn msg, options = {}
   write_yellow msg
 end

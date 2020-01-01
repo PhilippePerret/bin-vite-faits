@@ -52,6 +52,8 @@ when 'create'
   end
 when 'move','deplace', 'deplacer'
   vitefait.is_required && vitefait.move
+when 'backup'
+  vitefait.is_required && vitefait.backup
 when 'rapport', 'report'
   vitefait.is_required && vitefait.write_rapport
 when 'check'

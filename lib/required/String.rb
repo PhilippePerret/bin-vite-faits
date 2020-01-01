@@ -14,6 +14,10 @@ class String
     11  => {long:'novembre', short:'nov'},
     12  => {long:'décembre', short:'déc'}
   }
+
+  POUCE = "👍"
+  WARNING = "🚫"
+  
   # Quand le string est une horloge, retourne le nombre de secondes
   def h2s
     pms = self.split(':').reverse

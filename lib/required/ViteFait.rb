@@ -130,6 +130,11 @@ class ViteFait
     end
   end
 
+  def backup
+    require_module('folder/backup')
+    exec_backup
+  end
+
   def check
     require_module('tutoriel/check')
     exec_check
