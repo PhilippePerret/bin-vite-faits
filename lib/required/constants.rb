@@ -1,5 +1,7 @@
+# Pour la configuration
+require_relative('../../config')
 
-DEFAULT_BROWSER = "Firefox"
+DEFAULT_BROWSER = CONFIG[:default_browser]
 
 class ViteFait
   SHORT_SUJET_TO_REAL_SUJET = {
@@ -185,7 +187,7 @@ def MSG_default_variables
 end
 
 # Données pour les types de version de tutoriel qu'on peut trouver
-# TODO Mettre leurs dossier ici, pour pouvoir les modifier facilement et que
+# Mettre leurs dossier ici, pour pouvoir les modifier facilement et que
 # ça se répercute partout ailleurs.
 DATA_LIEUX = {
   chantier:   {id: :chantier,   folder_name:'2_En_chantier', place:'laptop', hname:"en chantier sur l'ordi", short_hname:'ordi›chantier'},
@@ -195,16 +197,18 @@ DATA_LIEUX = {
   published:  {id: :published,  folder_name:'4_Published',   place:'disk',   hname:"publié (sur le disque)", short_hname:'disk›publié'}
 }
 
-FOLDER_CAPTURES = File.join('/Volumes','MacOSCatalina','Captures')
+FOLDER_CAPTURES             = CONFIG[:captures_folder]
+VITEFAIT_FOLDER_ON_LAPTOP   = CONFIG[:laptop_folder]
+VITEFAIT_FOLDER_ON_DISK     = CONFIG[:disk_folder]
+VITEFAIT_MAIN_FOLDER        = VITEFAIT_FOLDER_ON_DISK
+VITEFAIT_BACKUP_FOLDER      = CONFIG[:backup_folder]
+
 
 BIN_FOLDER      = File.expand_path(File.dirname(THISFOLDER))
 FOLDER_MODULES  = File.join(THISFOLDER,'modules')
 
 VOICE_RECORDER_PATH = File.join(BIN_FOLDER,'lib','exe','voice_recorder.sh')
 
-VITEFAIT_FOLDER_ON_LAPTOP = File.join(Dir.home,'Movies','Tutoriels','SCRIVENER','LES_VITE_FAITS')
-VITEFAIT_FOLDER_ON_DISK   = File.join('/Volumes','MacOSCatalina','Screencasts','SCRIVENER','LES_VITE_FAITS')
-VITEFAIT_MAIN_FOLDER = VITEFAIT_FOLDER_ON_DISK
 
 DATA_LIEUX.each do |klieu, dlieu|
   eval("VITEFAIT_#{klieu.to_s.upcase}_FOLDER = File.join(VITEFAIT_FOLDER_ON_#{dlieu[:place].to_s.upcase}, dlieu[:folder_name])")
