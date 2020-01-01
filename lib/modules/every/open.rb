@@ -97,9 +97,12 @@ end
 
 class << self
   def exec_open what
+    error '-> exec_open'
     case what
     when 'folder_captures', 'folder-captures'
       open_folder_captures
+    when 'backup'
+      open_folder_backup
     else
       folder = COMMAND.folder
       case folder
@@ -110,17 +113,26 @@ class << self
         `open -a Finder "#{VITEFAIT_FOLDER_ON_DISK}"`
       when 'laptop'
         `open -a Finder "#{VITEFAIT_FOLDER_ON_LAPTOP}"`
+      when 'backup'
+        open_folder_backup
       else
         if folder.nil? && COMMAND.options[:help]
           puts "Vous voulez de l'aide sur la commande ouvrir ?"
           goto_manuel('commandesopen')
-        elsif folder && new(folder).exists?
+        elsif folder && new(folder).exists? && what.nil?
           new(folder).open_in_finder(COMMAND.params[:version])
         else
-          error "🖐  Je ne sais pas ouvrir '#{folder}'."
+          error "🖐  Je ne sais pas ouvrir '#{what}'."
         end
       end
     end
+  end
+
+
+  def open_folder_backup
+    IO.check_existence(VITEFAIT_BACKUP_FOLDER, {interactive:true}) || return
+    notice "* Ouverture du dossier des backups dans le Finder…"
+    `open -a Finder #{VITEFAIT_BACKUP_FOLDER}`
   end
 end #<< self
 
