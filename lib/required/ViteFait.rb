@@ -18,6 +18,11 @@ class ViteFait
     check_tutoriel
   end
 
+  def reset
+    @current_folder = nil
+    @lieu = nil
+  end
+
   def goto_manual(anchor); self.class.goto_manual(anchor) end
   alias :goto_manuel :goto_manual
 

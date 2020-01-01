@@ -14,7 +14,6 @@ class ViteFait
     from_lieu = COMMAND.params[:from] || COMMAND.params[:de] || lieu
     new_lieu  = COMMAND.params[:vers] || COMMAND.params[:to]
 
-    puts "from_lieu: #{from_lieu.inspect} / new_lieu: #{new_lieu.inspect}"
     from_lieu || raise(ERRORS_MOVE[:no_from_lieu])
     new_lieu  || raise(ERRORS_MOVE[:no_destination])
     from_lieu = from_lieu.to_sym
@@ -29,10 +28,29 @@ class ViteFait
     File.exists?(from_lieu_path) || raise(ERRORS_MOVE[:no_source])
 
     # OK, on peut procéder à l'opération
-    puts "\nDéplacement :\n#{from_lieu_path}\n-> #{new_lieu_path}\nMerci de patienter…"
+    notice <<-EOT
+Déplacement :
+<- #{from_lieu_path}
+-> #{new_lieu_path}
+    EOT
+    notice_prov("Merci de patienter…")
     FileUtils.move(from_lieu_path, new_lieu_path)
     if File.exists?(new_lieu_path)
-       notice "\n---> Déplacement effectué avec succès 👍"
+       notice "---> Déplacement effectué avec succès 👍"
+       reset
+       if new_lieu == :published
+         # <= Déplacement vers le dossier publié
+         # => On fait un backup automatique
+         if File.exists?(VITEFAIT_FOLDERS[:backup])
+           COMMAND.options[:backup] ||= yesNo("Dois-je faire un backup de sécurité du tutoriel ?")
+           if COMMAND.options[:backup]
+             require_module('folder/backup')
+             proceed_backup
+           end
+         else
+           warn("Si un dossier backup était défini (dans config.rb), je pourrais faire un backup de sécurité.".colonnize)
+         end
+       end
      else
        error "\n🚫  Le dossier de destination n'a pas pu être créé…"
      end

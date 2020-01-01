@@ -15,6 +15,7 @@ end #/ViteFait
 
 MIN_OPT_TO_REAL_OPT = {
   'a' => 'assistant',
+  'b' => 'backup',
   'e' => 'edit',
   'f' => 'force',
   'h' => 'help',
