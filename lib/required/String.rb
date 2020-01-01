@@ -18,8 +18,15 @@ class String
   POUCE = "👍"
   WARNING = "🚫"
 
-  def colonnize width = 50 # en nombre de caractères
-    `echo "#{self.gsub(/"/,'\\"')}" | fmt #{width}`
+  # Convertit le texte en colonnes de largeurs +width+
+  # Si options[:indent] est fourni, on ajoute cette indentation
+  # à chaque ligne.
+  def colonnize width = 50, options = nil # en nombre de caractères
+    res = `echo "#{self.gsub(/"/,'\\"')}" | fmt #{width}`
+    if options && options[:indent]
+      res = options[:indent] + res.gsub!(/\n/, "\n#{options[:indent]}")
+    end
+    return res
   end
   # Quand le string est une horloge, retourne le nombre de secondes
   def h2s
