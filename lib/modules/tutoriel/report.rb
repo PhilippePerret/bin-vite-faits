@@ -41,6 +41,7 @@ class ViteFait
       sc_OK =  informations[:annonce_Scriv] === true
       color = sc_OK ? '32' : '31'
       puts_line('Annonce Scrivener', "\033[1;#{color}m#{sc_OK ? 'oui' : 'non'}\033[0m")
+      puts_line('Copie sécurité', copie_securite_exists? ? 'oui' : 'non')
     else
       puts_line('Lieu actuel', "aucun — le dossier n'est pas créé")
     end
@@ -91,6 +92,15 @@ class ViteFait
     end
     puts "\n\n\n"
   end #/exec_print_report
+
+  # Retourne true si une copie de sécurité existe
+  def copie_securite_exists?
+    if File.exists?(VITEFAIT_FOLDERS[:backup])
+      return File.exists?(backup_folder)
+    else
+      return false
+    end
+  end
 
   def write_last_step_conception
     require_module('tutoriel/conception')
