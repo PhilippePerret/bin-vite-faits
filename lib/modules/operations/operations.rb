@@ -10,7 +10,7 @@
 =end
 class ViteFait
   def assistant_creation_file
-    require_relative 'assistant/define_operations'
+    require_relative 'operations/define'
     exec
   rescue NotAnError => e
     e.puts_error_if_message

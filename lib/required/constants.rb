@@ -174,7 +174,7 @@ COEF_DICTION = 0.07668
 # Pour calculer le coefficiant de diction, on fait lire plusieurs
 # textes à Audrey
 def update_coefficiant_diction
-  require_module('calcul_coefficiant_diction')
+  require_module('voice/calcul_coefficiant_diction')
   calcul_coefficiant_diction
 end
 

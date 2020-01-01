@@ -21,7 +21,7 @@ class ViteFait
       error "Désolé, mais ce tutoriel doit être réparé."
       return
     end
-    require_module('durees')
+    require_module('every/durees')
 
     clear
     puts "=== INFORMATION SUR UN TUTORIEL ===\n\n"
@@ -93,7 +93,7 @@ class ViteFait
   end #/exec_print_report
 
   def write_last_step_conception
-    require_module('conception')
+    require_module('tutoriel/conception')
     # On en profite pour définir la donnée logic_step si elle
     # n'est pas définie.
     informations[:logic_step] || conception.save_last_logic_step
@@ -104,7 +104,7 @@ class ViteFait
 
   # Retourne les tâches restant à accomplir
   def lines_taches
-    require_module('taches')
+    require_module('tools/taches')
     taches.listing.collect do |tache|
       tache.display(format: :simple)
     end

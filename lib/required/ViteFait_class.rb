@@ -14,7 +14,7 @@ class ViteFait
 
   # Initialisation de la commande
   def self.init
-    require_module('check_init')
+    require_module('ViteFait/check_init')
     check_init
   end
 
@@ -36,7 +36,7 @@ class ViteFait
 
   # Pour aider à la conception
   def self.aide_conception
-    require_module('conception')
+    require_module('tutoriel/conception')
     tuto_name = COMMAND.folder ||= 'tuto-demo'
     @vitefait = nil
     vitefait.conception.display
@@ -86,7 +86,7 @@ class ViteFait
 
   # Ouvrir quelque chose (dans le finder)
   def self.open folder
-    require_module('open')
+    require_module('every/open')
     exec_open(folder)
   end
 
@@ -157,7 +157,7 @@ class ViteFait
   # Retourne la liste complète des tutoriels vite-faits
   def self.list
     @@list ||= begin
-      require_module('list')
+      require_module('ViteFait/list')
       List.new
     end
   end

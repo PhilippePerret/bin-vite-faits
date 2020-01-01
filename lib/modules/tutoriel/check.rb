@@ -7,7 +7,7 @@ class ViteFait
 
 
   def check_logic_step
-    require_module('conception')
+    require_module('tutoriel/conception')
     notice "Étape de conception courante enregistrée : #{informations[:logic_step]}"
     puts "Check de toutes les étapes de conception :"
     last_valide = nil

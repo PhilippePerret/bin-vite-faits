@@ -22,7 +22,7 @@ class ViteFait
     # et de la voix, sauf si le fichier capture existe et que l'option
     # --force n'est pas invoquée
     unless source_prepared?
-      require_module('assemblage_capture')
+      require_module('operations/assemblage_capture')
       exec_assemble_capture # => capture.mp4
       prepare_source # => capture.ts
     else

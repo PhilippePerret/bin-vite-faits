@@ -1,6 +1,10 @@
 # encoding: UTF-8
 =begin
   Module pour créer le tutoriel avec un assistant
+  Ce module est la base de toute l'assistanat
+  Il permet de commencer un tout nouveau tutoriel et de
+  le reprendre n'importe quand, à l'endroit où la construction
+  s'est arrêtée.
 =end
 class ViteFait
 class << self
@@ -92,12 +96,12 @@ n'importe quand on tapant à nouveau la commande :
   #   Méthodes de demande
   # ---------------------------------------------------------------------
   def ask_for_tuto_name
-    require_relative 'assistant/tutorial_name'
+    require_module 'tutoriel/ask_name'
     exec
   end
 
   def ask_when_exists_or_completed(tuto)
-    require_relative 'assistant/when_exists_and_completed'
+    require_module 'tutoriel/when_exists_and_completed'
     exec(tuto)
   end
 
@@ -224,19 +228,19 @@ Que dois-je faire ?
   def set_generales_informations
     activate_terminal
     yesNo("Prêt à définir les informations générales pour “#{name}” ?") || raise(NotAnError.new)
-    require_relative 'assistant/generales_informations'
+    require_module('informations/assistant')
     exec
   end
 
   def record_titre
     yesNo("Prêt pour enregistrer le titre animé de “#{name}” ?") || raise(NotAnError.new)
-    require_relative 'assistant/record_titre'
+    require_module 'titre/assistant'
     exec
   end
 
   def build_vignette_jpeg
     yesNo("Prêt pour fabriquer la vignette de “#{name}” ?") || raise(NotAnError.new)
-    require_relative 'assistant/build_vignette_jpeg'
+    require_module 'vignette/build_jpeg'
     exec
   end
 
@@ -257,7 +261,7 @@ Que dois-je faire ?
 
   # Assistance pour la définition des opérations
   def define_operations
-    require_relative 'assistant/define_operations'
+    require_relative 'operations/define'
     exec
   end
 
@@ -267,7 +271,7 @@ Que dois-je faire ?
   # Dans ce cas-là, direct est mis à true
   #
   def record_operations
-    require_relative('assistant/record_operations')
+    require_module('operations/record')
     exec
   end #/record_operations
 
@@ -329,7 +333,7 @@ commande :
     yesOrStop("Veux-tu procéder à l'enregistrement de la voix pour “#{name}” ?")
     # S'il existe un fichier avec les opérations, on va écrire le texte à
     # l'écran, ou le faire défiler progressivement.
-    require_relative('assistant/record_voice')
+    require_module('voice/record')
     exec
   end
 
@@ -420,7 +424,7 @@ yahoo et le code normal.
 
   # Demande l'identifiant de la vidéo YouTube
   def ask_for_youtube_id
-    require_module('youtube')
+    require_module('videos/youtube')
     set_youtube_id
   end #/ask_for_youtube_id
 

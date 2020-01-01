@@ -1,33 +1,5 @@
 # encoding: UTF-8
 class ViteFait
-class << self
-  def exec_open what
-    case what
-    when 'folder_captures', 'folder-captures'
-      open_folder_captures
-    else
-      folder = COMMAND.folder
-      case folder
-      when 'bin', 'dev'
-        # Pour ouvrir le dossier bin dans Atom
-        `open -a Atom "#{BIN_FOLDER}"`
-      when 'disk'
-        `open -a Finder "#{VITEFAIT_FOLDER_ON_DISK}"`
-      when 'laptop'
-        `open -a Finder "#{VITEFAIT_FOLDER_ON_LAPTOP}"`
-      else
-        if folder.nil? && COMMAND.options[:help]
-          puts "Vous voulez de l'aide sur la commande ouvrir ?"
-          goto_manuel('commandesopen')
-        elsif folder && new(folder).exists?
-          new(folder).open_in_finder(COMMAND.params[:version])
-        else
-          error "🖐  Je ne sais pas ouvrir '#{folder}'."
-        end
-      end
-    end
-  end
-end #<< self
 # ---------------------------------------------------------------------
 #   INSTANCE
 # ---------------------------------------------------------------------
@@ -122,4 +94,34 @@ def exec_open what, edition = nil
     ViteFait.exec_open(what)
   end
 end
+
+class << self
+  def exec_open what
+    case what
+    when 'folder_captures', 'folder-captures'
+      open_folder_captures
+    else
+      folder = COMMAND.folder
+      case folder
+      when 'bin', 'dev'
+        # Pour ouvrir le dossier bin dans Atom
+        `open -a Atom "#{BIN_FOLDER}"`
+      when 'disk'
+        `open -a Finder "#{VITEFAIT_FOLDER_ON_DISK}"`
+      when 'laptop'
+        `open -a Finder "#{VITEFAIT_FOLDER_ON_LAPTOP}"`
+      else
+        if folder.nil? && COMMAND.options[:help]
+          puts "Vous voulez de l'aide sur la commande ouvrir ?"
+          goto_manuel('commandesopen')
+        elsif folder && new(folder).exists?
+          new(folder).open_in_finder(COMMAND.params[:version])
+        else
+          error "🖐  Je ne sais pas ouvrir '#{folder}'."
+        end
+      end
+    end
+  end
+end #<< self
+
 end #/ViteFait

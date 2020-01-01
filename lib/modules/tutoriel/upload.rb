@@ -47,7 +47,7 @@ ne peux pas vous présenter la vidéo à uploader…
 
     if final_tutoriel_exists?
       yesNo("Après l'upload et le traitement YouTube (et seulement après), clique sur 'y' pour enregistrer l'ID YouTube du tutoriel.") || return
-      require_module('youtube')
+      require_module('videos/youtube')
       set_youtube_id
     end
   end #/exec_upload

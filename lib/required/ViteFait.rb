@@ -125,20 +125,20 @@ class ViteFait
     if COMMAND.options[:help]
       goto_manual('commandescreation')
     else
-      require_module('create_vite_fait')
+      require_module('tutoriel/create')
       exec_create(nomessage)
     end
   end
 
   def check
-    require_module('check')
+    require_module('tutoriel/check')
     exec_check
   end
 
   # Lorsque des modifications ont été faites, ou une nouvelle étape
   # créée.
   def save_last_logic_step
-    require_module('conception')
+    require_module('tutoriel/conception')
     conception.save_last_logic_step
   end
   # ---
@@ -198,7 +198,7 @@ class ViteFait
   # Pour lancer la lecture des opérations définies
   def record_operations
     return goto_manual('lesoperations') if COMMAND.options[:help]
-    require_module('assistant/record_operations')
+    require_module('operations/record')
     exec
   rescue NotAnError => e
     e.puts_error_if_message
@@ -233,7 +233,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   end
 
   def update_from
-    require_module('update')
+    require_module('tutoriel/update')
     update
   end
   # Retourne true si le fichier capture des
@@ -272,7 +272,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   #   Méthodes de tâches
   # ---
   def commande_taches
-    require_module('taches')
+    require_module('tools/taches')
     exec_commande_taches
   end
 
@@ -280,7 +280,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   #   Méthodes pour les notifications
   # ---
   def commande_notifications
-    require_module('notifications')
+    require_module('tools/notifications')
     exec_commande_notifications
   end
 
@@ -291,7 +291,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   # Pour afficher l'état du tutoriel
   def write_rapport
     return goto_manual('lerapport') if COMMAND.options[:help]
-    require_module('report')
+    require_module('tutoriel/report')
     exec_print_report
   end
 
@@ -302,7 +302,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   # Méthode générale utiliser pour ouvrir n'importe quel élément
   # du vite-fait
   def open_something what = nil, edition = nil
-    require_module('open')
+    require_module('every/open')
     exec_open(what, edition)
   end
 
@@ -315,7 +315,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
 
   # Méthode générique pour cropper un enregistrement
   def crop
-    require_module('crop')
+    require_module('videos/crop')
     exec_crop
   rescue NotAnError => e
     e.puts_error_if_message
@@ -327,7 +327,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   end
 
   def voir_something what
-    require_module('voir')
+    require_module('videos/voir')
     exec_voir(what)
   end
 
@@ -383,7 +383,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   end
 
   def record_titre
-    require_module('assistant/record_titre')
+    require_module('titre/assistant')
     exec
     notice "Pour finaliser ce titre, joue :\n\n\tvite-fait assemble_titre[ #{name}]"
   rescue NotAnError => e
@@ -392,7 +392,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   end
 
   def destroy
-    require_module('destroy')
+    require_module('tutoriel/destroy')
     exec_destroy
   end
 
@@ -409,7 +409,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
 
   # Méthode de transformation du titre en fichier mp4
   def assemble_titre
-    require_module('assemble_titre')
+    require_module('titre/assemble')
     exec_assemble_titre
   end
 
@@ -417,7 +417,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   # Assemble la vidéo complète
   # cf. le module 'assemblage.rb'
   def assemble nomessage = false
-    require_module('assemblage')
+    require_module('tutoriel/assemblage')
     exec_assemble(nomessage)
   rescue NotAnError => e
     e.puts_error_if_message
@@ -425,20 +425,20 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
 
   # Assemble la vidéo de la capture et la voix
   def assemble_capture nomessage = true
-    require_module('assemblage_capture')
+    require_module('operations/assemblage_capture')
     exec_assemble_capture(nomessage)
   end
 
   # Ne conserve qu'un seul dossier
   # C'est le paramètre :lieu qui définit le lieu
   def keep_only_folder
-    require_module('keep_only_folder')
+    require_module('folder/keep_only')
     exec_keep_only_folder
   end
 
   # Méthode appelée pour déplacer le tutoriel
   def move
-    require_module('move')
+    require_module('folder/move')
     exec_move
   end
 
@@ -449,7 +449,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   # Pour assister la fabrication finale de la voix du tutoriel
   # en affichant le texte défini dans le fichier des opérations.
   def record_voice
-    require_module('assistant/record_voice')
+    require_module('voice/record')
     exec
   rescue NotAnError => e
     e.puts_error_if_message
@@ -526,7 +526,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
 
   def informations
     @informations ||= begin
-      require_module('informations')
+      require_module('informations/informations')
       Informations.new(self)
     end
   end
@@ -648,7 +648,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   end
 
   def video_on_youtube?
-    require_module('youtube')
+    require_module('videos/youtube')
     is_video_on_youtube?
   end
 
@@ -683,7 +683,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
 
   # Pour faire l'annonce du nouveau tutoriel
   def annonce(pour = nil)
-    require_module('annonces')
+    require_module('tools/annonces')
     exec_annonce(pour)
   end
 

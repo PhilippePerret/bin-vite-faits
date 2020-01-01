@@ -11,7 +11,7 @@
 # Note : pour l'utiliser ailleurs que dans l'assistant général,
 # il faut l'entourer d'un rescue :
 #   begin
-#     require_module('assistant/record_operations')
+#     require_module('operations/record')
 #     exec
 #   rescue NotAnError => e
 #     e.puts_error_if_message
@@ -116,7 +116,7 @@ peux interrompre la capture à l'aide de CTRL-C.
   ViteFait.move_last_capture_in(default_record_operations_path)
 
   if operations_recorded?
-    require_module('durees')
+    require_module('every/durees')
 
     notice <<-EOT
 

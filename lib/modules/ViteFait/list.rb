@@ -72,7 +72,7 @@ class ViteFait
     # Affichage de la liste des tutoriels
     # Commande : vite-faits list[e]
     def display
-      ViteFait.require_module('conception')
+      ViteFait.require_module('tutoriel/conception')
 
       clear
 
@@ -188,7 +188,7 @@ class ViteFait
       if getInfosFor(dtuto)[:logic_step]
         getInfosFor(dtuto)[:logic_step][:value]
       else
-        ViteFait.require_module('conception')
+        ViteFait.require_module('tutoriel/conception')
         ViteFait.new(dtuto[:name]).conception.save_last_logic_step
       end
     end
