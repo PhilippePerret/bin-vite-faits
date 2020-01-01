@@ -126,7 +126,7 @@ class ViteFait
   # ---
 
   # Pour créer le vite-fait
-  def create(nomessage = true)
+  def create(nomessage = false)
     if COMMAND.options[:help]
       goto_manual('commandescreation')
     else

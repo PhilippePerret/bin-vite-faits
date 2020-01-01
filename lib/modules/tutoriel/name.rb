@@ -62,10 +62,7 @@ class << self
     if folder_ref
       not_an_error("Ce nom est déjà utilisé pour un tutoriel dans le dossier #{folder_ref}.")
     end
-    #
-    # return true
-
-    return false
+    return true
   rescue NotAnError => e
     return error(e.message)
   end

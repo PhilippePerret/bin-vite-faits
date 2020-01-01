@@ -9,6 +9,7 @@ class ViteFait
     # Si le tutoriel n'existe pas, on met tout de suite son lieu, pour
     # savoir où le créer.
     unless exists?
+      reset
       @lieu = :chantier
     end
 
@@ -17,15 +18,17 @@ class ViteFait
       error "Pour le reconstruire complètement, ajouter l'option -f/--force."
       error "Pour actualiser son contenu (ajouter les fichiers manquant), ajouter -l/--lack."
     else
-
       COMMAND.options[:silence] || puts("\n\n")
 
       if exists? && COMMAND.options[:force]
         FileUtils.rm_rf(chantier_folder_path)
       end
 
+      puts "MEC, JE VAIS TESTER LE NOM '#{name}'"
       require_module('tutoriel/name')
       ViteFait.is_valid_name?(name) || return
+
+      puts "LE NOM EST VALIDE, MEC"
 
       # Création des dossiers
       mkdirs_if_not_exist([chantier_folder_path, exports_folder, titre_folder, assets_folder, operations_folder, vignette_folder, voice_folder])
