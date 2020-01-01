@@ -33,8 +33,4 @@ backup défini dans le fichier de configuration :
     FileUtils.rm_rf(backup_folder) if File.exists?(backup_folder)
   end
 
-  def backup_folder
-    @backup_folder ||= File.join(VITEFAIT_BACKUP_FOLDER, name)
-  end
-
 end #/ViteFait

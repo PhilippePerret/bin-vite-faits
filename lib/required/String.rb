@@ -17,7 +17,10 @@ class String
 
   POUCE = "👍"
   WARNING = "🚫"
-  
+
+  def colonnize width = 50 # en nombre de caractères
+    `echo "#{self.gsub(/"/,'\\"')}" | fmt #{width}`
+  end
   # Quand le string est une horloge, retourne le nombre de secondes
   def h2s
     pms = self.split(':').reverse

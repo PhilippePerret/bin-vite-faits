@@ -4,6 +4,12 @@
   Les erreurs qu'on peut rencontrer
 =end
 
+# Pour simplifier, en remplacement de :
+#   raise NotAnError.new(msg)
+def not_an_error msg
+  raise NotAnError.new(msg)
+end
+
 # Pour des erreurs non fatale
 class NonFatalError < StandardError; end
 # Pour des erreurs fatales

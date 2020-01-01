@@ -1027,6 +1027,10 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     @published_folder_path ||= File.join(VITEFAIT_PUBLISHED_FOLDER,name)
   end
 
+  # Le dossier du backup du tutoriel, sur l'autre disque
+  def backup_folder
+    @backup_folder ||= File.join(VITEFAIT_BACKUP_FOLDER, name)
+  end
 
   # ---------------------------------------------------------------------
   #   MÉTHODES FONCTIONNELLES

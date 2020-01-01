@@ -194,7 +194,7 @@ DATA_LIEUX = {
   chantierd:  {id: :chantierd,  folder_name:'2_En_chantier', place:'disk',   hname:"en chantier, mais sur le disque", short_hname:'disk›chantier'},
   attente:    {id: :attente,    folder_name:'1_En_attente',  place:'disk',   hname:"en attente (sur le disque)", short_hname:'disk›attente'},
   completed:  {id: :completed,  folder_name:'3_Completed',   place:'disk',   hname:"fini (sur le disque)", short_hname:'disk›fini'},
-  published:  {id: :published,  folder_name:'4_Published',   place:'disk',   hname:"publié (sur le disque)", short_hname:'disk›publié'}
+  published:  {id: :published,  folder_name:'4_Published',   place:'disk',   hname:"publié (sur le disque)", short_hname:'disk›publié'},
 }
 
 FOLDER_CAPTURES             = CONFIG[:captures_folder]
@@ -209,9 +209,22 @@ FOLDER_MODULES  = File.join(THISFOLDER,'modules')
 
 VOICE_RECORDER_PATH = File.join(BIN_FOLDER,'lib','exe','voice_recorder.sh')
 
-
+# Pour obtenir facilement un dossier avec VITEFAIT_FOLDERS[<key>]
+# Par exemple VITEFAIT_FOLDERS[:chantierd] retourne le path au
+# dossier chantier sur le disque. tandis que VITEFAIT_FOLDERS[:backup]
+# retourne le dossier backup sur l'autre disque.
+# Noter qu'une boucle sur tous les items permet de fouiller tous les
+# endroits où on peut trouver des tutoriels vite-faits.
+VITEFAIT_FOLDERS = {
+  backup: VITEFAIT_BACKUP_FOLDER
+}
 DATA_LIEUX.each do |klieu, dlieu|
-  eval("VITEFAIT_#{klieu.to_s.upcase}_FOLDER = File.join(VITEFAIT_FOLDER_ON_#{dlieu[:place].to_s.upcase}, dlieu[:folder_name])")
+  eval(
+  <<-EOC
+VITEFAIT_#{klieu.to_s.upcase}_FOLDER = File.join(VITEFAIT_FOLDER_ON_#{dlieu[:place].to_s.upcase}, dlieu[:folder_name])
+VITEFAIT_FOLDERS.merge!(:#{klieu} => VITEFAIT_#{klieu.to_s.upcase}_FOLDER)
+  EOC
+)
 end
 
 VITEFAIT_MARKDOWN_MANUAL_PATH    = File.join(VITEFAIT_FOLDER_ON_DISK,'Manuel-les-vite-faits.md')

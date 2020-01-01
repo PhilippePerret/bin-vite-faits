@@ -96,8 +96,8 @@ n'importe quand on tapant à nouveau la commande :
   #   Méthodes de demande
   # ---------------------------------------------------------------------
   def ask_for_tuto_name
-    require_module 'tutoriel/ask_name'
-    exec
+    require_module('tutoriel/name')
+    ask_for_name
   end
 
   def ask_when_exists_or_completed(tuto)

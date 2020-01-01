@@ -24,6 +24,9 @@ class ViteFait
         FileUtils.rm_rf(chantier_folder_path)
       end
 
+      require_module('tutoriel/name')
+      ViteFait.is_valid_name?(name) || return
+
       # Création des dossiers
       mkdirs_if_not_exist([chantier_folder_path, exports_folder, titre_folder, assets_folder, operations_folder, vignette_folder, voice_folder])
 
