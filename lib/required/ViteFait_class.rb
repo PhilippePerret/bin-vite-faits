@@ -70,6 +70,12 @@ class ViteFait
     def current_tutoriel=(value)
       @current_tutoriel = value
     end
+
+    def update_all_backups
+      require_module('folder/backup')
+      proceed_update_all_backups
+    end
+
   end #/<< self
 
   def self.require_module module_name

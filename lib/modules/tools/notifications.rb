@@ -38,6 +38,29 @@ class ViteFait
       @tuto = tuto
     end
 
+    # Affichage des notifications
+    # +Params+
+    #   +options+:: {Hash}
+    #     :all    Si true, on doit afficher toute les notifications
+    def display options = {}
+
+      # Retirer ce clear pour voir tous les messages
+      clear
+
+      notice <<-EOT
+=== LISTE DES NOTIFICATIONS ===
+(pour “#{tuto.titre || tuto.name}”)
+      EOT
+      if itemsById.empty?
+        puts "--- Aucune notification pour le moment ---"
+      else
+        puts header(options)
+        listing.each { |notify| notify.display(options)}
+      end
+      display_commandes
+    end
+
+
     # Méthode qui affiche la prompt et la traite
     def wait_for_choix_and_execute
       msg = nil
@@ -237,28 +260,6 @@ Quitter
       data2save = itemsById.values.collect{|notify|notify.data}
       File.open(path,'wb'){|f| f.write YAML.dump(data2save)}
       @itemsById = nil
-    end
-
-    # Affichage des notifications
-    # +Params+
-    #   +options+:: {Hash}
-    #     :all    Si true, on doit afficher toute les notifications
-    def display options = {}
-
-      # Retirer ce clear pour voir tous les messages
-      # clear
-
-      notice <<-EOT
-=== LISTE DES NOTIFICATIONS ===
-(pour “#{tuto.titre || tuto.name}”)
-      EOT
-      if itemsById.empty?
-        puts "--- Aucune notification pour le moment ---"
-      else
-        puts header(options)
-        listing.each { |notify| notify.display(options)}
-      end
-      display_commandes
     end
 
     def listing(options = {})

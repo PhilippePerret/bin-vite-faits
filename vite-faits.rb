@@ -53,7 +53,11 @@ when 'create'
 when 'move','deplace', 'deplacer'
   vitefait.is_required && vitefait.move
 when 'backup'
-  vitefait.is_required && vitefait.backup
+  if COMMAND.folder == 'all'
+    ViteFait.update_all_backups
+  else
+    vitefait.is_required && vitefait.backup
+  end
 when 'rapport', 'report'
   vitefait.is_required && vitefait.write_rapport
 when 'check'
