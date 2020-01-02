@@ -5,22 +5,20 @@
 ## Tutoriels créés, à produire
 
 - [ ] Utiliser les signets pour la documentation (**signets-documentations**)
-
-- [ ] Comprendre le formatage dans Scrivener (**comprendre-styles**)
-  Ce "gros" tutoriel (gros au niveau du projet) doit permettre de bien comprendre les bases du formatage dans Scrivener, en abordant :
-  * La hiérarchie des documents (les types de section)
-  * L'affectation de la mise en page (layout) par type de section
-  * Définir la mise en page (layout)
-- [ ] Modifier ses styles en sortie
-
-- [ ] Voir les scènes du plan (**plan-et-scenes**)
+- [ ] Affichage des scènes du plan (**plan-et-scenes**)
 (trouver meilleur titre) - il s’agit de la façon de travailler en cliquant sur les scènes du plan pour les éditer dans l’autre éditeur.
   Titre : Afficher les scènes depuis le plan
+- [ ] Ne perdre aucune version des documents (**versions-avec-git**)
+  Tutoriel expliquant comment utiliser Git pour conserver toutes les versions de ses documents, de ses projets.
 
 ## Liste des tutoriels à créer
 
-- [ ] Ne perdre aucune version des documents
-  Tutoriel expliquant comment utiliser Git pour conserver toutes les versions de ses documents, de ses projets.
+- [ ] Formatage : définir les types de section
+- [ ] Formatage : attribuer les mises en page
+- [ ] Formatage : définir l'aspect de chaque type de section
+- [ ] Formatage : points de détail
+  Peut-être faut-il être plus précis dans la désignation.
+
 
 - [ ] Protéger toutes les versions de son projet
   Pour apprendre à déposer en privé sur son compte github et toujours garder des copies de ses documents.
