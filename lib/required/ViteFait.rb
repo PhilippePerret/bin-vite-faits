@@ -848,7 +848,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
       error "Le fichier tutoriel final (*) est requis…\n(*) #{final_tutoriel_mp4}"
       return false
     else
-      return true
+      return existe
     end
   end
 
