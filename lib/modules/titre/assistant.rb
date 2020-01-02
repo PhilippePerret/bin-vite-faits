@@ -48,15 +48,15 @@ capture du titre.
         "Dans Scrivener, masque les autres applications (Command, Alte, H)",
         "Assure-toi qu'on ne voie rien dans le Finder",
         "Écrit le titre : “#{titre}“…",
-        "Règle la largeur de la fenêtre pour que le titre apparaisse bien…",
-        "Supprime le titre",
+        "Règle la largeur de la fenêtre pour que le titre s'affiche de belle façon…",
+        "Ne le supprime pas ! L'idée est d'enregistrer l'écriture du titre à l'envers",
         "Active la capture (Commande, Majuscule, 5) et règle sa taille à #{CAPTURE_WIDTH} par #{CAPTURE_HEIGHT}",
         "J'ai écrit les dimensions de l'écran dans la console, au cas où",
         {exec: 'puts "Dimensions écran : #{CAPTURE_WIDTH} x #{CAPTURE_HEIGHT}"'},
-        "Règle Minuteur : 5 secondes, Microphone : aucun, ne pas prendre les clics de souris",
+        "Règle Minuteur : aucun, Microphone : aucun, ne pas enregistrer les clics de souris",
         "Il faudra arrêter l'enregistrement assez rapidement (la dernière seconde sera supprimée)",
         "À la fin, il faudra enregistrer le fichier et le fermer",
-        "Lance la capture et tape le titre : “#{titre}”"
+        "Lance la capture et supprime lettre à lettre le titre : “#{titre}”"
         ])
     when 'B'
       `open -a Scrivener`

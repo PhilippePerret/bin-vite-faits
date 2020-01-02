@@ -21,6 +21,9 @@ def exec_open what, edition = nil
   what = SHORT_SUJET_TO_REAL_SUJET[what] || what
 
   case what
+  when 'folder'
+    # Ouverture du dossier du tutoriel dans le finder
+    `open -a Finder "#{current_folder}"`
   when 'operations'
     require_module('operations/operations')
     exec_open_operations_file

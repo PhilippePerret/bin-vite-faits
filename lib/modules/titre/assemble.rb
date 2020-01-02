@@ -20,6 +20,7 @@ class ViteFait
     unlink_if_exist([record_titre_mp4, titre_prov_mp4, record_titre_ts])
 
     # On enregistre le titre avec 1 secondes en moins
+    # Et en l'inversant
     notice "📦  Fabrication du fichier de titre assemblé. Merci de patienter…"
     cmd = "ffmpeg -i \"#{titre_mov}\""
     # On doit la raccourcir
@@ -43,6 +44,9 @@ class ViteFait
       duree_raccourcie = (Video.dureeOf(titre_mov) - 1).to_i.as_horloge
       cmd << " -ss 00:00:00 -t #{duree_raccourcie}"
     end
+
+    # Pour l'inversion
+    cmd << " -vf reverse"
 
     cmd << " #{titre_prov_mp4}"
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"
