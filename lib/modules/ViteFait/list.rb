@@ -140,13 +140,34 @@ class ViteFait
       end
 
       puts aide
+      puts explication_lettres if COMMAND.options[:aide]
     end
 
     def aide
       puts <<-EOT
 
---all: tous, --name: Nom dossier au lieu du titre
+--all: tous, --name: Nom dossier au lieu du titre, --aide: Aide pour les lettres
 
+      EOT
+    end
+
+    def explication_lettres
+      <<-EOT
+Chaque lettre représente une étape de conception.
+
+D : Le dossier existe.
+I : Informations générales définies (titre, description…).
+O : Projet scrivener de base et opérations.
+T : Capture du titre du tutoriel.
+U : Assemblage du titre avec la machine à écrire.
+C : Capture des opérations à exécuter.
+V : Enregistrement de la voix.
+W : Affinement de la voix (dans Audacity, par exemple).
+A : Assemblage du tutoriel complet.
+H : Fabrication de la vignette.
+Y : Upload sur YouTube.
+P : Publication sur le site perso.
+S : Annonce du nouveau tutoriel (Facebook et Scrivener).
       EOT
     end
 

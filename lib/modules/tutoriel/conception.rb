@@ -394,7 +394,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - hname: Assembler tous les éléments
       command: "assemble [%{name}]"
   produit:
-    - "%{folder}/%{name}/%{name}.ts"
+    - "%{folder}/%{name}/Operations/capture.ts"
     - "%{folder}/%{name}/Titre/Titre.ts"
     - "%{folder}/%{name}/Exports/%{name}_completed.mp4"
 
