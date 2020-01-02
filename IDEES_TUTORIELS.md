@@ -4,19 +4,22 @@
 
 ## Tutoriels créés, à produire
 
+- [ ] Formatage : définir les types de section (**definir-types-sections**)
+
 - [ ] Ne perdre aucune version de ses documents (**versions-avec-git**)
   Tutoriel expliquant comment utiliser Git pour conserver toutes les versions de ses documents, de ses projets.
 
 ## Liste des tutoriels à créer
 
-- [ ] Formatage : définir les types de section
+> pour les tutoriels Formatage, on alternera peut-être avec un autre tutoriel à chaque fois.
+
 - [ ] Formatage : attribuer les mises en page
 - [ ] Formatage : définir l'aspect de chaque type de section
 - [ ] Formatage : points de détail
   Peut-être faut-il être plus précis dans la désignation.
 
 
-- [ ] Protéger toutes les versions de son projet
+- [ ] Protéger toutes les versions de son projet sur github
   Pour apprendre à déposer en privé sur son compte github et toujours garder des copies de ses documents.
   * créer un compte github
   * créer le projet sur github

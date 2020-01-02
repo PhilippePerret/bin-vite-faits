@@ -22,11 +22,15 @@ class ViteFait
   # Avec l'option '-t/--titre', on affiche une vision simple avec seulement
   # les titres et les durées approximatives des opérations.
   def exec_open_operations_file
-    operations_defined?(required=true) || return
     if COMMAND.options[:edit]
+      unless operations_defined?
+        # Quand le fichier des opérations n'est pas encore défini,
+        # on en crée un par défaut.
+        File.open(operations_path,'wb'){|f| f.write YAML.dump(DEFAULT_DATA_OPERATIONS)}
+      end
       system('vim', operations_path)
-      # `open -a MacVim "#{operations_path}"`
     else
+      operations_defined?(required=true) || return
       clear
       notice "=== OPÉRATIONS DÉFINIES ===\n\n"
       if COMMAND.options[:titre]
@@ -86,4 +90,13 @@ class ViteFait
   end
 
 
+  DEFAULT_DATA_OPERATIONS = [
+    {
+      'id' => 'identifiant_unique',
+      'titre' => "Titre",
+      'voice' => "Texte qui sera dit par la voix.",
+      'assistant' => "L'opération qu'il faut exécuter",
+      'duration' => nil
+    }
+  ]
 end #/ViteFait

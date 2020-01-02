@@ -383,6 +383,8 @@ YAML_DATA_CONCEPTION = <<-YAML
   support:
     - hname: Améliorer la qualité du fichier voix
       command: edit_voice %{name}
+  produit:
+    - "%{folder}/%{name}/Voix/voice.aiff"
 
 - id: assemblagecomplet
   letter: A
