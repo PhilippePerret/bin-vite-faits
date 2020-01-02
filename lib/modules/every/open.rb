@@ -9,7 +9,7 @@ def exec_open what, edition = nil
     edition = !!COMMAND.options[:edit]
   end
 
-  COMMAND.folder || begin
+  COMMAND.folder || what || begin
     # Que ce soit une ouverture "direct" (comme le manuel, ou le dossier
     # bin) ou l'ouverture d'un élément du tutoriel, il faut toujours que
     # COMMAND.folder soit défini
@@ -97,9 +97,8 @@ end
 
 class << self
   def exec_open what
-    error '-> exec_open'
     case what
-    when 'folder_captures', 'folder-captures'
+    when 'folder_captures', 'folder-captures', 'captures'
       open_folder_captures
     when 'backup'
       open_folder_backup

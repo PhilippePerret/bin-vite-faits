@@ -34,6 +34,8 @@ when 'list', 'liste'
   ViteFait.list.display
 when 'open'
   ViteFait.open(COMMAND.folder)
+when 'open-captures'
+  ViteFait.open('captures')
 when /^open[\-_](.*)$/
   vitefait.is_required && vitefait.open_something($1)
 when /^record[\-_](.*)$/
