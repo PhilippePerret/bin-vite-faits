@@ -6,7 +6,27 @@ class ViteFait
 class << self
 
   def check_finish
+    check_manuels
+    check_trash
+    check_backups
+  end
 
+  
+  # On vide de la corbeille les éléments très vieux
+  def check_trash
+    limite = Time.now.to_i - 7 * 24 * 3600
+    Dir["#{trash_folder}/**/*.*"].each do |pth|
+      name = File.basename(pth)
+      time = name.split('-').first.to_i
+      if time < limit
+        # <= L'élément est vieux de plus d'une semaine
+        # => On peut le détruire
+        FileUtils.remove(pth)
+      end
+    end
+  end
+
+  def check_manuels
     # Les deux manuels PDF
     # --------------------
     # On vérifie que le manuel sur le disque et sur l'ordinateur soient
@@ -25,7 +45,10 @@ class << self
       src, dst = srcdst
       IO.copy_with_care(src,dst,'manuel PDF',true)
     end
+  end
 
+
+  def check_backups
     # Vérification des backups
     if File.exists?(VITEFAIT_FOLDERS[:backup])
       all_backup_uptodate = true

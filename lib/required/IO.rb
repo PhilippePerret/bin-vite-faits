@@ -46,6 +46,10 @@ class << self
 
   # Détruit un élément en s'assurant qu'il existe et qu'il n'existe plus
   # à la fin.
+  #
+  # Note : l'élément n'est pas vraiment détruit, il est placé dans le
+  # dossier trash du tutoriel.
+  #
   # Retourne TRUE en cas de succès, false dans le cas contraire.
   # Params:
   #   +path+::  [String] Le chemin d'accès à l'élément à détruire
@@ -63,7 +67,8 @@ class << self
       if File.directory?(path)
         FileUtils.rm_rf(path)
       else
-        FileUtils.remove(path)
+        ViteFait.remove(path)
+        # FileUtils.remove(path)
       end
       if File.exists?(path)
         error "🚫  Le #{thing} (*) n'a pas pu être détruit…\n(*) #{path}"

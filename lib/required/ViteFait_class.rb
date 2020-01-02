@@ -34,6 +34,16 @@ class ViteFait
     check_before_finish
   end
 
+  # Pour détruire un élément. En fait, le placer dans le
+  # dossier 'Trash' de l'application
+  def self.remove(path)
+    # Le nouveau nom sera composé par le timestamp et le nom actuel :
+    # p.e. "123564825-operations.yaml"
+    trash_name = "#{Time.now.to_i}-#{File.basename(path)}"
+    trash_path = File.join(trash_folder, trash_name)
+    FileUtils.move(path, trash_path)
+  end
+
   # Pour aider à la conception
   def self.aide_conception
     require_module('tutoriel/conception')
@@ -276,5 +286,10 @@ class ViteFait
     def idees_file_path
       @idees_file_path ||= File.join(BIN_FOLDER,'IDEES_TUTORIELS.md')
     end
+
+    # Dossier poubelle de l'application
+    def trash_folder
+      @trash_folder ||= File.join(VITEFAIT_FOLDER_ON_DISK,'Trash')
+    end
   end #/ << self
-end
+end #/ViteFait
