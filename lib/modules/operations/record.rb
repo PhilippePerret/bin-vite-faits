@@ -45,7 +45,6 @@ def exec(options=nil)
 Je vais t'accompagner au cours des opérations
 à exécuter.
 
-
 À tout moment, si ça ne se passe pas bien, tu
 peux interrompre la capture à l'aide de CTRL-C.
 
@@ -73,7 +72,9 @@ peux interrompre la capture à l'aide de CTRL-C.
 
     dire("Active Scrivener et masque les autres applications avec Commande, ALTE, H")
     sleep 3 if is_first_time
-    dire("Active la capture et règle-la avec les valeurs : tout l'écran, Minuteur : aucun, Microphone : microphone intégré")
+    dire("Active la capture et règle les dimensions à #{CAPTURE_WIDTH} par #{CAPTURE_HEIGHT}")
+    notice "Dimensions de l'écran : #{CAPTURE_WIDTH} x #{CAPTURE_HEIGHT}"
+    dire("Choisis les options : Minuteur : aucun, Microphone : microphone intégré. Décide de prendre ou non les clics de souris.")
 
     if avec_assistant_operations
       if is_first_time

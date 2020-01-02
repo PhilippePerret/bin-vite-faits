@@ -24,7 +24,8 @@ capture du titre.
   A   Me rappeler toutes les opérations de
       préparation à faire.
 
-  B   Commencer tout de suite.
+  B   Je connais les opérations, commencer tout
+      de suite.
 
   Q   Quitter l'assistant.
 
@@ -49,8 +50,10 @@ capture du titre.
         "Écrit le titre : “#{titre}“…",
         "Règle la largeur de la fenêtre pour que le titre apparaisse bien…",
         "Supprime le titre",
-        "Active la capture (Commande, Majuscule, 5) et règle ses options avec : Écran complet",
-        "Minuteur : 5 secondes, Microphone : aucun",
+        "Active la capture (Commande, Majuscule, 5) et règle sa taille à #{CAPTURE_WIDTH} par #{CAPTURE_HEIGHT}",
+        "J'ai écrit les dimensions de l'écran dans la console, au cas où",
+        {exec: 'puts "Dimensions écran : #{CAPTURE_WIDTH} x #{CAPTURE_HEIGHT}"'},
+        "Règle Minuteur : 5 secondes, Microphone : aucun, ne pas prendre les clics de souris",
         "Il faudra arrêter l'enregistrement assez rapidement (la dernière seconde sera supprimée)",
         "À la fin, il faudra enregistrer le fichier et le fermer",
         "Lance la capture et tape le titre : “#{titre}”"

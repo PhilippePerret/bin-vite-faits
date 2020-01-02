@@ -3,6 +3,11 @@ require_relative('../../config')
 
 DEFAULT_BROWSER = CONFIG[:default_browser]
 
+# Taille de la capture écran
+# Faut-il le mettre dans config.rb ?
+CAPTURE_WIDTH = 1680
+CAPTURE_HEIGHT = 945
+
 class ViteFait
   SHORT_SUJET_TO_REAL_SUJET = {
     'o'   => 'operations',
