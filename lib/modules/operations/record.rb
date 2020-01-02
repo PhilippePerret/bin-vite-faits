@@ -123,8 +123,8 @@ peux interrompre la capture à l'aide de CTRL-C.
 
 Opérations enregistrées avec succès ! 👍
 
-Durée capturée : #{operations_duration.as_horloge}
-Durée tutoriel : #{tutoriel_duration.as_horloge}
+Durée capturée : #{operations_duration.to_i.as_horloge}
+Durée tutoriel : #{tutoriel_duration.to_i.as_horloge}
 
 Tu peux enregistrer la voix finale avec :
     vite-faits assistant #{name} pour=voice
