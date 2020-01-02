@@ -21,6 +21,11 @@ class ViteFait
 
     # On enregistre le titre avec 1 secondes en moins
     # Et en l'inversant
+    #
+    # Noter que l'inversion se fait avant le raccourcissement, ce qui
+    # explique que maintenant, pour définir la longueur, on rabote le
+    # début et non plus la fin de la vidéo.
+    #
     notice "📦  Fabrication du fichier de titre assemblé. Merci de patienter…"
     cmd = "ffmpeg -i \"#{titre_mov}\""
     # On doit la raccourcir
@@ -32,17 +37,20 @@ class ViteFait
       secs, frms = COMMAND.params[:crop].split('.')
       frms = frms.to_i
       secs = secs.to_i
-      if frms > 0
-        secs = secs + 1
-        frms = 24 - frms
-      end
-      duree_raccourcie = (Video.dureeOf(titre_mov) - secs).to_i.as_horloge
-      duree_raccourcie += ".#{frms}" unless frms == 0
-      cmd << " -ss 00:00:00 -t #{duree_raccourcie}"
+      # if frms > 0
+      #   secs = secs + 1
+      #   frms = 24 - frms
+      # end
+      # duree_raccourcie = (Video.dureeOf(titre_mov) - secs).to_i.as_horloge
+      # duree_raccourcie += ".#{frms}" unless frms == 0
+      # cmd << " -ss 00:00:00 -t #{duree_raccourcie}"
+      # Maintenant que c'est inversé
+      cmd << " -ss 00:00:#{secs.to_s.rjust(2,'0')}.#{frms}"
     else
       # Pour raccourcir la vidéo (ne pas voir l'arrêt)
       duree_raccourcie = (Video.dureeOf(titre_mov) - 1).to_i.as_horloge
-      cmd << " -ss 00:00:00 -t #{duree_raccourcie}"
+      # cmd << " -ss 00:00:00 -t #{duree_raccourcie}"
+      cmd << " -ss 00:00:01"
     end
 
     # Pour l'inversion
@@ -50,6 +58,8 @@ class ViteFait
 
     cmd << " #{titre_prov_mp4}"
     COMMAND.options[:verbose] || cmd << " 2> /dev/null"
+
+    # puts "---- cmd = #{cmd}"
     res = `#{cmd}`
 
     cmd = "ffmpeg -i \"#{titre_prov_mp4}\""
