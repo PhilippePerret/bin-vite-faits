@@ -4,11 +4,7 @@
 
 ## Tutoriels créés, à produire
 
-- [ ] Utiliser les signets pour la documentation (**signets-documentations**)
-- [ ] Affichage des scènes du plan (**plan-et-scenes**)
-(trouver meilleur titre) - il s’agit de la façon de travailler en cliquant sur les scènes du plan pour les éditer dans l’autre éditeur.
-  Titre : Afficher les scènes depuis le plan
-- [ ] Ne perdre aucune version des documents (**versions-avec-git**)
+- [ ] Ne perdre aucune version de ses documents (**versions-avec-git**)
   Tutoriel expliquant comment utiliser Git pour conserver toutes les versions de ses documents, de ses projets.
 
 ## Liste des tutoriels à créer

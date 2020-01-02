@@ -68,7 +68,7 @@ class << self
         FileUtils.rm_rf(path)
       else
         ViteFait.remove(path)
-        # FileUtils.remove(path)
+        # FileUtils.remove(path) # pour une autre application
       end
       if File.exists?(path)
         error "🚫  Le #{thing} (*) n'a pas pu être détruit…\n(*) #{path}"

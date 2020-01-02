@@ -11,14 +11,14 @@ class << self
     check_backups
   end
 
-  
+
   # On vide de la corbeille les éléments très vieux
   def check_trash
     limite = Time.now.to_i - 7 * 24 * 3600
     Dir["#{trash_folder}/**/*.*"].each do |pth|
       name = File.basename(pth)
       time = name.split('-').first.to_i
-      if time < limit
+      if time < limite
         # <= L'élément est vieux de plus d'une semaine
         # => On peut le détruire
         FileUtils.remove(pth)
