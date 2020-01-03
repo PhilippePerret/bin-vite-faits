@@ -63,7 +63,8 @@ class ViteFait
           path:   ptuto,
           date:   getDateFor(dtuto),
           titre:  getTitreFor(dtuto) || tutoriel,
-          logic_step:getLogicStepFor(dtuto)
+          logic_step:getLogicStepFor(dtuto),
+          published_at: getPublicationFor(dtuto)
           })
       end
       return table
@@ -79,15 +80,21 @@ class ViteFait
       for_all = COMMAND.options[:all] === true
 
       # Clé de classement (par défaut, par développement)
-      key_sort = (COMMAND.params[:sort]||'dev').downcase
+      key_sort = (COMMAND.params[:sort]||'pub').downcase
       inverse = key_sort.start_with?('i')
 
       # = TRI DES TUTORIELS =
       # =====================
       # Si le paramètres ':sort' est défini, il faut classer la liste des
       # item
+      extra_value = nil
       sort_method =
         case key_sort
+        when 'publication', 'ipublication', 'pub', 'ipub'
+          sort_hname = inverse ? "depuis le moins urgent" : "depuis le plus urgent"
+          COMMAND.options[:publication] = true
+          extra_value = inverse ? 0 : 100000000
+          :sort_by_publication
         when 'date', 'idate'
           sort_hname = inverse ? "depuis les plus récents" : "depuis les plus anciens"
           :sort_by_date
@@ -99,7 +106,7 @@ class ViteFait
           sort_hname = "par titre"
           sort_hname << " inverse" if inverse
           :sort_by_titre
-        when 'dev', 'developpement', 'development'
+        when 'dev', 'developpement', 'development', 'idev'
           sort_hname = "par développement"
           sort_hname << " inverse" if inverse
           sorted_items = items.values.sort_by { |d| - d[:logic_step] }
@@ -107,9 +114,17 @@ class ViteFait
         end
 
       # On trie les listes
-      sorted_items = send(sort_method, items)
+      if extra_value
+        sorted_items = send(sort_method, items, extra_value)
+      else
+        sorted_items = send(sort_method, items)
+      end
       if for_all
-        sorted_completed_items = send(sort_method, items_completed)
+        if extra_value
+          sorted_completed_items = send(sort_method, items_completed, extra_value)
+        else
+          sorted_completed_items = send(sort_method, items_completed)
+        end
       end
 
       if inverse
@@ -119,6 +134,7 @@ class ViteFait
         end
       end
 
+
       # = AFFICHAGE DE LA LISTE =
       # =========================
 
@@ -126,7 +142,7 @@ class ViteFait
 
       sorted_items.each do |ditem|
         tutoline = TutoLine.new(ditem)
-        puts ' ' + tutoline.line({name: COMMAND.options[:name]})
+        puts ' ' + tutoline.line({name: COMMAND.options[:name], date_publication: COMMAND.options[:publication]})
       end
       puts "\n\n"
 
@@ -134,7 +150,7 @@ class ViteFait
         puts " = TUTORIELS ACHEVÉS ET PUBLIÉS =\n\n"
         sorted_completed_items.each do |ditem|
           tutoline = TutoLine.new(ditem)
-          puts ' ' + tutoline.line({name: COMMAND.options[:name]})
+          puts ' ' + tutoline.line({name: COMMAND.options[:name], date_publication: COMMAND.options[:publication]})
         end
         puts "\n\n"
       end
@@ -146,14 +162,18 @@ class ViteFait
     def aide
       puts <<-EOT
 
---all: tous, --name: Nom dossier au lieu du titre, --aide: Aide pour les lettres
+--all: tous, --name: Nom dossier au lieu du titre, --aide: Aide
+sort=<clé classement parmi 'pub' (défaut), 'name', 'titre', 'date', 'dev'>
 
       EOT
     end
 
     def explication_lettres
       <<-EOT
-Chaque lettre représente une étape de conception.
+=== AIDE LISTING ===
+
+Lettres des étapes de conception
+--------------------------------
 
 D : Le dossier existe.
 I : Informations générales définies (titre, description…).
@@ -168,6 +188,18 @@ J : Fabrication de la vignette.
 Y : Upload sur YouTube.
 P : Publication sur le site perso.
 S : Annonce du nouveau tutoriel (Facebook et Scrivener).
+
+Options
+-------
+  Classement de la liste :
+    sort=name/iname/dev/idev/date/idate/titre/ititre
+              (le préfixe 'i' signifie 'inverse')
+    name  / iname     par le nom du dossier
+    pub   / ipub      par date de publication (défaut)
+    titre / ititre    par le titre du tutoriel
+    dev   / idev      par le niveau de développement
+    date  / idate     par date de création
+
       EOT
     end
 
@@ -182,6 +214,18 @@ S : Annonce du nouveau tutoriel (Facebook et Scrivener).
     end
     def sort_by_logic_step hash
       hash.values.sort_by{|d| - d[:logic_step]}
+    end
+    # +default_value+ permet de toujours avoir en bas les tutoriels
+    # qui n'ont pas de date prévues.
+    def sort_by_publication(hash, default_value)
+      hash.values.sort_by do |d|
+        if d[:published_at]
+          j,m,a = d[:published_at].split(' ')
+          ("#{a}#{m}#{j}".to_i)
+        else
+          default_value
+        end
+      end
     end
 
     # Retourne le titre du tutoriel de données minimales +dtuto+
@@ -208,6 +252,14 @@ S : Annonce du nouveau tutoriel (Facebook et Scrivener).
       end
     end
 
+    # Retourne la date de publication si elle est définie
+    def getPublicationFor(dtuto)
+      if getInfosFor(dtuto)[:published_at]
+        getInfosFor(dtuto)[:published_at][:value]
+      else
+        nil
+      end
+    end
     # Retourne l'étape logique du tutoriel défini par +d+
     # Si elle n'est pas encore définie dans les informations du tutoriel,
     # on la cherche et on l'enregistre.
@@ -257,7 +309,7 @@ S : Annonce du nouveau tutoriel (Facebook et Scrivener).
       #   +options+:: [Hash] Table des options
       #       :name   Si true, on met le nom au lieu du titre
       def line(options = {})
-        "#{mark_logic_steps} #{mark_titre(options[:name])} #{mark_lieu} #{mark_date}"
+        "#{mark_logic_steps} #{mark_titre(options[:name])} #{mark_lieu} #{mark_date(options[:date_publication])}"
       end
 
       def mark_titre(with_name)
@@ -270,9 +322,13 @@ S : Annonce du nouveau tutoriel (Facebook et Scrivener).
         end
       end
 
-      def mark_date
+      def mark_date(date_publication)
         @mark_date ||= begin
-          (date || '').ljust(LEN_DATE)
+          if date_publication
+            published_at || '---'
+          else
+            date || ''
+          end.ljust(LEN_DATE)
         end
       end
 
@@ -310,6 +366,7 @@ S : Annonce du nouveau tutoriel (Facebook et Scrivener).
       def date ;  @date   ||= data[:date] && Time.at(data[:date]).strftime("%d %m %Y") end
       def titre;  @titre  ||= data[:titre]  end
       def logic_step;  @logic_step  ||= data[:logic_step]  end
+      def published_at;  @published_at  ||= data[:published_at]  end
 
     end #/ViteFait::List::TutoLine
 
