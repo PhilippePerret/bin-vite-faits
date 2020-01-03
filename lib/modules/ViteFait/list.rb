@@ -62,7 +62,7 @@ class ViteFait
           lieu:   klieu,
           path:   ptuto,
           date:   getDateFor(dtuto),
-          titre:  getTitreFor(dtuto),
+          titre:  getTitreFor(dtuto) || tutoriel,
           logic_step:getLogicStepFor(dtuto)
           })
       end
@@ -186,7 +186,13 @@ S : Annonce du nouveau tutoriel (Facebook et Scrivener).
 
     # Retourne le titre du tutoriel de données minimales +dtuto+
     def getTitreFor(dtuto)
-      dtuto[:titre] ||= getInfosFor(dtuto)[:titre][:value]
+      dtuto[:titre] ||= begin
+        if getInfosFor(dtuto)[:titre]
+          getInfosFor(dtuto)[:titre][:value]
+        else
+          nil
+        end
+      end
     end
 
     # Retourne la date de dernière modification du tutoriel de données

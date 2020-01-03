@@ -88,20 +88,10 @@ Au format : JJ MM AAAA
       puts "OK, pas de date de publication pour le moment…"
       return true
     else
-      if published_date_valid?(date)
+      if Informations.published_date_valid?(date)
         @published_at = res
         return true
       end
     end
   end
-end
-
-def published_date_valid?(date)
-  j,m,a = date.split(' ')
-  inst = Date.parse("#{a} #{m} #{j}")
-  if inst < Date.today
-    error "La date de publication doit être dans le futur, voyons…"
-    return false
-  end
-  return true
 end

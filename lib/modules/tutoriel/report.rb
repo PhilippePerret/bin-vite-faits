@@ -30,6 +30,7 @@ class ViteFait
       puts_line('Titre',titre || '---')
       puts_line('Titre anglais', titre_en || '---')
       puts_line('Description', description || '---')
+      puts_line('Publication prévue', published_at || '---')
       puts_line('Lieu actuel', hlieu)
       puts_line('Vrai Vite-Fait', has_own_intro? ? 'non' : 'oui')
       write_last_step_conception

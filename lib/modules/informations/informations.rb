@@ -30,6 +30,35 @@ class Informations
     publication: :published_at
   }
 
+
+  # ---------------------------------------------------------------------
+  #   CLASSE
+  # ---------------------------------------------------------------------
+  class << self
+
+    # Return +true+ si la date +date+ est valide.
+    def published_date_valid?(date)
+      j,m,a = date.split(' ')
+      begin
+        inst = Date.parse("#{a}/#{m}/#{j}")
+      rescue Exception => e
+        error "La date de publication (#{date}) est mal formatée (attendu : 'JJ MM AAAA') : #{e.message}."
+        return false
+      end
+      if inst < Date.today
+        error "La date de publication doit être dans le futur, voyons…"
+        return false
+      end
+      return true
+    end
+
+
+  end # << self
+
+  # ---------------------------------------------------------------------
+  #   INSTANCE
+  # ---------------------------------------------------------------------
+
   attr_reader :vitefait
 
   def initialize vitefait
@@ -50,6 +79,8 @@ class Informations
 
   # Pour définir la valeur de l'information +key+ avec +value+
   def []= key, value
+    key = key.to_sym
+    key = ALT_INFO_KEY_TO_REAL_KEY[key] || key
     set({key => value})
   end
 
@@ -67,7 +98,7 @@ class Informations
     data.key?(:created_at) || data.merge!(created_at: Time.now.to_i)
     data.merge!(updated_at: Time.now.to_i)
     File.open(path,'wb'){|f| f.write data.to_json}
-    notice "Informations sur le tutoriel enregistrées avec succès."
+    notice "Informations sur le tutoriel “#{vitefait.name}” enregistrées avec succès."
   end
 
   # Définition des données
@@ -96,16 +127,27 @@ class Informations
         when 'integer'  then new_value.to_i
         when 'float'    then new_value.to_f
         end
+
+      # On poursuit seulement si la nouvelle valeur est différente
+      # de la valeur actuelle
       data[ikey][:value] != new_value || next # pas de modification
 
-      # Des contrôles à faire
-      if ikey == :uploaded && new_value === true
-        if vitefait.video_on_youtube?
-          notice "J'ai trouvé la vidéo sur YouTube, super !"
-        else
-          return error("Je n'ai pas trouvé la vidéo sur YouTube, je ne peux pas mettre loaded à true.")
+      # Validité de la nouvelle valeur
+      # ------------------------------
+      case ikey
+      when :uploaded
+        if  new_value === true
+          if vitefait.video_on_youtube?
+            notice "J'ai trouvé la vidéo sur YouTube, super !"
+          else
+            return error("Je n'ai pas trouvé la vidéo sur YouTube, je ne peux pas mettre loaded à true.")
+          end
         end
+      when :published_at
+        Informations.published_date_valid?(new_value) || next
       end
+
+      # Tout est bon, on peut consigner cette valeur
       data[ikey].merge!(value: new_value)
       hasBeenModified = true
     end
