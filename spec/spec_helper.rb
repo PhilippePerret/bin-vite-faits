@@ -17,8 +17,10 @@
 require 'fileutils'
 
 # On charge les constantes
-THISFOLDER = File.join(File.dirname(File.dirname(File.expand_path(__FILE__))),'lib')
-require_relative '../lib/required/constants'
+# THISFOLDER = File.join(File.dirname(File.dirname(File.expand_path(__FILE__))),'lib')
+# require_relative '../lib/required/constants'
+# J'essaie de tout charger quand même
+require './lib/required'
 
 # Requérir les éléments requis du support
 Dir["./spec/support/required/*.rb"].each{|m| require m}
