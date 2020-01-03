@@ -164,7 +164,7 @@ C : Capture des opérations à exécuter.
 V : Enregistrement de la voix.
 W : Affinement de la voix (dans Audacity, par exemple).
 A : Assemblage du tutoriel complet.
-H : Fabrication de la vignette.
+J : Fabrication de la vignette.
 Y : Upload sur YouTube.
 P : Publication sur le site perso.
 S : Annonce du nouveau tutoriel (Facebook et Scrivener).

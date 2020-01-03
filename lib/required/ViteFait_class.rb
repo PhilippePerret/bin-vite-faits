@@ -103,7 +103,7 @@ class ViteFait
   # Ouvrir quelque chose (dans le finder)
   def self.open folder
     require_module('every/open')
-    exec_open(folder)
+    exec_open(folder) # méthode de classe
   end
 
   # Ouvrir le dossier des captures (qui doit être défini dans les

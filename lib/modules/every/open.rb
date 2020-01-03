@@ -108,9 +108,11 @@ class << self
     else
       folder = COMMAND.folder
       case folder
-      when 'bin', 'dev'
+      when 'dev'
         # Pour ouvrir le dossier bin dans Atom
         `open -a Atom "#{BIN_FOLDER}"`
+      when 'bin'
+        `open -a Finder "#{BIN_FOLDER}"`
       when 'disk'
         `open -a Finder "#{VITEFAIT_FOLDER_ON_DISK}"`
       when 'laptop'

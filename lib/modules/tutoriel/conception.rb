@@ -401,7 +401,7 @@ YAML_DATA_CONCEPTION = <<-YAML
     - "%{folder}/%{name}/Exports/%{name}_completed.mp4"
 
 - id: production_vignette
-  letter: H
+  letter: J
   hname: Fabrication de la vignette YouTube
   description: |
     Cette étape permet de produire le fichier JPEG de la vignette
