@@ -35,6 +35,7 @@ class Notification
 
   attr_reader :data
   attr_reader :id, :titre, :message, :date, :tuto_name
+  attr_reader :tuto
   def initialize data, tuto = nil
     @data = data
     @tuto = tuto

@@ -746,26 +746,32 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   end
 
   # ---------------------------------------------------------------------
-  #   Les propriétés volatiles
+  #   Les propriétés fixes du fichier informations (infos.json)
   # ---------------------------------------------------------------------
 
+  # Le nom du dossier
   def name
     @name ||= work_folder
   end
 
-  # Les données dans le fichier information du tutoriel (définies ou non,
-  # mais ça renvoie toujours une donnée)
   def titre
     @titre ||= informations[:titre]
   end
+
   def titre_en
     @titre_en ||= informations[:titre_en]
   end
-  def youtube_id
-    @youtube_id ||= informations[:youtube_id]
-  end
+
   def description
     @description ||= informations[:description]
+  end
+
+  def published_at
+    @published_at ||= informations[:published_at]
+  end
+
+  def youtube_id
+    @youtube_id ||= informations[:youtube_id]
   end
 
 

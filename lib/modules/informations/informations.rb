@@ -12,16 +12,22 @@ class Informations
   DEFAULT_INFORMATIONS = {
     titre:          {value:nil,   editable:true,  required:true,  type: 'string'},
     titre_en:       {value:nil,   editable:true,  required:true,  type: 'string'},
-    youtube_id:     {value:nil,   editable:true,  required:true,  type: 'string'},
     description:    {value:nil,   editable:true,  required:true,  type: 'string'},
+    youtube_id:     {value:nil,   editable:true,  required:true,  type: 'string'},
     accelerator:    {value:nil,   editable:true,  required:false, type: 'float'},
     logic_step:     {value:nil,   editable:false, required:false, type: 'integer'},
     site_perso:     {value:false, editable:false, required:false, type: 'boolean'},
     uploaded:       {value:false, editable:false, required:false, type: 'boolean'},
     annonce_FB:     {value:false, editable:false, required:false, type: 'boolean'},
     annonce_Scriv:  {value:false, editable:false, required:false, type: 'boolean'},
+    published_at:   {value: nil,  editable:true,  required:true,  type: 'string'},
     updated_at:     {value:nil,   editable:false, required:false, type: 'integer'},
     created_at:     {value:nil,   editable:false, required:false, type: 'integer'}
+  }
+
+  # Nom alternatif des propriétés pour les infos
+  ALT_INFO_KEY_TO_REAL_KEY = {
+    publication: :published_at
   }
 
   attr_reader :vitefait
@@ -34,6 +40,7 @@ class Informations
   #
   # Pour pouvoir utiliser la formule <ViteFait>#informations[key]
   def [] key
+    key = ALT_INFO_KEY_TO_REAL_KEY[key] || key
     data[key] || begin
       DEFAULT_INFORMATIONS.key?(key) || raise("La clé '#{key}' est inconnue des informations du tutoriel…")
       data.merge!(key => DEFAULT_INFORMATIONS[key])
@@ -68,6 +75,7 @@ class Informations
   def set params
     hasBeenModified = false
     params.each do |ikey, new_value|
+      ikey = ALT_INFO_KEY_TO_REAL_KEY[ikey] || ikey
       data.key?(ikey) || begin
         if DEFAULT_INFORMATIONS.key?(ikey)
           # <= Une clé connue des informations par défaut
