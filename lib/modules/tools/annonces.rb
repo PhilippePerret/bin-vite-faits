@@ -99,7 +99,7 @@ class ViteFait
   def temp_annonce_facebook
     @temp_annonce_facebook ||= begin
       <<-EOT
-Je suis heureux de vous annoncer 📣 la diffusion d'un nouveau tutoriel “vite-fait” 🖥. Il s'intitule “#{titre}”#{f_description(:facebook)}. Bon visionnage à vous !
+Je suis heureux de vous annoncer 📣 la diffusion d'un nouveau tutoriel “vite-fait” 🖥. Il s'intitule “#{titre}”#{f_description(:facebook)}. Bon visionnage à vous ! 😄
 #{video_url}
       EOT
     end
@@ -110,7 +110,7 @@ Je suis heureux de vous annoncer 📣 la diffusion d'un nouveau tutoriel “vite
       <<-EOT
 Bonjour à tous,
 
-🥁 Dans la série des « Vite-faits », je suis heureux de vous annoncer un nouveau tutoriel ! 📣
+Dans la série des « Vite-faits », je suis heureux de vous annoncer un nouveau tutoriel !
 
 [url=#{video_url}][size=150][b]#{titre}[/b][/size] [i](#{titre_en})[/i]#{f_description(:scrivener)}[/url]
 
