@@ -152,7 +152,7 @@ DATA_ALL_FILES = {
     id:'annonce_fb',
     hname: "Annonce sur le groupe Facebook",
     relpath: nil,
-    information: 'annonce_FB',
+    information: 'annonce_fb',
     from_update: 'annonces'
   },
 
@@ -160,7 +160,7 @@ DATA_ALL_FILES = {
     id: 'annonce_scriv',
     hname: "Annonce sur le forum Scrivener",
     relpath: nil,
-    information: 'annonce_Scriv',
+    information: 'annonce_scriv',
     from_update: 'annonces'
   }
 }

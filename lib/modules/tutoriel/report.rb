@@ -36,10 +36,10 @@ class ViteFait
       write_last_step_conception
       puts_line(htype_duration, tutoriel_hduration)
       puts_line('YoutTube ID', youtube_id || '---')
-      fb_OK = informations[:annonce_FB] === true
+      fb_OK = informations[:annonce_fb] === true
       color = fb_OK ? '32' : '31'
       puts_line('Annonce Facebook', "\033[1;#{color}m#{fb_OK ? 'oui' : 'non'}\033[0m")
-      sc_OK =  informations[:annonce_Scriv] === true
+      sc_OK =  informations[:annonce_scriv] === true
       color = sc_OK ? '32' : '31'
       puts_line('Annonce Scrivener', "\033[1;#{color}m#{sc_OK ? 'oui' : 'non'}\033[0m")
       puts_line('Copie sécurité', copie_securite_exists? ? 'oui' : 'non')
@@ -58,10 +58,10 @@ class ViteFait
         line_exists_file(titre_mov, 'Titre (capture)')
         line_exists_file(vignette_gimp, 'Vignette Gimp')
         line_exists_file(record_voice_path, 'Voix')
-        line_exists_file(screenflow_path, 'ScreenFlow')
-        line_exists_file(premiere_path, 'Adobe Premiere')
-        line_exists_file(own_intro_mp4, 'INTRO propre')
-        line_exists_file(own_final_mp4, 'FINAL propre')
+        line_exists_file(screenflow_path, 'ScreenFlow', capital = false)
+        line_exists_file(premiere_path, 'Adobe Premiere', capital = false)
+        line_exists_file(own_intro_mp4, 'Autre INTRO', capital = false)
+        line_exists_file(own_final_mp4, 'Autre FINAL', capital = false)
 
         # fichier informations
         # fichier voice

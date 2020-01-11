@@ -69,7 +69,7 @@ arrêté.
     tuto.ask_for_youtube_id           unless tuto.youtube_id_defined?(false)
 
     tuto.ask_for_annonce_facebook     unless tuto.annonce_facebook_deposed?(false)
-    tuto.ask_for_annonce_scrivener    unless tuto.annonce_FB_deposed?(false)
+    tuto.ask_for_annonce_scrivener    unless tuto.annonce_fb_deposed?(false)
 
     tuto.finale_message
 
@@ -158,8 +158,8 @@ end #/<<self
 
     table_prebilan += [
       {id: 'upload',        hname: "Téléchargement sur YouTube",  exists:!infos[:youtube_id].nil?},
-      {id: 'annonce_fb',    hname: "Annonce Facebook",            exists: infos[:annonce_FB]},
-      {id: 'annonce_Scriv', hname:"Annonce Forum Scrivener",      exists: infos[:annonce_Scriv]}
+      {id: 'annonce_fb',    hname: "Annonce Facebook",            exists: infos[:annonce_fb]},
+      {id: 'annonce_scriv', hname:"Annonce Forum Scrivener",      exists: infos[:annonce_scriv]}
     ]
 
     # puts "\n\n---- #{table_prebilan}"
@@ -461,7 +461,7 @@ yahoo et le code normal.
   def completed_and_published?
     final_tutoriel_exists? &&
       video_uploaded? &&
-      annonce_FB_deposed? &&
+      annonce_fb_deposed? &&
       annonce_facebook_deposed?
   end
 
@@ -511,15 +511,15 @@ yahoo et le code normal.
   end
 
   def annonce_facebook_deposed?(nomessage = true)
-    vrai = informations.data[:annonce_FB][:value] === true
+    vrai = informations.data[:annonce_fb][:value] === true
     if vrai && !nomessage
       notice "--- Annonce Facebook diffusée."
     end
     return vrai
   end
 
-  def annonce_FB_deposed?(nomessage = true)
-    vrai = informations.data[:annonce_Scriv][:value] === true
+  def annonce_fb_deposed?(nomessage = true)
+    vrai = informations.data[:annonce_scriv][:value] === true
     if vrai && !nomessage
       notice "--- Annonce Forum Scrivener diffusée."
     end

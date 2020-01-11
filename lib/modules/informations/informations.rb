@@ -18,8 +18,8 @@ class Informations
     logic_step:     {value:nil,   editable:false, required:false, type: 'integer'},
     site_perso:     {value:false, editable:false, required:false, type: 'boolean'},
     uploaded:       {value:false, editable:false, required:false, type: 'boolean'},
-    annonce_FB:     {value:false, editable:false, required:false, type: 'boolean'},
-    annonce_Scriv:  {value:false, editable:false, required:false, type: 'boolean'},
+    annonce_fb:     {value:false, editable:false, required:false, type: 'boolean'},
+    annonce_scriv:  {value:false, editable:false, required:false, type: 'boolean'},
     published_at:   {value: nil,  editable:true,  required:true,  type: 'string'},
     updated_at:     {value:nil,   editable:false, required:false, type: 'integer'},
     created_at:     {value:nil,   editable:false, required:false, type: 'integer'}
@@ -123,7 +123,7 @@ class Informations
       new_value =
         case DEFAULT_INFORMATIONS[ikey][:type]
         when 'string'   then new_value != '' ? new_value : nil
-        when 'boolean'  then new_value === 'true' || new_value === '1'
+        when 'boolean'  then new_value === 'true' || new_value === '1' || new_value
         when 'integer'  then new_value.to_i
         when 'float'    then new_value.to_f
         end

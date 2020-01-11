@@ -710,8 +710,8 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   end
 
   def post_forum_scrivener
-    require_module('annonce_FB')
-    exec_annonce_FB
+    require_module('annonce_fb')
+    exec_annonce_fb
   end
 
   # ---------------------------------------------------------------------
@@ -733,11 +733,13 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     end
   end
 
-  def line_exists_file path, name
+  def line_exists_file path, name, capital = true
     if path && File.exists?(path)
       notice "    - fichier #{name}".ljust(32,'.') + ' oui'
+    elsif !capital
+      write_grey "    - fichier #{name}".ljust(32,'.') + ' oui'
     else
-      error "    - fichier #{name}".ljust(32,'.') + ' non'
+      error ("    - fichier #{name}".ljust(32,'.') + ' non')
     end
   end
 

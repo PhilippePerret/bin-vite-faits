@@ -462,7 +462,7 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: annonce type=scriv %{name}
   produit: null
   informations:
-    - annonce_FB
-    - annonce_Scriv
+    - annonce_fb
+    - annonce_scriv
 
 YAML

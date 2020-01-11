@@ -19,14 +19,16 @@ class ViteFait
     type || raise(NotAnError.new(MSG(:type_is_required)))
     infos_defined? || raise(NotAnError.new(MSG(:infos_required)))
 
+    check_video_youtube || return
+
     case type.to_s
     when 'facebook', 'fb'
-      annonce_FB
+      annonce_fb
     when 'scrivener', 'scriv'
-      annonce_Scriv
+      annonce_scriv
     when 'both'
-      annonce_FB
-      annonce_Scriv
+      annonce_fb
+      annonce_scriv
     else
       error "Je ne connais pas le type d'annonce '#{type}'…"
     end
@@ -35,12 +37,25 @@ class ViteFait
     error e.message
   end
 
-  def annonce_Scriv
+
+  def check_video_youtube
+    require_module('videos/youtube')
+    youtube_id || not_an_error("L'identifiant YouTube n'est pas défini. Es-tu sûr d'avoir uploadé la vidéo ? (on ne peut rien annoncer sans youtube_id)")
+    is_video_on_youtube? || not_an_error("Je ne trouve pas la vidéo sur YouTube. Es-tu sûr de l'avoir uploadée et programmée pour aujourd'hui ou avant ?")
+    notice "J'ai trouvé la vidéo sur YouTube !"
+    return true
+  rescue NotAnError => e
+    chaine_youtube # pour la rejoindre
+    error(e.message)
+    return false
+  end
+
+  def annonce_scriv
 
     clear
     notice "=== Annonce sur le forume Scrivener ==="
 
-    if informations[:annonce_Scriv]
+    if informations[:annonce_scriv]
       yesNo(MSG(:already_scrivener)) || return
     end
 
@@ -68,17 +83,17 @@ class ViteFait
 
     # Marquer l'annonce déposée ?
     if yesNo("Dois-je marquer l'annonce déposée sur Scrivener ?")
-      informations.set(annonce_Scriv: true)
+      informations.set(annonce_scriv: true)
       save_last_logic_step
     end
 
-  end #/ annonce_Scriv
+  end #/ annonce_scriv
 
-  def annonce_FB
+  def annonce_fb
     clear
     notice "=== Annonce sur le groupe Facebook ==="
 
-    if informations[:annonce_FB]
+    if informations[:annonce_fb]
       yesNo(MSG(:already_facebook)) || return
     end
 
@@ -91,10 +106,10 @@ class ViteFait
     groupe_facebook
 
     if yesNo("Dois-je marquer l'annonce sur Facebook faite ?")
-      informations.set({annonce_FB: true})
+      informations.set({annonce_fb: true})
       save_last_logic_step
     end
-  end #/ annonce_FB
+  end #/ annonce_fb
 
   def temp_annonce_facebook
     @temp_annonce_facebook ||= begin

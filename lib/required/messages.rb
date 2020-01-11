@@ -37,6 +37,9 @@ end
 def write_cyan msg
   puts "\033[1;36m#{msg}\033[0m"
 end
+def write_grey msg
+  puts "\033[1;90m#{msg}\033[0m"
+end
 
 
 class TempMSG
