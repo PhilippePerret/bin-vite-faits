@@ -76,6 +76,7 @@ class ViteFait
     # Affichage du message
     puts "\n\n\nMessage :\n\n#{temp_annonce_scrivener}\n\n"
     notice "Message copié dans le presse-papier !"
+    notice "(la présence — publique — de la vidéo a été contrôlée)"
     notice "ATTENTION ! Il faut charger la vignette avant de soumettre le message !\nElle se trouve à l'adresse : #{vignette_path}\n\n"
     decompte("Ouverture du forum dans %{nombre_secondes}", 10)
     # Ouvrir la page du forum pour créer le nouveau post
@@ -101,7 +102,7 @@ class ViteFait
     Clipboard.copy(temp_annonce_facebook)
     notice "Message copié dans le presse-papier !"
     notice "Il suffit de coller ce message dans un nouveau post sur le groupe."
-    notice "S'assurer que la vidéo a bien été placée.\n\n"
+    notice "(la présence — publique — de la vidéo a été contrôlée)\n\n"
     decompte("Ouverture du groupe Facebook dans %{nombre_secondes}…",10)
     groupe_facebook
 
@@ -114,7 +115,7 @@ class ViteFait
   def temp_annonce_facebook
     @temp_annonce_facebook ||= begin
       <<-EOT
-Je suis heureux de vous annoncer 📣 la diffusion d'un nouveau tutoriel “vite-fait” 🖥. Il s'intitule “#{titre}”#{f_description(:facebook)}. Bon visionnage à vous ! 😄
+📣 Je suis heureux de vous annoncer la diffusion d'un nouveau tutoriel “vite-fait” 🖥 . Il s'intitule “#{titre}”#{f_description(:facebook)}. Bon visionnage à vous ! 😄
 #{video_url}
       EOT
     end
