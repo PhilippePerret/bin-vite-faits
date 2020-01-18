@@ -677,6 +677,11 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     end
   end
 
+  def open_site_perso
+    `open -a Safari "#{url_site_perso}"`
+    sleep 2
+    `open -a Terminal`
+  end
   def chaine_youtube
     `open -a Safari "#{url_chaine}"`
     sleep 2
@@ -707,6 +712,10 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
 
   def url_forum_scrivener
     @url_forum_scrivener ||= 'https://www.literatureandlatte.com/forum/viewtopic.php?f=19&t=53105&hilit=tutoriels'
+  end
+
+  def url_site_perso
+    @url_site_perso ||= 'http://philippeperret.fr/scrivener/'
   end
 
   def post_forum_scrivener

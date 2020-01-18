@@ -430,19 +430,6 @@ YAML_DATA_CONCEPTION = <<-YAML
   informations:
     - uploaded
 
-- id: publication_site_perso
-  letter: P
-  hname: Publication sur mon site perso
-  description: |
-    Le nouveau tutoriel doit être répertorié sur mon site perso.
-  support:
-    - hname: Rejoindre mon site perso
-      command: site_perso
-      manuel: null
-  produit: null
-  informations:
-    - site_perso
-
 - id: annonces
   letter: S
   hname: Annonce du nouveau tutoriel
@@ -460,9 +447,12 @@ YAML_DATA_CONCEPTION = <<-YAML
       command: annonce type=fb %{name}
     - hname: Annonce sur le forum Scrivener
       command: annonce type=scriv %{name}
+    - hname: Rejoindre site perso
+      command: annonce type=perso %{name}
   produit: null
   informations:
     - annonce_fb
     - annonce_scriv
+    - annonce_perso
 
 YAML

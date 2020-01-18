@@ -30,4 +30,13 @@ class ViteFait
       `open -a 'QuickTime Player' "#{final_tutoriel_mp4}"`
     end
   end
+
+  def voir_url_video
+    youtube_id.nil? && begin
+      return error(MSG(:undefined_video))
+    end
+    notice "Le lien vers la vidéo est : #{video_url}"
+    notice "(mis dans le presse-papier)"
+    Clipboard.copy(video_url)
+  end
 end #/ViteFait

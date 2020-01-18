@@ -10,6 +10,7 @@ class ViteFait
       type_is_required:"Il faut définir le type de l'annonce à produire :\n\n\tvite-faits annonce %{name} pour=scrivener|scriv|facebook|fb\n\nscrivener/scriv : pour le forum Latte & Litterature\nfacebook/fb : pour le groupe ”Scrivener en français” sur Facebook",
       already_facebook:"L'annonce sur le groupe Facebook a déjà été faite. Dois-je recommencer ?",
       already_scrivener:"L'annonce sur le forum Scrivener a déjà été faite. Dois-je recommencer ?",
+      already_annonce_on_perso:"La publication sur ton site perso a déjà été faite. Veux-tu recommencer ?",
       infos_required: "Les informations complètes (titre, titre anglais, description) sont requises pour faire les annonces.\nPour les définir, utilisez :\n\n\tvite-faits infos %{name} titre=\"...\" titre_en=\"...\" description=\"...\"\n\n"
     }
   )
@@ -26,9 +27,12 @@ class ViteFait
       annonce_fb
     when 'scrivener', 'scriv'
       annonce_scriv
+    when 'perso'
+      annonce_perso
     when 'both'
       annonce_fb
       annonce_scriv
+      annonce_perso
     else
       error "Je ne connais pas le type d'annonce '#{type}'…"
     end
@@ -50,10 +54,70 @@ class ViteFait
     return false
   end
 
+  # Assistant pour publier le tutoriel sur mon site perso
+  def annonce_perso
+    clear
+    notice "=== Annonce sur philippeperret.fr ==="
+    if informations[:annonce_perso]
+      yesNo(MSG(:already_annonce_on_perso)) || return
+    end
+
+    notice <<-EOT
+(la diffusion — publique — de la vidéo a été contrôlée)
+
+Je vais ouvrir le site perso, à la rubrique Scrivener.
+Et je t'indique ensuite la démarche à suivre.
+
+    EOT
+    sleep 5
+    open_site_perso
+
+    Clipboard.copy(self.titre)
+    sleep 0.4
+    Clipboard.copy(video_url)
+
+    notice <<-EOT
+
+Pour procéder à l'opération :
+
+  * passe en édition à l'aide du lien 'connexion' tout
+    en bas de page,
+  * repère ou crée la rubrique où peut aller ce nouveau
+    tutoriel,
+  * duplique l'élément qui sert d'interligne entre les
+    tutoriels,
+  * duplique un tutoriel proche,
+    Attention : la duplication n'est pas facile : il faut
+    glisser la souris sur l'élément jusqu'à voir apparaitre
+    'Modifier les colonnes', puis cliquer sur ce texte,
+    et déplacer à l'aide de la poignée,
+  * déplace-le à l'endroit voulu,
+  * passe-le en édition,
+  * sélectionne l'image pour la remplacer par la nouvelle
+    vignette,
+  * sélectionne le texte et remplace-le par le titre
+    “#{titre}”
+    que j'ai placé dans PasteBox,
+  * lie-le avec le lien :
+    #{video_url}
+    que j'ai aussi placé dans PasteBox.
+
+    EOT
+
+    # Marquer l'annonce déposée ?
+    if yesNo("Dois-je marquer la publication faite sur ton site perso ?")
+      informations.set(annonce_perso: true)
+      save_last_logic_step
+    end
+
+  end
+
+
+
   def annonce_scriv
 
     clear
-    notice "=== Annonce sur le forume Scrivener ==="
+    notice "=== Annonce sur le forum Scrivener ==="
 
     if informations[:annonce_scriv]
       yesNo(MSG(:already_scrivener)) || return
@@ -72,7 +136,7 @@ class ViteFait
     Clipboard.copy(temp_annonce_scrivener)
     notice "Il suffit de coller ce message dans un nouveau post sur le forum."
 
-    Command.clear_terminal
+    clear
     # Affichage du message
     puts "\n\n\nMessage :\n\n#{temp_annonce_scrivener}\n\n"
     notice "Message copié dans le presse-papier !"

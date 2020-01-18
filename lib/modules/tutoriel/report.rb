@@ -42,6 +42,9 @@ class ViteFait
       sc_OK =  informations[:annonce_scriv] === true
       color = sc_OK ? '32' : '31'
       puts_line('Annonce Scrivener', "\033[1;#{color}m#{sc_OK ? 'oui' : 'non'}\033[0m")
+      perso_OK =  informations[:annonce_perso] === true
+      color = perso_OK ? '32' : '31'
+      puts_line('Pub sur site perso', "\033[1;#{color}m#{perso_OK ? 'oui' : 'non'}\033[0m")
       puts_line('Copie sécurité', copie_securite_exists? ? 'oui' : 'non')
     else
       puts_line('Lieu actuel', "aucun — le dossier n'est pas créé")
@@ -63,9 +66,6 @@ class ViteFait
         line_exists_file(own_intro_mp4, 'Autre INTRO', capital = false)
         line_exists_file(own_final_mp4, 'Autre FINAL', capital = false)
 
-        # fichier informations
-        # fichier voice
-        # fichier operations
         puts "\nFichiers finaux"
         puts "---------------\n"
         line_exists_file(final_tutoriel_mp4, 'VIDÉO FINALE')
