@@ -22,12 +22,13 @@ class ViteFait
     youtube_id.nil? && begin
       return error(MSG(:undefined_video))
     end
-    if COMMAND.options[:youtube]
+    if COMMAND.options[:youtube] || COMMAND.options[:online]
       # Montrer la vidéo sur YouTube
       `open -a #{DEFAULT_BROWSER} "#{video_url}"`
     else
       # Montrer la vidéo sur le disque ou l'ordinateur
       `open -a 'QuickTime Player' "#{final_tutoriel_mp4}"`
+      notice "Pour voir la vidéo sur Youtube, ajoute l'option --youtube :\n\tvitefait voir-video --youtube[ #{name}]"
     end
   end
 
