@@ -29,17 +29,17 @@ class Operation
   #   INSTANCE
   # ---------------------------------------------------------------------
 
-  attr_reader :id, :titre, :assistant, :voice, :duration
+  attr_reader :id, :titre, :action, :voice, :duration
   def initialize data
     data.each { |k, v| instance_variable_set("@#{k}", v) }
-    calc_reel_assistant_et_secondes_attente # produit assistant_pour_comptage et nombre_secondes_attente_assistant
+    calc_reel_action_et_secondes_attente # produit action_pour_comptage et nombre_secondes_attente_action
   end
 
   def to_hash
     {
       id:id,
       titre:titre,
-      assistant:assistant,
+      action:action,
       voice:voice,
       duration:duration
     }
@@ -68,7 +68,7 @@ class Operation
     #
     # \033[1;33mid: #{id}\033[0m (durée #{duration ? "#{duration} s. " : ''})
     #
-    #    #{assistant}
+    #    #{action}
     #
     #   \033[1;47m 🎤 \033[0m #{voice}
     #
@@ -82,22 +82,22 @@ class Operation
 
     # Toutes les lignes contenant les deux textes
     # en colonnes
-    lines_assistant = split_in_column(assistant)
+    lines_action = split_in_column(action)
     lines_voice = split_in_column(voice)
 
-    # Nombre maximum de lignes, soit l'assistant soit
+    # Nombre maximum de lignes, soit l'action soit
     # la voix
-    max = [lines_assistant.count, lines_voice.count].max
+    max = [lines_action.count, lines_voice.count].max
     # Ligne vierge
     blank_line = " " * colwidth
 
     max.times do |i|
-      line_assistant = (lines_assistant[i]  || blank_line)
+      line_action = (lines_action[i]  || blank_line)
       line_voice = (lines_voice[i]          || blank_line)
       if i == 0
-        puts marg + f_titre + line_assistant + gutt + line_voice
+        puts marg + f_titre + line_action + gutt + line_voice
       else
-        puts marg + margTitre + line_assistant + gutt + line_voice
+        puts marg + margTitre + line_action + gutt + line_voice
       end
     end
 
@@ -126,16 +126,16 @@ class Operation
   def duree_estimee
     @duree_estimee ||= begin
       duree_definie   = duration || 0
-      duree_assistant = ((assistant_pour_comptage||'').length * COEF_DICTION  + nombre_secondes_attente_assistant).with_decimal(1)
+      duree_action = ((action_pour_comptage||'').length * COEF_DICTION  + nombre_secondes_attente_action).with_decimal(1)
       duree_voice     = ((voice||'').length * COEF_DICTION).with_decimal(1)
       # On garde comme durée la durée la plus longue
-      [duree_definie, duree_assistant, duree_voice].max
+      [duree_definie, duree_action, duree_voice].max
     end
   end
 
-  def formated_assistant
-    @formated_assistant ||= begin
-      ft = assistant.to_s
+  def formated_action
+    @formated_action ||= begin
+      ft = action.to_s
       ft = ft.gsub(/"/, '\\"')
       # TODO Traiter les ">" (mais il faut certainement le faire dans le
       # le fichier lui-même, avant même de le parser en YAML)
@@ -144,20 +144,20 @@ class Operation
         "[[slnc #{1000 * $1.to_i}]]"
       }
 
-      ft # le texte de l'assistant formaté
+      ft # le texte de l'action formaté
     end
   end
 
-  def calc_reel_assistant_et_secondes_attente
-    @nombre_secondes_attente_assistant = 0
-    @assistant_pour_comptage = assistant.gsub(/ ?Attendre ([0-9]+) secondes?\./){
+  def calc_reel_action_et_secondes_attente
+    @nombre_secondes_attente_action = 0
+    @action_pour_comptage = action.gsub(/ ?Attendre ([0-9]+) secondes?\./){
       nombre_secondes = $1.to_i
-      @nombre_secondes_attente_assistant += nombre_secondes
+      @nombre_secondes_attente_action += nombre_secondes
       ''
     }
   end
-  def assistant_pour_comptage; @assistant_pour_comptage end
-  def nombre_secondes_attente_assistant; @nombre_secondes_attente_assistant end
+  def action_pour_comptage; @action_pour_comptage end
+  def nombre_secondes_attente_action; @nombre_secondes_attente_action end
 
   # Découper la phrase pour avoir des bonnes découpes en mots, sans que
   # le mot soit coupé comme par défaut ou avec fmt

@@ -72,7 +72,7 @@ Et je t'indique ensuite la démarche à suivre.
     sleep 5
     open_site_perso
 
-    Clipboard.copy(self.titre)
+    Clipboard.copy(titre)
     sleep 0.4
     Clipboard.copy(video_url)
 
@@ -93,11 +93,12 @@ Pour procéder à l'opération :
     et déplacer à l'aide de la poignée,
   * déplace-le à l'endroit voulu,
   * passe-le en édition,
-  * sélectionne l'image pour la remplacer par la nouvelle
-    vignette,
+  * sélectionne la vidéo et change l'url pour avoir la nouvelle
+    (que j'ai mise dans le presse-papier),
   * sélectionne le texte et remplace-le par le titre
     “#{titre}”
     que j'ai placé dans PasteBox,
+  * supprime le style (gomme) et mets la taille à 28px,
   * lie-le avec le lien :
     #{video_url}
     que j'ai aussi placé dans PasteBox.

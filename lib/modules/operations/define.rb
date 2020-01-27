@@ -68,7 +68,7 @@ tutoriel. Cela consiste à définir :
                 spectateur de la vidéo ce qui doit être
                 fait.
 
-  assistant:    L'opération à exécuter, qui sera dite
+  action:       L'opération à exécuter, qui sera dite
                 par l'assistant lors de la création as-
                 sistée. Ce texte doit décrire ce qu'il
                 faut faire précisément.
@@ -140,9 +140,9 @@ def get_all_operations_voulues(operations)
 
     # Manipulation à opérer
     begin
-      operation_assistant = promptBlink('AIDE ASSISTANT', 'AIDE ASSISTANT pour l’opération')
-    end while operation_assistant.nil?
-    raise NotAnError.new() if operation_assistant == 'q'
+      operation_action = promptBlink('AIDE ACTIOIN', 'AIDE ACTION pour l’opération')
+    end while operation_action.nil?
+    raise NotAnError.new() if operation_action == 'q'
 
     # Texte de la voix finale
     begin
@@ -157,7 +157,7 @@ def get_all_operations_voulues(operations)
     @operations << Operation.new({
       id:         operation_id,
       titre:      operation_titre,
-      assistant:  operation_assistant,
+      action:     operation_action,
       voice:      operation_voice,
       duration:   operation_duration
     })

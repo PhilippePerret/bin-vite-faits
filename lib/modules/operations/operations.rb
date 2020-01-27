@@ -95,7 +95,7 @@ class ViteFait
       'id' => 'identifiant_unique',
       'titre' => "Titre",
       'voice' => "Texte qui sera dit par la voix.",
-      'assistant' => "L'opération qu'il faut exécuter",
+      'action' => "L'opération qu'il faut exécuter",
       'duration' => nil
     }
   ]
