@@ -269,10 +269,10 @@ class ViteFait
     end
 
     def intro_affixe
-      @intro_affixe ||= "INTRO-vite-faits-sonore"
+      @intro_affixe ||= "INTRO-vite-faits-v2"
     end
     def final_affixe
-      @final_affixe ||= "FINAL-vite-faits-sonore"
+      @final_affixe ||= "FINAL-vite-faits-v2"
     end
 
     # Chemin d'accès au son de la machine à écrire
