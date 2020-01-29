@@ -381,9 +381,9 @@ d'autres occupations en attendant.
 
     notice "👍  --> Assemblage complet de “#{name}” effectué avec succès."
 
-    case yesNo("Veux-tu éditer “#{name}” dans Screenflow ?")
+    case yesNo("Veux-tu éditer “#{name}” dans un logiciel de montage ?")
     when true
-      `open -a Screenflow "#{final_tutoriel_mp4}"`
+      open_something('montage')
     when NilClass
       raise NotAnError.new
     end
