@@ -71,7 +71,8 @@ def exec_open what, edition = nil
       end
     end
   when 'montage'
-    unless File.exists?(screenflow_path) ||  File.exists?(premiere_path)
+    montageFile = existingMontageFile
+    unless montageFile
       choix = getChar("Dois-je initier un projet Screenflow (s) ou Premiere (p) ?")
       choix || return
       case choix.upcase
@@ -79,23 +80,45 @@ def exec_open what, edition = nil
         # => montage Screenflow
         src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.screenflow')
         FileUtils.copy_entry(src, screenflow_path)
+        montageFile = screenflow_path
       when 'P'
         # => montage Adobe Premiere
         src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.prproj')
         FileUtils.copy_entry(src, premiere_path)
+        montageFile = premiere_path
       else
         return error "Je ne connais pas ce type de montage ('#{choix}')…"
       end
     end
-    notice "Bon montage ! 👍"
-    if File.exists?(screenflow_path)
-      `open -a ScreenFlow "#{screenflow_path}"`
-    elsif File.exists?(premiere_path)
-      `open "#{premiere_path}"`
+    if montageFile
+      notice "Bon montage ! 👍"
+      notice "Tu pourras prendre des notes de montage dans le fichier 'Notes-montages.md'"
+      `open "#{montageFile}"`
     end
   else
     ViteFait.exec_open(what)
   end
+end
+
+# Retourne le fichier montage s'il existe, rien sinon
+def existingMontageFile
+  if File.exists?(screenflow_path) && File.exists?(premiere_path)
+    choix = getChar("Veux-tu ouvrir le montage Screenflow (s) ou le montage première (p) ?")
+    case choix.upcase
+    when 'S' then return screenflow_path
+    when 'P' then return premiere_path
+    else return # rien = renoncement
+    end
+  elsif File.exists?(screenflow_path)
+    return screenflow_path
+  elsif File.exists?(premiere_path)
+    return premiere_path
+  end
+  puts "Recherche avec : #{folder}/*.screenflow"
+  screenflowFile = Dir["#{folder}/*.screenflow"].first
+  return screenflowFile if screenflowFile
+  premierFile = Dir("#{folder}/*.prproj").first
+  return premierFile if premierFile
 end
 
 class << self
