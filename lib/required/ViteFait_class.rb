@@ -201,6 +201,8 @@ class ViteFait
       vitefait.is_required && vitefait.open_something('vignette', edition = true)
     when 'voice', 'voix', 'texte'
       vitefait.name_is_required || vitefait.record_voice
+    when 'upload'
+      vitefait.is_required && vitefait.upload
     else
       require_module('assistant')
       create_with_assistant
