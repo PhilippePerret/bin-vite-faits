@@ -26,6 +26,8 @@ TITRE
 DESCRIPTION
 \033[1;36mDans la série des “vite faits”, #{description}.\033[0m
 
+DATE DE PUBLICATION PRÉVUE
+\033[1;36m#{published_at}\033[0m
 
     EOT
 
@@ -46,9 +48,13 @@ ne peux pas vous présenter la vidéo à uploader…
     end
 
     if final_tutoriel_exists?
-      yesNo("Après l'upload et le traitement YouTube (et seulement après), clique sur 'y' pour enregistrer l'ID YouTube du tutoriel.") || return
+      yesNo("Après l'upload et le traitement YouTube (et SEULEMENT APRÈS), clique sur 'y' pour enregistrer l'ID YouTube du tutoriel.") || return
+
+      # Demande l'ID YouTube de la vidée
+      # Et VÉRIFIE que la vidéo existe bien.
       require_module('videos/youtube')
       set_youtube_id
+
     end
   end #/exec_upload
 end #/ViteFait

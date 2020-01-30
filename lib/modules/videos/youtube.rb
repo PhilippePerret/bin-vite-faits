@@ -15,7 +15,20 @@ et traitée.
         yesOrStop("Il faut entrer l'ID de la vidéo. Dois-je poursuivre ?")
       end
     end while yid.nil?
+
     informations.set(youtube_id: yid)
+
+    # Pour s'assurer que l'upload a bien eu lieu, on essaie
+    # d'atteindre la vidéo
+    if video_sur_youtube?
+      notice "J'ai trouvé la vidéo sur YouTube 👍"
+      informations.set(uploaded: true)
+    else
+      informations.set(uploaded: false)
+      informations.set(youtube_id: nil)
+      raise(NotAnError.new("🚫  Je n'ai pas pu trouver la vidéo sur YouTube, malheureusement…"))
+    end
+
   end
 
   # Méthode pour vérifier que la vidéo se trouve bien sur YouTube

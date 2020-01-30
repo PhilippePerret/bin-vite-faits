@@ -394,31 +394,7 @@ d'autres occupations en attendant.
 
   # Assiste à l'upload de la vidéo sur YouTube
   def ask_for_upload_video
-    clear
-    notice "Tu dois procéder à l'UPLOAD SUR YOUTUBE de “#{name}”."
-    puts <<-EOT
-Je vais ouvrir ta chaine et il te suffira de déposer la vidéo.
-
-Tu pourras mettre en description :
-Dans la série des vites-faits, un tutoriel #{description}
-
-Si tu n'as pas le bon compte, celui de cette chaine est avec le compte
-yahoo et le code normal.
-
-    EOT
-    yesOrStop("Es-tu prêt ?")
-    chaine_youtube
-    yesOrStop("La vidéo est uploadée ? Prêt à poursuivre ?")
-    # Pour s'assurer que l'upload a bien eu lieu, on essaie
-    # d'atteindre la vidéo
-    if video_sur_youtube?
-      notice "J'ai trouvé la vidéo sur YouTube 👍"
-      informations.set(uploaded: true)
-    else
-      raise(NotAnError.new("🚫  Je n'ai pas pu trouver la vidéo sur YouTube, malheureusement…"))
-      informations.set(uploaded: false)
-    end
-
+    self.upload
   end #/ask_for_upload_video
 
 
