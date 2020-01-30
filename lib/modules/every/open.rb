@@ -71,32 +71,40 @@ def exec_open what, edition = nil
       end
     end
   when 'montage'
-    montageFile = existingMontageFile
-    unless montageFile
-      choix = getChar("Dois-je initier un projet Screenflow (s) ou Premiere (p) ?")
-      choix || return
-      case choix.upcase
-      when 'S'
-        # => montage Screenflow
-        src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.screenflow')
-        FileUtils.copy_entry(src, screenflow_path)
-        montageFile = screenflow_path
-      when 'P'
-        # => montage Adobe Premiere
-        src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.prproj')
-        FileUtils.copy_entry(src, premiere_path)
-        montageFile = premiere_path
-      else
-        return error "Je ne connais pas ce type de montage ('#{choix}')…"
-      end
-    end
-    if montageFile
-      notice "Bon montage ! 👍"
-      notice "Tu pourras prendre des notes de montage dans le fichier 'Notes-montages.md'"
-      `open "#{montageFile}"`
-    end
+    open_montage
   else
     ViteFait.exec_open(what)
+  end
+end
+
+# Ouvrir le fichier de montage ou le créer si nécessaire
+def open_montage
+  montageFile = existingMontageFile
+  unless montageFile
+    choix = getChar("Dois-je initier un projet Screenflow (s) ou Premiere (p) ?")
+    choix || return
+    case choix.upcase
+    when 'S'
+      # => montage Screenflow
+      src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.screenflow')
+      FileUtils.copy_entry(src, screenflow_path)
+      puts aideInitMontage
+      montageFile = screenflow_path
+    when 'P'
+      # => montage Adobe Premiere
+      src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Materiel','gabarit.prproj')
+      FileUtils.copy_entry(src, premiere_path)
+      puts aideInitMontage
+      montageFile = premiere_path
+    else
+      return error "Je ne connais pas ce type de montage ('#{choix}')…"
+    end
+  end
+  if montageFile
+    notice "Bon montage ! 👍"
+    notice "Tu pourras prendre des notes de montage dans le fichier 'Notes-montages.md'"
+    `open "#{montageFile}"`
+    # puts "J'ouvre #{montageFile} (fausse ouverture pour le moment)"
   end
 end
 
@@ -114,11 +122,26 @@ def existingMontageFile
   elsif File.exists?(premiere_path)
     return premiere_path
   end
-  puts "Recherche avec : #{folder}/*.screenflow"
   screenflowFile = Dir["#{folder}/*.screenflow"].first
   return screenflowFile if screenflowFile
   premierFile = Dir("#{folder}/*.prproj").first
   return premierFile if premierFile
+end
+
+def aideInitMontage
+  <<-EOT
+
+Dans le fichier montage, il vaut mieux partir des fichiers .mov
+plutôt que partir des fichiers mp4 assemblés.
+
+Mais cela implique quelques opérations :
+
+  * il faut retourner (inverser) le clip du titre et utiliser
+    le son de machine à écrire contenu dans le gabarit.
+  * il faut ajouter le fichier voix corriger (voice.aiff)
+
+
+  EOT
 end
 
 class << self

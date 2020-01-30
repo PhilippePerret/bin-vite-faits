@@ -534,6 +534,10 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     {path:path, hname:name}
   end
 
+  def folder
+    @folder || current_best_folder[:path]
+  end
+
   def informations
     @informations ||= begin
       require_module('informations/informations')
@@ -877,11 +881,16 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   def scriv_file_name
     @scriv_file_name ||= "#{name}-prepared.scriv"
   end
+  # Fichiers de montage
   def screenflow_path
     @screenflow_path ||= pathof("Montage.screenflow")
   end
   def premiere_path
     @premiere_path ||= pathof("Montage.prproj")
+  end
+  # Notes sur les montages
+  def notes_montages
+    @notes_montages ||= pathof('Notes-montages.md')
   end
 
   def titre_recorded?(required = false)

@@ -51,6 +51,13 @@ class ViteFait
         notice "--> VIGNETTE : ./Vignette/Vignette.xcf 👍"
       end
 
+      # Copie du fichier 'Notes-montages.md'
+      unless File.exists?(notes_montages)
+        src = File.join(VITEFAIT_MATERIEL_FOLDER,'Notes-montages.md')
+        FileUtils.copy(src, notes_montages)
+        notice "--> NOTES MONTAGE : ./Notes-montages.md 👍"
+      end
+
       # Le dossier final qu'il faudra ouvrir.
       # Car l'utilisateur veut peut-être créer un fichier en attente
       final_folder = chantier_folder_path
