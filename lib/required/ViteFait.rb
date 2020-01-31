@@ -201,6 +201,11 @@ class ViteFait
     end
   end
 
+  def check_operations
+    require_module('operations/check')
+    check_operations_file
+  end
+
   def operations
     @operations ||= get_operations.collect{|dope|Operation.new(dope)}
   end
@@ -314,6 +319,16 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   def open_something what = nil, edition = nil
     require_module('every/open')
     exec_open(what, edition)
+  end
+
+  # Méthode générale utiliser pour checker des éléments
+  def check_something what = nil
+    case what
+    when 'operations', 'operation'
+      check_operations
+    else
+      puts "Je ne sais pas checker '#{what}'"
+    end
   end
 
   # Méthode générique pour enregistrer les éléments.

@@ -21,6 +21,9 @@
 #
 def exec(options=nil)
 
+  # On s'arrête là si le fichier des opérations est invalide
+  return false unless check_operations
+
   # Ouvrir toujours le projet Scrivener (en réalité : une copie du
   # projet préparé)
   open_something('scrivener') || raise(NotAnError.new)
