@@ -13,7 +13,7 @@ class ViteFait
   # disque appelé MacOSCatalina)
   attr_accessor :work_folder
 
-  def initialize folder
+  def initialize folder # ATTENTION ! C'EST LE NOM DU DOSSIER SEULEMENT, PAS LE PATH
     self.work_folder = folder
     check_tutoriel
   end
@@ -21,6 +21,8 @@ class ViteFait
   def reset
     @current_folder = nil
     @lieu = nil
+    @published_at = nil
+    @published_date = nil
   end
 
   def goto_manual(anchor); self.class.goto_manual(anchor) end
@@ -798,6 +800,10 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
 
   def published_at
     @published_at ||= informations[:published_at]
+  end
+
+  def published_date
+    @published_date ||= (published_at && published_at.ddmmyyyy2date)
   end
 
   def youtube_id

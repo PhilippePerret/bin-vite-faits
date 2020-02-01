@@ -1,4 +1,13 @@
 # encoding: UTF-8
+=begin
+  Définition des valeurs de configuration
+
+  Pour récupérer une valeur, utiliser :
+
+      Configuration.<nom/clé de la configuration>
+      CONFIG[:<nom/clé de la configuration>]
+
+=end
 CONFIG = {}
 class Configuration
   def self.define
@@ -17,6 +26,13 @@ end
 Configuration.define do |config|
 
 config.default_browser = 'Firefox'
+
+# Fréquence de publication
+# ------------------------
+# Cette valeur définit la fréquence de publication des tutoriels, elle
+# servira à déplacer les dates lors d'insertion (une nouvelle date en remplaçant
+# une déja définie)
+config.frequence_publication = 7
 
 # Dossier de captures
 # -------------------

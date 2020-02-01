@@ -150,7 +150,7 @@ class Operation
 
   def calc_reel_action_et_secondes_attente
     @nombre_secondes_attente_action = 0
-    @action_pour_comptage = action.gsub(/ ?Attendre ([0-9]+) secondes?\./){
+    @action_pour_comptage = (action||'').gsub(/ ?Attendre ([0-9]+) secondes?\./){
       nombre_secondes = $1.to_i
       @nombre_secondes_attente_action += nombre_secondes
       ''

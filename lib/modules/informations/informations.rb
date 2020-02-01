@@ -52,6 +52,71 @@ class Informations
       return true
     end
 
+    # Méthode qui regarde si la date +date+ correspond à la date de publication
+    # d'un autre tutoriel. Si c'est le cas, elle demande ce qu'il faut faire :
+    #   - repousser toutes les autres dates suivantes
+    #   - appliquer cette date sans rien changer
+    def traite_if_remplace_autre_tutoriel(date)
+      # Cette date est-elle utilisée par un autre tutoriel
+      tous_sauf_published = ViteFait.list.items.values.reject{|t| t[:published_at].nil?}
+      dtuto_meme_date = nil
+      tutoriels = tous_sauf_published.collect do |dtuto|
+        # On en profite pour mettre une vraie date
+        dtuto.merge!(pub_date: dtuto[:published_at].ddmmyyyy2date)
+
+        tuto = ViteFait.new(dtuto[:name])
+
+        if dtuto[:published_at] == date
+          dtuto_meme_date = tuto
+        end
+
+        tuto # pour la liste
+      end
+
+      # Si aucune date équivalente n'a été trouvée, on s'en retourne
+      return true if dtuto_meme_date.nil?
+
+      # Si on passe ici c'est qu'une date équivalente a été trouvée
+      choix = yesNo("Le tutoriel “#{dtuto_meme_date.titre}” porte la même date de publication.\n\nDois-je le repousser et repousser tous les tutoriels suivants (si nécessaire) ?\n\n")
+
+      return true unless choix
+
+      # Fréquence de publication en nombre de secondes
+      freqpub = CONFIG[:frequence_publication] # * (3600 * 24)
+
+      # puts "Je vais repousser tous les autres tutoriels"
+      # puts "tous_sauf_published avant : #{tous_sauf_published}"
+      tutoriels.sort_by! { |tuto| tuto.published_date }
+
+
+      confirmed = false
+      puts "Mettre publication de... à..."
+      puts "-----------------------------"
+      2.times.each do
+        watched_date = date
+        tutoriels.each do |tuto|
+          if tuto.published_at == watched_date
+            # On change la date (on la repousse de la fréquence)
+            watched_date = (tuto.published_date + freqpub).strftime('%d %m %Y')
+            if confirmed
+              tuto.infos.set({published_at: watched_date}, {dont_check_date:true})
+              puts "Publication de '#{tuto.titre || tuto.name}' mis à #{watched_date}"
+            else
+              puts "- '#{tuto.titre || tuto.name}' à #{watched_date} ?"
+            end
+          end
+        end
+        if yesNo("Confirmez-vous ces changements ?")
+          confirmed = true
+          clear
+        else
+          break
+        end
+      end # Les deux fois (non confirmé, confirmé)
+
+      return true # pour enregistrer la nouvelle date
+    end
+    # /traite_if_remplace_autre_tutoriel
 
   end # << self
 
@@ -101,9 +166,16 @@ class Informations
     notice "Informations sur le tutoriel “#{vitefait.name}” enregistrées avec succès."
   end
 
-  # Définition des données
+  # Définition des informations
+  # ---------------------------
   # Note : la méthode sauve les données si elles ont changé.
-  def set params
+  #
+  # +Params+::
+  #   +params+:: [Hash] Table des valeurs à modifier.
+  #   +options+:: [Hash|Nil]  Options
+  #     :dont_check_date    True pour ne pas checker les dates de publication
+  def set params, options = nil
+    options ||= {}
     hasBeenModified = false
     params.each do |ikey, new_value|
       ikey = ALT_INFO_KEY_TO_REAL_KEY[ikey] || ikey
@@ -144,7 +216,17 @@ class Informations
           end
         end
       when :published_at
-        Informations.published_date_valid?(new_value) || next
+        unless options && options[:dont_check_date]
+          # La modification de la date est un traitement particulier :
+          # il faut d'abord [1] regarder si elle est valide, mais surtout, il faut
+          # [2] regarder si un autre tutoriel est programmé pour la même date. Si
+          # c'est le cas, il faut peut-être modifier (repousser toutes les
+          # autres dates)
+          # [1]
+          Informations.published_date_valid?(new_value) || next
+          # [2]
+          Informations.traite_if_remplace_autre_tutoriel(new_value) || next
+        end
       end
 
       # Tout est bon, on peut consigner cette valeur
