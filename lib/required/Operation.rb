@@ -137,13 +137,15 @@ class Operation
     @formated_action ||= begin
       ft = action.to_s
       ft = ft.gsub(/"/, '\\"')
-      # TODO Traiter les ">" (mais il faut certainement le faire dans le
-      # le fichier lui-même, avant même de le parser en YAML)
       # Traiter les "Attendre x secondes."
       ft.gsub!(/Attendre ([0-9]+) secondes?\./){
         "[[slnc #{1000 * $1.to_i}]]"
       }
+      ft.gsub!(/ \[([0-9]+)\]\./){
+        ". [[slnc #{1000 * $1.to_i}]]"
+      }
 
+      puts "formated_action: '#{ft}'"
       ft # le texte de l'action formaté
     end
   end
@@ -151,6 +153,11 @@ class Operation
   def calc_reel_action_et_secondes_attente
     @nombre_secondes_attente_action = 0
     @action_pour_comptage = (action||'').gsub(/ ?Attendre ([0-9]+) secondes?\./){
+      nombre_secondes = $1.to_i
+      @nombre_secondes_attente_action += nombre_secondes
+      ''
+    }
+    @action_pour_comptage.gsub!(/ \[([0-9]+)\]\./){
       nombre_secondes = $1.to_i
       @nombre_secondes_attente_action += nombre_secondes
       ''

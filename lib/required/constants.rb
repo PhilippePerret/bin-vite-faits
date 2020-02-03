@@ -27,7 +27,8 @@ MIN_OPT_TO_REAL_OPT = {
   'i' => 'infos',
   'l' => 'lack',
   't' => 'titre',
-  'v' => 'verbose'
+  'v' => 'verbose',
+  'x' => 'test'
 }
 
 # Liste des clés de données fichiers (dans DATA_ALL_FILES) tels

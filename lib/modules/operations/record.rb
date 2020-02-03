@@ -71,22 +71,30 @@ peux interrompre la capture à l'aide de CTRL-C.
 
   is_first_time = true
 
+  for_quick_test = COMMAND.options[:test]
+
   begin #Boucle jusqu'à ce qu'on arrive à une vidéo acceptable
 
-    dire("Active Scrivener et masque les autres applications avec Commande, ALTE, H")
-    sleep 3 if is_first_time
-    dire("Active la capture et règle les dimensions à #{CAPTURE_WIDTH} par #{CAPTURE_HEIGHT}")
+    unless for_quick_test
+      dire("Active Scrivener et masque les autres applications avec Commande, ALTE, H")
+      sleep 3 if is_first_time
+      dire("Active la capture et règle les dimensions à #{CAPTURE_WIDTH} par #{CAPTURE_HEIGHT}")
+    end
     notice "Dimensions de l'écran : #{CAPTURE_WIDTH} x #{CAPTURE_HEIGHT}"
-    dire("Choisis les options : Minuteur : aucun, Microphone : microphone intégré. Décide de prendre ou non les clics de souris.")
+    unless for_quick_test
+      dire("Choisis les options : Minuteur : aucun, Microphone : microphone intégré. Décide de prendre ou non les clics de souris.")
+    end
 
     if avec_assistant_operations
-      if is_first_time
+      if is_first_time && !for_quick_test
         dire("Démarrage dans 10 secondes")
         sleep 4
         decompte("Démarrage dans %{nombre_secondes}", 3)
       end
-      dire("Démarrage dans 5 secondes")
-      decompte("Démarrage dans %{nombre_secondes}", 4, 'Audrey')
+      unless for_quick_test
+        dire("Démarrage dans 5 secondes")
+        decompte("Démarrage dans %{nombre_secondes}", 4, 'Audrey')
+      end
       dire("Mets en route la capture !")
 
       # Boucle sur toutes les opérations
