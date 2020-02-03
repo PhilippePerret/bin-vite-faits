@@ -46,7 +46,13 @@ arrêté.
     tuto.define_operations            unless tuto.operations_defined?(false,false)
 
     # Enregistrement des opérations
-    tuto.record_operations            unless tuto.operations_recorded?(false,false)
+    puts "Je vais regarder si le fichier des opérations a été enregistré"
+    puts "tuto.operations_recorded?(false,false) = #{tuto.operations_recorded?(false,false)}"
+
+    unless tuto.operations_recorded?(false,false)
+      tuto.record_operations || return # un problème est survenu
+    end
+    raise "Avant ICI"
 
     # On finalise le fichier capture, pour qu'il corresponde à ce dont
     # on a besoin pour enregistrer la voix. Notamment au niveau de la
@@ -190,8 +196,9 @@ Que dois-je faire ?
   A. Ne refaire que l'élément #{bilan[:hname]} et
      garder les autres.
 
-  B. Supprimer tous les éléments après pour les
-     refaire ou les actualiser.
+  B. Mettre tous les éléments après dans la poubelle
+     du tutoriel pour les refaire ou les actualiser
+     (sauf le fichier des opérations).
 
           EOQ
           puts question
@@ -214,14 +221,19 @@ Que dois-je faire ?
   def remove_files_from(index)
     keyFile = DATA_KEYS_FILES_OPERATION[index].to_sym
     datFile = DATA_ALL_FILES[keyFile]
-    question = "Confirmes-tu bien la suppression de tous les fichiers existants après l'étape “#{datFile[:hname]}” ?"
+    question = "Confirmes-tu la mis à la poubelle (dossier xTrash du tutoriel) de tous les fichiers existants après l'étape “#{datFile[:hname]}” (sauf fichier des operations) ?"
     yesNo(question) || return
     DATA_KEYS_FILES_OPERATION[index..-1].each do |kfile|
+      # On ne détruit jamais le fichier 'operations.yaml'
+      if kfile == :operations
+        notice "Je ne détruis jamais le fichier des operations. Pour supprimer ce fichier, le faire “à la main”."
+        next
+      end
       dfile = DATA_ALL_FILES[kfile.to_sym]
       dfile[:relpath] || next # pas un fichier
       path = File.join(current_folder, (dfile[:relpath] % {name: name}))
       File.exists?(path) || next # le fichier n'existe pas
-      IO.remove_with_care(path,"fichier #{dfile[:hname]}",true)
+      IO.move_with_care(path, trash_folder, {interactiv: true})
     end
   end
 
@@ -271,6 +283,7 @@ Que dois-je faire ?
   # Dans ce cas-là, direct est mis à true
   #
   def record_operations
+    puts "-> record_operations"
     require_module('operations/record')
     exec
   end #/record_operations

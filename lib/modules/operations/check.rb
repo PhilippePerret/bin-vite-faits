@@ -61,7 +61,7 @@ Vérification du fichier des opérations
       notice "✔︎ Les données des opérations sont bien définies"
     end
 
-    if errors.count
+    if errors.count > 0
       raise errors.join("\n")
     end
 

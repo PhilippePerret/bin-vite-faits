@@ -1035,6 +1035,15 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     @exports_folder ||= pathof("Exports")
   end
 
+  # Chemin d'accès au dossier poubelle (le crée s'il n'existe pas)
+  def trash_folder
+    @trash_folder ||= begin
+      d = pathof('xTrash')
+      `mkdir -p "#{d}"`
+      d
+    end
+  end
+
   # Retourne le chemin relatif au fichier/dossier se trouvant dans
   # le tutoriel courant
   # Attention : maintenant, la méthode est beaucoup plus complexe et

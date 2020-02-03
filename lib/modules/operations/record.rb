@@ -147,6 +147,8 @@ Tu peux modifier ce document, dans Vim, avec :
   end
 
   yesOrStop("Tape 'y' pour poursuivre.")
+
+  return true
 end
 
 # Méthode appelée quand il existe déjà un enregistrement des opérations,

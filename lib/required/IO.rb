@@ -11,6 +11,7 @@
       et l'écrit (en vert par exemple) en console.
 
 =end
+require 'digest/md5'
 
 class IO
 class << self
@@ -42,6 +43,31 @@ class << self
       return false
     end
     return true # tout s'est bien passé
+  end
+
+  # Assure le déplacement du fichier +path+ vers le dossier +dest+ avec les
+  # Un checksum permet de s'assurer que le fichier a été copié correctement
+  # options +options+
+  # +Params+::
+  #   +path+:: [String] Chemin d'accès au fichier
+  #   +destFolder:: [String] Chemin d'accès au DOSSIER qui doit recevoir le
+  #     fichier
+  #   +options+:: [Hash] Options, dont :
+  #     :interactive    True si l'opération doit se faire de façon interactive
+  #
+  def move_with_care(src, destFolder, options = {})
+    destFolder || raise("Il faut fournir le dossier de destination")
+    File.exists?(destFolder) || raise("Le dossier de destination ('#{destFolder}') est introuvable.")
+    File.directory?(destFolder) || raise("La destination doit être un dossier")
+    dst = File.join(destFolder, File.basename(src))
+    # On fait la copie dans le dossier
+    copy_with_care(src, dst, nil, false) || return
+    # On détruit l'original
+    remove_with_care(src, nil, false)
+  rescue Exception => e
+    error e.message
+    error "🚫 Impossible de procéder au déplacement"
+    return false
   end
 
   # Détruit un élément en s'assurant qu'il existe et qu'il n'existe plus
