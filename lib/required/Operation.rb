@@ -145,7 +145,7 @@ class Operation
         ". [[slnc #{1000 * $1.to_i}]]"
       }
 
-      puts "formated_action: '#{ft}'"
+      # puts "formated_action: '#{ft}'"
       ft # le texte de l'action formaté
     end
   end
