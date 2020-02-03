@@ -52,7 +52,6 @@ arrêté.
     unless tuto.operations_recorded?(false,false)
       tuto.record_operations || return # un problème est survenu
     end
-    raise "Avant ICI"
 
     # On finalise le fichier capture, pour qu'il corresponde à ce dont
     # on a besoin pour enregistrer la voix. Notamment au niveau de la
