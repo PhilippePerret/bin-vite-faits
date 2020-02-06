@@ -101,10 +101,15 @@ def open_montage
     end
   end
   if montageFile
-    notice "Bon montage ! 👍"
-    notice "Tu pourras prendre des notes de montage dans le fichier 'Notes-montages.md'"
+    notice <<-EOT
+
+Tu pourras prendre des notes de montage dans le fichier 'Notes-montages.md'
+Exporte la vidéo dans : './Exports/#{final_tutoriel_mp4_name}'
+
+Bon montage ! 👍
+
+    EOT
     `open "#{montageFile}"`
-    # puts "J'ouvre #{montageFile} (fausse ouverture pour le moment)"
   end
 end
 
@@ -124,7 +129,7 @@ def existingMontageFile
   end
   screenflowFile = Dir["#{folder}/*.screenflow"].first
   return screenflowFile if screenflowFile
-  premierFile = Dir("#{folder}/*.prproj").first
+  premierFile = Dir["#{folder}/*.prproj"].first
   return premierFile if premierFile
 end
 
@@ -134,12 +139,13 @@ def aideInitMontage
 Dans le fichier montage, il vaut mieux partir des fichiers .mov
 plutôt que partir des fichiers mp4 assemblés.
 
-Mais cela implique quelques opérations :
+La préparation :
 
-  * il faut retourner (inverser) le clip du titre et utiliser
-    le son de machine à écrire contenu dans le gabarit.
-  * il faut ajouter le fichier voix corriger (voice.aiff)
-
+  * charger le fichier `titre/titre.mov`,
+  * charger le fichier `voice/voix.aiff`,
+  * charger le fichier `operations/operations.mov`
+  * inverser et cropper le clip du titre,
+  * couper le son de la machine à écrire en fonction.
 
   EOT
 end

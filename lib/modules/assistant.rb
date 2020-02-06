@@ -46,9 +46,6 @@ arrêté.
     tuto.define_operations            unless tuto.operations_defined?(false,false)
 
     # Enregistrement des opérations
-    puts "Je vais regarder si le fichier des opérations a été enregistré"
-    puts "tuto.operations_recorded?(false,false) = #{tuto.operations_recorded?(false,false)}"
-
     unless tuto.operations_recorded?(false,false)
       tuto.record_operations || return # un problème est survenu
     end
@@ -63,11 +60,21 @@ arrêté.
 
     # S'il existe un fichier .aiff on regarde s'il est plus jeune que le
     # fichier mp4 dans lequel cas on demande à refaire le mp4.
-    tuto.check_for_reconvert_voice    if File.exists?(tuto.record_voice_aiff)
+    unless tuto.montage_existe?
+      tuto.check_for_reconvert_voice    if File.exists?(tuto.record_voice_aiff)
+    end
 
     # Assemblage de la capture des opérations et de la capture de
     # la voix (ou du fichier voix)
-    tuto.proceed_assemblage           unless tuto.video_finale_existe?(false)
+    # Note : ou l'utilisateur préfère passer par le montage
+    case tuto.video_finale_existe?(false)
+    when nil
+      tuto.proceed_assemblage
+    when false
+      return # quand montage manuel
+    when true
+      # on continue
+    end
 
     tuto.ask_for_upload_video         unless tuto.video_uploaded?(false)
 
@@ -365,7 +372,7 @@ a été modifié depuis la production du fichier
 voix MP4.
 
     EOT
-    if yesNo("Dois-je reconvertir le fichier .aiff en .mp4 final pour “#{name}” ?")
+    if yesNo("\nDois-je reconvertir le fichier .aiff en .mp4 final pour “#{name}” ?")
       require_module('voice/convert_voice_aiff')
       convert_voice_aiff_to_voice_mp4
     end
@@ -375,6 +382,45 @@ voix MP4.
   # Méthode qui procède à l'assemblage final des éléments
   def proceed_assemblage
     clear
+    # On passe ici quand le montage final mp4 n'existe pas encore
+    # Avant de procéder au montage on doit s'assurer que l'utilisateur ne
+    # veut pas faire le montage avec ScreenFlow ou Premiere
+    # Si un fichier montage existe, on demande à l'ouvrir plutôt que faire
+    # le montage
+    if montage_existe?
+      notice "=== Montage de “#{name}” ==="
+      puts <<-EOT
+
+Un fichier de montage existe. C'est donc avec lui qu'il
+faut produire le fichier de montage .mp4 final (*).
+(* Exports/#{final_tutoriel_mp4_name})
+
+J'ouvre ce fichier de montage.
+      EOT
+      open_something('montage')
+      return false
+    end
+    question = <<-EOT
+
+Choisis l'opération :
+
+    a) Montage "manuel", à l'aide de Screenflow ou
+       Adobe Premiere.
+
+    b) Assemblage automatique des éléments capturés.
+
+    EOT
+    puts question
+    case (getChar("Ton choix : ")||'').upcase
+    when 'A'
+      open_something('montage')
+      return false
+    when 'B'
+      # On poursuit
+    when 'Q'
+      raise NotAnError.new
+    end
+
     notice "=== Assemblage de “#{name}” ==="
     puts <<-EOT
 
@@ -484,10 +530,25 @@ d'autres occupations en attendant.
 
   def video_finale_existe?(nomessage = true)
     existe = !!final_tutoriel_exists?
-    if existe && !nomessage
+    if !existe && montage_existe?
+      # <=  Le montage final n'existe pas, mais un fichier de montage
+      #     Screenflow ou Premiere existe
+      # =>  On dit simplement qu'il faut exporter le montage final du
+      #     tutoriel
+      unless nomessage
+        notice "--- Il existe un fichier de montage. Je l'ouvre…"
+        sleep 3
+      end
+      open_something('montage')
+      return false
+    elsif existe && !nomessage
       notice "--- Tutoriel final assemblé."
     end
     return existe
+  end
+
+  def montage_existe?(nomessage = true)
+    existe = File.exists?(screenflow_path) || File.exists?(premiere_path)
   end
 
   def video_uploaded?(nomessage = true)
