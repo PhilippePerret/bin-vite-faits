@@ -459,7 +459,7 @@ d'autres occupations en attendant.
   # Demande l'identifiant de la vidéo YouTube
   def ask_for_youtube_id
     require_module('videos/youtube')
-    set_youtube_id
+    set_youtube_id(checkit = false)
   end #/ask_for_youtube_id
 
 

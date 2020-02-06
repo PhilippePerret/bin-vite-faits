@@ -22,7 +22,7 @@ class ViteFait
   # Taper `vite-faits test` en console
   def self.test
     # Mettre ici du code à essayer
-    if vitefait.video_sur_youtube?
+    if vitefait.video_on_youtube?
       notice "La vidéo a été trouvée sur YouTube"
     else
       error "La vidéo n'existe pas sur YouTube"

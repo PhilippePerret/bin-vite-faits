@@ -53,7 +53,7 @@ ne peux pas vous présenter la vidéo à uploader…
       # Demande l'ID YouTube de la vidée
       # Et VÉRIFIE que la vidéo existe bien.
       require_module('videos/youtube')
-      set_youtube_id
+      set_youtube_id(checkit = false) # on ne vérifie pas sa présence, elle est programmée
 
     end
   end #/exec_upload

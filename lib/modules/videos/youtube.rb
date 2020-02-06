@@ -1,6 +1,12 @@
 # encoding: UTF-8
 class ViteFait
-  def set_youtube_id
+
+  # Enregistre l'identifiant de la vidéo sur YouTube, en vérifiant
+  # sa présence, sauf si +checkit+ est false (quand on enregistre l'ID
+  # après avec uploadé la vidéo et la programmer pour plus tard)
+  #
+  # +return+ Retour true si la vidéo a été trouvée
+  def set_youtube_id(checkit = true)
     clear
     notice <<-EOT
 === Définition de l'ID YouTube de “#{name}” ===
@@ -20,15 +26,17 @@ et traitée.
 
     # Pour s'assurer que l'upload a bien eu lieu, on essaie
     # d'atteindre la vidéo
-    if video_sur_youtube?
-      notice "J'ai trouvé la vidéo sur YouTube 👍"
-      informations.set(uploaded: true)
-    else
-      informations.set(uploaded: false)
-      informations.set(youtube_id: nil)
-      raise(NotAnError.new("🚫  Je n'ai pas pu trouver la vidéo sur YouTube, malheureusement…"))
+    if checkit
+      if is_video_on_youtube?
+        notice "J'ai trouvé la vidéo sur YouTube 👍"
+        informations.set(uploaded: true)
+        return true
+      else
+        informations.set(uploaded: false)
+        informations.set(youtube_id: nil)
+        raise(NotAnError.new("🚫  Je n'ai pas pu trouver la vidéo sur YouTube, malheureusement…"))
+      end
     end
-
   end
 
   # Méthode pour vérifier que la vidéo se trouve bien sur YouTube
