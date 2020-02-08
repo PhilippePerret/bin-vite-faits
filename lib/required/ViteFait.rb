@@ -710,7 +710,8 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   end
 
   def groupe_facebook
-    `open -a Firefox "#{url_groupe_facebook}"`
+    # `open -a Firefox "#{url_groupe_facebook}"`
+    `open -a Safari "#{url_groupe_facebook}"`
   end
 
   def forum_scrivener

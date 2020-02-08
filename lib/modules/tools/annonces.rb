@@ -69,12 +69,12 @@ Je vais ouvrir le site perso, à la rubrique Scrivener.
 Et je t'indique ensuite la démarche à suivre.
 
     EOT
-    sleep 5
+    Clipboard.copy(titre)
+    sleep 2.5
+    Clipboard.copy(video_url)
+    sleep 2.5
     open_site_perso
 
-    Clipboard.copy(titre)
-    sleep 0.4
-    Clipboard.copy(video_url)
 
     notice <<-EOT
 
