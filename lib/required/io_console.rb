@@ -43,7 +43,7 @@ end
 
 def clear
   puts "\n\n" # pour certaines méthodes
-  Command.clear_terminal
+  puts "\033c"
 end
 
 # Méthode qui retourne TRUE si on presse la

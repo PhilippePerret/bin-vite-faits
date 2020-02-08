@@ -18,6 +18,127 @@ class String
   POUCE = "👍"
   WARNING = "🚫"
 
+  # Le texte en bleu gras pour le terminal
+  def bleu_gras
+    "\033[1;96m#{self}\033[0m"
+  end
+  def bleu_gras_html
+    "<span style=\"color:blue;font-weight:bold;\">#{self}</span>"
+  end
+  # Le texte en bleu gras pour le terminal
+  def bleu
+    "\033[0;96m#{self}\033[0m"
+    # 96=bleu clair, 93 = jaune, 94/95=mauve, 92=vert
+  end
+  def bleu_html
+    "<span style=\"color:blue;\">#{self}</span>"
+  end
+  def mauve
+    "\033[1;94m#{self}\033[0m"
+  end
+  def mauve_html
+    "<span style=\"color:purple;\">#{self}</span>"
+  end
+
+  def fond1
+    "\033[38;5;8;48;5;45m#{self}\033[0m"
+  end
+  def fond1_html
+    "<span style=\"background-color:red;color:white;\">#{self}</span>"
+  end
+  def fond2
+    "\033[38;5;8;48;5;40m#{self}\033[0m"
+  end
+  def fond2_html
+    "<span style=\"background-color:green;color:white;\">#{self}</span>"
+  end
+  def fond3
+    "\033[38;5;0;48;5;183m#{self}\033[0m"
+  end
+  def fond3_html
+    "<span style=\"background-color:blue;color:white;\">#{self}</span>"
+  end
+  def fond4
+    "\033[38;5;15;48;5;197m#{self}\033[0m"
+  end
+  def fond4_html
+    "<span style=\"background-color:purple;color:white;\">#{self}</span>"
+  end
+  def fond5
+    "\033[38;5;15;48;5;172m#{self}\033[0m"
+  end
+  def fond5_html
+    "<span style=\"background-color:orange;color:white;\">#{self}</span>"
+  end
+
+  def jaune
+    "\033[0;93m#{self}\033[0m"
+  end
+  alias :yellow :jaune
+  def jaune_html
+    "<span style=\"color:yellow;\">#{self}</span>"
+  end
+
+  def orange_html
+    "<span style=\"color:orange;\">#{self}</span>"
+  end
+
+  def vert
+    "\033[0;92m#{self}\033[0m"
+  end
+  def vert_html
+    "<span style=\"color:green;\">#{self}</span>"
+  end
+
+  # Le texte en rouge gras pour le terminal
+  def rouge_gras
+    "\033[1;31m#{self}\033[0m"
+  end
+  def rouge_gras_html
+    "<span style=\"color:red;font-weight:bold;\">#{self}</span>"
+  end
+
+  # Le texte en rouge gras pour le terminal
+  def rouge
+    "\033[0;91m#{self}\033[0m"
+  end
+  def rouge_html
+    "<span style=\"color:red;\">#{self}</span>"
+  end
+
+  def rouge_clair
+    "\033[0;35m#{self}\033[0m"
+  end
+  def rouge_clair_html
+    "<span style=\"color:#FF8888;\">#{self}</span>"
+  end
+
+  def gris
+    "\033[0;90m#{self}\033[0m"
+  end
+  def gris_html
+    "<span style=\"color:grey;\">#{self}</span>"
+  end
+
+  def gras
+    "\033[1;38m#{self}\033[0m"
+  end
+  def purple
+    "\033[1;34m#{self}\033[0m"
+  end
+  def yellow
+    "\033[1;33m#{self}\033[0m"
+  end
+  def fushia
+    "\033[1;35m#{self}\033[0m"
+  end
+  def cyan
+    "\033[1;36m#{self}\033[0m"
+  end
+  def grey
+    "\033[1;90m#{self}\033[0m"
+  end
+
   # Convertit le texte en colonnes de largeurs +width+
   # Si options[:indent] est fourni, on ajoute cette indentation
   # à chaque ligne.
