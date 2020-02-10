@@ -38,10 +38,10 @@ MIN_OPT_TO_REAL_OPT = {
 #   - pouvoir updater à partir d'un fichier en particulier
 DATA_KEYS_FILES_OPERATION = [
   :informations,
+  :operations,
   :titre_mov,
   :record_titre_mp4,
   :vignette_jpg,
-  :operations,
   :capture_mov,
   :capture_mp4,
   :voice_mp4,
