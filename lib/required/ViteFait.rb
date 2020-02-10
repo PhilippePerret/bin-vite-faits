@@ -198,7 +198,11 @@ class ViteFait
     begin
       YAML.load_file(operations_path).to_sym
     rescue Exception => e
-      error "Une erreur est survenue au cours de la lecture du fichier YAML. Je dois renoncer"
+      error "Une erreur est survenue au cours de la lecture du fichier YAML. Je dois renoncer."
+      notice <<-EOT
+Pour trouver mieux l'erreur, rejoins le site 'https://jsonformatter.org/yaml-formatter',
+copie-colle le code du fichier operations.yaml et active le bouton 'coche'.
+      EOT
       raise e
     end
   end
