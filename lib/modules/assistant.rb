@@ -30,6 +30,7 @@ arrêté.
     # On crée une instance, le traitement sera plus facile ensuite
     tuto = new(tuto_name)
 
+    # Soi on repart d'un tutoriel déjà amorcé, soit on le crée
     if tuto.exists?
       ask_when_exists_or_completed(tuto)
     else
@@ -40,10 +41,17 @@ arrêté.
 
     tuto.set_generales_informations   unless tuto.infos_defined?(false)
     tuto.record_titre                 unless tuto.titre_is_recorded?(false)
-    tuto.convert_titre_final          unless tuto.titre_final_converted?(false)
-    tuto.build_vignette_jpeg          unless tuto.vignette_finale_existe?(false)
 
+    # DÉFINITION DES OPÉRATIONS
     tuto.define_operations            unless tuto.operations_defined?(false,false)
+
+    # TITRE
+    unless tuto.titre_final_converted?(false) || montage_manuel?
+      tuto.convert_titre_final
+    end
+
+    # VIGNETTE
+    tuto.build_vignette_jpeg          unless tuto.vignette_finale_existe?(false)
 
     # Enregistrement des opérations
     unless tuto.operations_recorded?(false,false)
@@ -52,16 +60,19 @@ arrêté.
 
     # On finalise le fichier capture, pour qu'il corresponde à ce dont
     # on a besoin pour enregistrer la voix. Notamment au niveau de la
-    # vitesse de la vidéo
-    tuto.ask_capture_mov_to_mp4       unless tuto.mp4_capture_exists?(false,false)
+    # vitesse de la vidéo.
+    # Sauf si l'enregistrement est manuel
+    unless montage_manuel?
+      tuto.ask_capture_mov_to_mp4 unless tuto.mp4_capture_exists?(false,false)
+    end
 
     # Enregistrement de la voix
-    tuto.ask_for_record_voice         unless tuto.voice_capture_exists?(false,false)
+    tuto.ask_for_record_voice unless tuto.voice_capture_exists?(false,false)
 
     # S'il existe un fichier .aiff on regarde s'il est plus jeune que le
     # fichier mp4 dans lequel cas on demande à refaire le mp4.
     unless tuto.montage_existe?
-      tuto.check_for_reconvert_voice    if File.exists?(tuto.record_voice_aiff)
+      tuto.check_for_reconvert_voice if File.exists?(tuto.record_voice_aiff)
     end
 
     # Assemblage de la capture des opérations et de la capture de
@@ -183,9 +194,17 @@ end #/<<self
     #   s'il faut supprimer ces éléments pour actualiser la
     #   chose.
     puts "\n\n"
+    puts "Montage manuel ? #{montage_manuel?.inspect}"
     table_prebilan.each_with_index do |bilan, index|
       puts "#{bilan[:hname].ljust(60,'.')} #{bilan[:exists].inspect}"
+      # Si le fichier existe, c'est bon, on peut passer au suivant
       bilan[:exists] && next
+      # Si le fichier n'existe pas, mais que c'est un fichier seulement
+      # requis lorsque c'est un montage automatique, et qu'on est en montage
+      # manuel, on peut le passer
+      if montage_manuel? && bilan[:montage_manuel] === false
+        next
+      end
       # Un élément qui n'existe pas
       # Est-ce qu'un élément après existe ?
       table_prebilan[(index+1)..-1].each do |cbilan|

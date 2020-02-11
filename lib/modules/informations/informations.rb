@@ -16,6 +16,7 @@ class Informations
     youtube_id:     {value:nil,   editable:true,  required:true,  type: 'string'},
     accelerator:    {value:nil,   editable:true,  required:false, type: 'float'},
     logic_step:     {value:nil,   editable:false, required:false, type: 'integer'},
+    montage_manuel: {value:nil,   editable:true,  required:false, type: 'boolean'},
     uploaded:       {value:false, editable:false, required:false, type: 'boolean'},
     annonce_fb:     {value:false, editable:false, required:false, type: 'boolean'},
     annonce_scriv:  {value:false, editable:false, required:false, type: 'boolean'},

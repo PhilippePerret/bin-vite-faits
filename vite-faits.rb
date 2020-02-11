@@ -20,6 +20,12 @@ COMMAND.action =  case COMMAND.action
                   end
 
 case COMMAND.action
+when 'try'
+  # Pour essayer une méthode, un code, etc.
+  if vitefait.is_required
+    res = vitefait.montage_manuel?
+    puts "Montage manuel ? #{res.inspect}"
+  end
 when 'help', 'manuel', 'aide'
   ViteFait.open_help
 when 'idees'

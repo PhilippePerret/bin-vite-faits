@@ -559,6 +559,8 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     @folder || current_best_folder[:path]
   end
 
+  # Pour obtenir une information dans le programme, utiliser
+  #  vitefait.infos[:key]
   def informations
     @informations ||= begin
       require_module('informations/informations')
@@ -613,6 +615,18 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
       notice "--- Informations tutorielles données."
     end
     return vrai
+  end
+
+  # Return true si le montage est manuel, c'est-à-dire s'il se
+  # fait dans un fichier Screenflow ou Premiere. Cela permet de
+  # sauter les (longues) étapes de conversion en mp4
+  def montage_manuel?
+    if infos[:montage_manuel].nil?
+      # La donnée n'est pas définie
+      infos[:montage_manuel] =
+        !!yesNo("Le montage sera-t-il manuel (Scrivener ou Premiere) ?")
+    end
+    true === infos[:montage_manuel]
   end
 
   # Lieu où on trouve ce tutoriel

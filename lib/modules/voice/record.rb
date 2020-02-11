@@ -44,29 +44,33 @@ def exec(options = nil)
   # arrêté bien avant d'arrive là. Le fichier mp4 est forcément
   # fabriqué.
   only_with_durees = false
-  unless File.exists?(record_operations_mp4)
-    unless record_operations_path(noalert=true).nil?
-      notice "Je dois fabriquer le mp4 de la capture des opérations…"
-      capture_to_mp4
-    else
-      # Sans fichier de capture des opérations
-      error <<-EOA
-\033[1;31mLe fichier de capture des opérations n'existe pas\033[0m, ce qui signifie
-que pour enregistrer la voix vous n'avez que la solution avec
-les durées, sans vidéo.
+  if montage_manuel?
+    # Ne pas faire le fichier mp4
+  else
+    unless File.exists?(record_operations_mp4)
+      unless record_operations_path(noalert=true).nil?
+        notice "Je dois fabriquer le mp4 de la capture des opérations…"
+        capture_to_mp4
+      else
+        # Sans fichier de capture des opérations
+        error <<-EOA
+  \033[1;31mLe fichier de capture des opérations n'existe pas\033[0m, ce qui signifie
+  que pour enregistrer la voix vous n'avez que la solution avec
+  les durées, sans vidéo.
 
-Pour lancer la capture : `vitefait assistant pour=capture #{name}`
+  Pour lancer la capture : `vitefait assistant pour=capture #{name}`
 
-\033[1;31m(*) Si la capture des opérations doit être accélérée, il faut
-              accélérer en conséquence le débit de la voix, ce qui est
-              fait en définissant le paramètre `speed=...`.\033[0m
-      EOA
-      yesNo("Voulez-vous poursuivre ?") || (return false)
-      only_with_durees = true
+  \033[1;31m(*) Si la capture des opérations doit être accélérée, il faut
+                accélérer en conséquence le débit de la voix, ce qui est
+                fait en définissant le paramètre `speed=...`.\033[0m
+        EOA
+        yesNo("Voulez-vous poursuivre ?") || (return false)
+        only_with_durees = true
+      end
     end
   end
 
-  unless only_with_durees
+  unless only_with_durees || montage_manuel?
     puts <<-EOF
 
 Pour pouvoir opérer confortablement, nous avons deux solutions.
@@ -128,7 +132,9 @@ terminé. Il reste #{reste_secondes.to_i} secondes.
     decompte("Stop in… %{nombre_secondes}", reste_secondes)
   end
 
-  if File.exists?(record_voice_path)
+  if montage_manuel?
+    notice "Pour le montage manuel, on n'a pas besoin du mp4."
+  elsif File.exists?(record_voice_path)
     notice "👍  Voix enregistrée avec succès dans le fichier ./Voix/voice.mp4."
     save_last_logic_step
   else
@@ -137,7 +143,7 @@ terminé. Il reste #{reste_secondes.to_i} secondes.
 
   yesOrStop("Paré pour la suite ?")
 
-  case yesNo("Veux-tu l'ouvrir dans Audacity pour la peaufiner ?")
+  case yesNo("Veux-tu ouvrir le fichier dans Audacity pour la peaufiner ?")
   when true
     require_module('voice/edit_voice_file')
     edition_fichier_voix

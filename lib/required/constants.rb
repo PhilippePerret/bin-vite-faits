@@ -80,12 +80,14 @@ DATA_ALL_FILES = {
     id: 'capture_mp4',
     hname: "Assemblage des opérations et de la voix",
     relpath: 'Operations/capture.mp4',
-    from_update: 'assemblage_capture_et_voix'
+    from_update: 'assemblage_capture_et_voix',
+    montage_manuel: false  # le fichier n'est pas requis pour un montage manuel
   },
   capture_ts:{
     id:'capture_ts',
     hname:"Vidéo finale pour assemblage (.ts)",
-    relpath: 'Operations/capture.ts'
+    relpath: 'Operations/capture.ts',
+    montage_manuel: false  # le fichier n'est pas requis pour un montage manuel
   },
 
   # = TITRE =
@@ -98,12 +100,14 @@ DATA_ALL_FILES = {
   record_titre_mp4: {
     id: 'record_titre_mp4',
     hname: "Assemblage du titre",
-    relpath: 'Titre/Titre.mp4'
+    relpath: 'Titre/Titre.mp4',
+    montage_manuel: false  # le fichier n'est pas requis pour un montage manuel
   },
   record_titre_ts: {
     id: 'record_titre_mp4',
     hname: "Vidéo titre final pour assemblage (.ts)",
-    relpath: 'Titre/Titre.ts'
+    relpath: 'Titre/Titre.ts',
+    montage_manuel: false  # le fichier n'est pas requis pour un montage manuel
   },
 
   # = VOIX =
@@ -111,7 +115,8 @@ DATA_ALL_FILES = {
     id: 'voice_mp4',
     hname: "Capture de la voix",
     relpath: 'Voix/voice.mp4',
-    from_update: 'capture_voix'
+    from_update: 'capture_voix',
+    montage_manuel: false  # le fichier n'est pas requis pour un montage manuel
   },
   # voice_aiff:{
   #   id: 'voice_aiff',
