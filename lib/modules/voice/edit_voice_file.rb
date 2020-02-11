@@ -15,10 +15,15 @@ ci CMD+MAJ+E. L'extension devra être “.aiff”.
 \033[1;31mATTENTION : quand on exporte depuis Audacity, on ne se retrouve
 pas dans le bon dossier.\033[0m
 
-Raccourcis pratiques à avoir en tête :
+Raccourcis pratiques à avoir en tête (les programmer s'ils ne sont
+pas réglés comme ça) :
 
 ---------------------------------------------------------------------
-|  ⌘  L       | Pour rendre silencieuse la portion sélectionnée.    |
+|  ⌘  ⇧  S    | Pour rendre silencieuse la portion sélectionnée.    |
+---------------------------------------------------------------------
+|  ⌘  ⇧  F    | Fondu en fermeture.                                 |
+---------------------------------------------------------------------
+|  ⌘  ⇧  O    | Fondu en ouverture.                                 |
 ---------------------------------------------------------------------
 |  ⌘  ⇧  E    | Exporter le fichier son                             |
 ---------------------------------------------------------------------
