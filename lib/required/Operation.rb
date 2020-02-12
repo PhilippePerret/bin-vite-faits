@@ -178,7 +178,7 @@ class Operation
   end
   # Découpe un texte en une certaine longueur
   def split_in_column(text)
-    words = text.split(' ')
+    words = (text||'').split(' ')
     lines = [] # toutes les lignes produites
     line  = [] # ligne courant
     line_len = 0

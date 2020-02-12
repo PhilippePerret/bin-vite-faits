@@ -19,7 +19,8 @@ COMMAND.action =  case COMMAND.action
                   else COMMAND.action
                   end
 
-case COMMAND.action
+COMMAND_TIRET = COMMAND.action.gsub(/_/,'-')
+case COMMAND_TIRET
 when 'try'
   # Pour essayer une méthode, un code, etc.
   if vitefait.is_required
@@ -74,9 +75,9 @@ when 'rapport', 'report'
   vitefait.is_required && vitefait.write_rapport
 when 'check'
   vitefait.is_required && vitefait.check
-when 'lire_operations'
+when 'lire-operations'
   vitefait.is_required && vitefait.record_operations
-when 'capture_to_mp4', 'traite_capture'
+when 'capture-to-mp4', 'traite-capture'
   vitefait.is_required && vitefait.capture_to_mp4
 when /^assemble[\-_](.*)$/
   vitefait.is_required && vitefait.assemble_something($1)
@@ -84,9 +85,9 @@ when 'assemble'
   vitefait.is_required && vitefait.assemble
 when 'update'
   vitefait.is_required && vitefait.update_from
-when 'edit_voice'
+when 'edit-voice'
   vitefait.is_required && vitefait.edit_voice_file
-when 'keep_only'
+when 'keep-only'
   vitefait.is_required && vitefait.keep_only_folder
 when 'upload'
   vitefait.is_required && vitefait.upload
@@ -98,11 +99,11 @@ when 'annonces'
   vitefait.is_required && vitefait.annonce(:both)
 when 'remove', 'destroy', 'detruire', 'supprimer', 'delete'
   vitefait.is_required && vitefait.destroy
-when 'chaine_youtube', 'open_youtube'
+when 'chaine-youtube', 'open-youtube'
   vitefait.chaine_youtube
-when 'groupe_facebook'
+when 'groupe-facebook'
   vitefait.groupe_facebook
-when 'forum_scrivener'
+when 'forum-scrivener'
   vitefait.forum_scrivener
 when 'operations'
   vitefait.commande_operations
@@ -113,11 +114,11 @@ when 'notifications', 'notification'
 when NilClass
   error <<-EOT
 🚫  Il faut définir la commande à jouer ! Taper
-`vite-faits aide` ou `vite-faits manuel` pour
+`vitefait aide` ou `vitefait manuel` pour
 obtenir de l'aide en ouvrant le manuel.
   EOT
 else
-  error "🚫  Impossible de traiter la commande #{COMMAND.action}."
+  error "🚫  Impossible de traiter la commande #{COMMAND.action} (#{COMMAND_TIRET})."
 end
 
 ViteFait.finish

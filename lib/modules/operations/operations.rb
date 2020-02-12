@@ -37,18 +37,18 @@ class ViteFait
         overview_operations_by_titre
         puts <<-EOT
 \n\n\n
-  Modifier : vite-faits -e open-operations [#{name}]
-  Textes   : vite-faits open-operations [#{name}]
-  Capture  : vite-faits lire_operations [#{name}]
+  Modifier : vitefait -e operations [#{name}]
+  Textes   : vitefait operations [#{name}]
+  Capture  : vitefait lire-operations [#{name}]
 
         EOT
       else
         full_overview_operations
         puts <<-EOT
 \n\n\n
-  Modifier : vite-faits -e open-operations [#{name}]
-  Durée    : vite-faits -t open-operations [#{name}]
-  Capture  : vite-faits lire_operations [#{name}]
+  Modifier : vitefait -e operations [#{name}]
+  Durée    : vitefait -t operations [#{name}]
+  Capture  : vitefait lire-operations [#{name}]
 
         EOT
       end
