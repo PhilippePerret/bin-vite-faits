@@ -46,12 +46,12 @@ arrêté.
     tuto.define_operations            unless tuto.operations_defined?(false,false)
 
     # TITRE
-    unless tuto.titre_final_converted?(false) || montage_manuel?
+    unless tuto.titre_final_converted?(false) || tuto.montage_manuel?
       tuto.convert_titre_final
     end
 
     # VIGNETTE
-    tuto.build_vignette_jpeg          unless tuto.vignette_finale_existe?(false)
+    tuto.build_vignette_jpeg unless tuto.vignette_finale_existe?(false)
 
     # Enregistrement des opérations
     unless tuto.operations_recorded?(false,false)
@@ -62,7 +62,7 @@ arrêté.
     # on a besoin pour enregistrer la voix. Notamment au niveau de la
     # vitesse de la vidéo.
     # Sauf si l'enregistrement est manuel
-    unless montage_manuel?
+    unless tuto.montage_manuel?
       tuto.ask_capture_mov_to_mp4 unless tuto.mp4_capture_exists?(false,false)
     end
 
@@ -194,7 +194,7 @@ end #/<<self
     #   s'il faut supprimer ces éléments pour actualiser la
     #   chose.
     puts "\n\n"
-    puts "Montage manuel ? #{montage_manuel?.inspect}"
+    # puts "Montage manuel ? #{montage_manuel?.inspect}"
     table_prebilan.each_with_index do |bilan, index|
       puts "#{bilan[:hname].ljust(60,'.')} #{bilan[:exists].inspect}"
       # Si le fichier existe, c'est bon, on peut passer au suivant

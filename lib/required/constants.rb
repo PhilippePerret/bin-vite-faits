@@ -127,7 +127,8 @@ DATA_ALL_FILES = {
     id: 'record_voice_aac',
     hname: "Fichier voix pour assemblage avec opérations (.aac)",
     relpath: 'Voix/voice.aac',
-    from_update: 'improve_voice'
+    from_update: 'improve_voice',
+    montage_manuel: false  # le fichier n'est pas requis pour un montage manuel
   },
 
   # = VIGNETTE =
