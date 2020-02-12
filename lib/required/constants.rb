@@ -26,6 +26,7 @@ MIN_OPT_TO_REAL_OPT = {
   'h' => 'help',
   'i' => 'infos',
   'l' => 'lack',
+  'r' => 'range',
   't' => 'titre',
   'v' => 'verbose',
   'x' => 'test'

@@ -77,6 +77,8 @@ when 'check'
   vitefait.is_required && vitefait.check
 when 'lire-operations'
   vitefait.is_required && vitefait.record_operations
+when 'operations'
+  vitefait.commande_operations
 when 'capture-to-mp4', 'traite-capture'
   vitefait.is_required && vitefait.capture_to_mp4
 when /^assemble[\-_](.*)$/
@@ -105,8 +107,6 @@ when 'groupe-facebook'
   vitefait.groupe_facebook
 when 'forum-scrivener'
   vitefait.forum_scrivener
-when 'operations'
-  vitefait.commande_operations
 when 'taches', 'tache'
   vitefait.is_required && vitefait.commande_taches
 when 'notifications', 'notification'

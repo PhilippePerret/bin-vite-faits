@@ -67,6 +67,44 @@ peux interrompre la capture à l'aide de CTRL-C.
     EOT
   end
 
+  only_extrait = !!COMMAND.options[:range]
+
+  if only_extrait
+    if avec_assistant_operations
+      puts <<-EOT
+
+Choisis le rang des opérations à jouer :
+----------------------------------------
+(indique 'premier numéro-dernier numéro compris'
+ par exemple '3-5' pour jouer les opérataions 3,
+ 4 et 5)
+
+      EOT
+      # On affiche les opérations avec un numéro
+      nombre_operations = operations.count
+      last_index_operations = nombre_operations - 1
+      operations.each_with_index do |ope, idx|
+
+        puts "#{(idx+1).to_s.rjust(3)}. #{ope.titre}"
+
+      end
+
+      range = prompt("Rang à utiliser")
+      if (range.gsub(/[0-9\-]/,'') != '') raise NotAnError("Ce rang est mal formaté. Il devrait être 'F-L' où 'F' est le numéro de la première opération et 'L' le numéro de la dernière (par exemple '3-8').")
+      fromOpe, toOpe = range.split('-').collect{|n| n.to_i - 1 }
+      if fromOpe < 0 || fromOpe > last_index_operations
+        raise NotAnError.new("L'index #{fromOpe} est trop grand pour un index d'opération. Je renonce.")
+      end
+      if toOpe < fromOpe || toOpe > last_index_operations
+        raise NotAnError.new("L'index de fin #{toOpe} est invalide (soit supérieur au premier soit plus grand que le dernier index possible). Fais-gaffe, dude…")
+      end
+      played_operations = operations[fromOpe..toOpe]
+
+    else
+      error "Les opérations ne sont pas définies. L'option\n`-r/--range` est superflue."
+    end
+  end
+
   yesOrStop("Prêt à commencer ?…")
 
   is_first_time = true
@@ -98,9 +136,12 @@ peux interrompre la capture à l'aide de CTRL-C.
       dire("Mets en route la capture !")
 
       # Boucle sur toutes les opérations
-      # --------------------------------
+      # ou sur le rang d'opérations choisi
+      # ----------------------------------
+      played_operations ||= operations
 
-      operations.each do |operation|
+      played_operations.each do |operation|
+        notice "-> operation #{operation.titre}"
         op_start_time = Time.now.to_i
         # Calcul du temps de fin
         end_sleep_time = op_start_time + operation.duree_estimee
@@ -112,7 +153,7 @@ peux interrompre la capture à l'aide de CTRL-C.
 
       # À la fin, on laisse encore 3 secondes pour finir
       sleep 3
-      dire "Arrête maintenant la capture (les deux dernières secondes seront supprimées). Puis reviens dans le Terminal."
+      dire "Arrête maintenant la capture#{only_extrait ? '' : '  (les deux dernières secondes seront supprimées)'}. Puis reviens dans le Terminal."
     else
       # Sans assistant opérations, on attend la fin
       dire "Tu peux lancer la capture quand tu veux."
@@ -125,7 +166,8 @@ peux interrompre la capture à l'aide de CTRL-C.
 
   # On va prendre la dernière capture effectuée pour la mettre en
   # fichier capture
-  ViteFait.move_last_capture_in(default_record_operations_path)
+  path_capture = only_extrait ? record_operations_extrait_path(range) : default_record_operations_path
+  ViteFait.move_last_capture_in(path_capture)
 
   if operations_recorded?
     require_module('every/durees')

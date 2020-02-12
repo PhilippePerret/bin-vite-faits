@@ -878,8 +878,11 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
   def default_record_operations_fname
     @default_record_operations_fname ||= "capture.mov"
   end
+  def record_operations_extrait_path(extrait)
+    File.join(operations_folder, "capture-extrait-#{extrait}.mov")
+  end
   def default_record_operations_path
-    @default_record_operations_path ||= File.join(operations_folder, default_record_operations_fname)
+    @default_record_operations_path ||= File.join(operations_folder, default_record_operations_fname) # 'capture.mov'
   end
 
   # Chemin d'accès au fichier contenant peut-être les opérations

@@ -40,6 +40,7 @@ class ViteFait
   Modifier : vitefait -e operations [#{name}]
   Textes   : vitefait operations [#{name}]
   Capture  : vitefait lire-operations [#{name}]
+  Extrait  : vitefait lire-operations -r/--range [#{name}]
 
         EOT
       else
@@ -49,6 +50,7 @@ class ViteFait
   Modifier : vitefait -e operations [#{name}]
   Durée    : vitefait -t operations [#{name}]
   Capture  : vitefait lire-operations [#{name}]
+  Extrait  : vitefait lire-operations -r/--range [#{name}]
 
         EOT
       end
