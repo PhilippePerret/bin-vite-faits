@@ -692,6 +692,14 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     existe = File.exists?(scriv_file_path)
     if !existe && required
       error "Impossible de trouver le fichier Project Scrivener du tutoriel…\nà : #{scriv_file_path}"
+      if yesNo("Dois-je le recréer ?")
+        src = File.join(VITEFAIT_FOLDER_ON_LAPTOP,'Vite-Faits.scriv')
+        ViteFait.scrivener_copy(src,scriv_file_path)
+        notice "--> Scrivener : #{scriv_file_name} 👍"
+        existe = File.exists?(scriv_file_path)
+      else
+        return false
+      end
     end
     existe
   end
