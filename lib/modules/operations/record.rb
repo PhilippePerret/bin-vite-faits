@@ -90,7 +90,9 @@ Choisis le rang des opérations à jouer :
       end
 
       range = prompt("Rang à utiliser")
-      if (range.gsub(/[0-9\-]/,'') != '') raise NotAnError("Ce rang est mal formaté. Il devrait être 'F-L' où 'F' est le numéro de la première opération et 'L' le numéro de la dernière (par exemple '3-8').")
+      if range.gsub(/[0-9\-]/,'') != ''
+        raise NotAnError.new("Ce rang est mal formaté. Il devrait être 'F-L' où 'F' est le numéro de la première opération et 'L' le numéro de la dernière (par exemple '3-8').")
+      end
       fromOpe, toOpe = range.split('-').collect{|n| n.to_i - 1 }
       if fromOpe < 0 || fromOpe > last_index_operations
         raise NotAnError.new("L'index #{fromOpe} est trop grand pour un index d'opération. Je renonce.")
