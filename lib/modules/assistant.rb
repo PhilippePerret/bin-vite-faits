@@ -81,8 +81,10 @@ arrêté.
     case tuto.video_finale_existe?(false)
     when nil
       tuto.proceed_assemblage
-    when false
-      return # quand montage manuel
+    when false  # quand montage manuel
+      tuto.proceed_assemblage # même avec montage manuel
+      notice "Établis le montage du film et relance l'assistant\npour poursuivre"
+      return # oui, on arrête là, le temps de faire le montage
     when true
       # on continue
     end

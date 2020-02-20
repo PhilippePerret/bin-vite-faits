@@ -915,7 +915,7 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     @final_tutoriel_mp4 ||= File.join(exports_folder, final_tutoriel_mp4_name)
   end
   def final_tutoriel_mp4_name
-    @final_tutoriel_mp4_name ||= "#{name}_completed.mp4"
+    @final_tutoriel_mp4_name ||= "montage-final.mp4"
   end
   def final_tutoriel_exists?(required=false)
     existe = File.exists?(final_tutoriel_mp4)

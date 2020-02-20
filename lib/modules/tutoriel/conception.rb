@@ -398,7 +398,7 @@ YAML_DATA_CONCEPTION = <<-YAML
   produit:
     - "%{folder}/%{name}/Operations/capture.ts"
     - "%{folder}/%{name}/Titre/Titre.ts"
-    - "%{folder}/%{name}/Exports/%{name}_completed.mp4"
+    - "%{folder}/%{name}/Exports/montage-final.mp4"
 
 - id: production_vignette
   letter: J

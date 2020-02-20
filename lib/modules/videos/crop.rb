@@ -122,7 +122,7 @@ class ViteFait
     pth = self.relative_pathof(file)
     liste = []
     # Dans tous les cas, il faut détuire la vidéo finale
-    liste << "Exports/#{name}_completed.mp4"
+    liste << "Exports/#{final_tutoriel_mp4_name}"
     case 'pth'
     when './Voix/voice.mov'
       liste << 'Voix/voice.mp4'

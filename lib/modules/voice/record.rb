@@ -269,6 +269,49 @@ def assistant_voix_finale_with_durees
   clear
   notice "Enregistrement de la voix suivant les durées déterminées"
 
+  if montage_manuel?
+    notice "(le montage étant manuel, seul ce mode d'enregistrement de\n la voix est possible)"
+  end
+
+
+  only_extrait = !!COMMAND.options[:range]
+
+  if only_extrait
+    puts <<-EOT
+
+Choisis le rang des opérations à jouer :
+----------------------------------------
+(indique 'premier numéro-dernier numéro compris'
+par exemple '3-5' pour jouer les opérataions 3,
+4 et 5)
+
+    EOT
+    # On affiche les opérations avec un numéro
+    nombre_operations = operations.count
+    last_index_operations = nombre_operations - 1
+    operations.each_with_index do |ope, idx|
+
+      puts "#{(idx+1).to_s.rjust(3)}. #{ope.titre}"
+
+    end
+
+    range = prompt("Rang à utiliser")
+    if range.gsub(/[0-9\-]/,'') != ''
+      raise NotAnError.new("Ce rang est mal formaté. Il devrait être 'F-L' où 'F' est le numéro de la première opération et 'L' le numéro de la dernière (par exemple '3-8').")
+    end
+    fromOpe, toOpe = range.split('-').collect{|n| n.to_i - 1 }
+    if fromOpe < 0 || fromOpe > last_index_operations
+      raise NotAnError.new("L'index #{fromOpe} est trop grand pour un index d'opération. Je renonce.")
+    end
+    if toOpe < fromOpe || toOpe > last_index_operations
+      raise NotAnError.new("L'index de fin #{toOpe} est invalide (soit supérieur au premier soit plus grand que le dernier index possible). Fais-gaffe, dude…")
+    end
+    played_operations = operations[fromOpe..toOpe]
+
+  end
+
+  notice "\n\nJe te conseille de passer en mode plein écran et de grossir\nla taille de l'affichage."
+
   accelerator = COMMAND.params[:speed] || 1.0
 
 
@@ -280,7 +323,7 @@ def assistant_voix_finale_with_durees
   # sa durée, et dans le cas contraire, on estime la durée d'après
   # le fichier des opérations.
   duree_voice =
-    if operations_recorded?
+    if operations_recorded? && !montage_manuel?
       Video.dureeOf(record_operations_mp4)
     else
       require_module('operations/operations')
@@ -288,9 +331,11 @@ def assistant_voix_finale_with_durees
     end + 10 # marge
   start_voice_recording(duree_voice)
 
+  played_operations ||= operations
+
   clear
-  operations.each_with_index do |operation, index|
-    end_sleep_time = Time.now.to_i + (operation.duree_estimee.to_f / accelerator).round
+  played_operations.each_with_index do |operation, index|
+    end_sleep_time = Time.now.to_i + (operation.duree_voice.to_f / accelerator).round
     prev_ope = index > 0 ? operations[index - 1] : nil
     next_ope = operations[index + 1]
     clear

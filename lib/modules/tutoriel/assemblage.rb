@@ -156,7 +156,7 @@ Et enfin, mettez le dossier de côté (sur le dique) à l'aide de :
     FileUtils.move(final_tutoriel_mp4, version_path)
     if File.exists?(version_path)
       notice "Version #{name}_v-#{version}.mp4 produite avec succès 👍"
-      notice "(mais la dernière est toujours la '#{name}_completed.mp4')"
+      notice "(mais la dernière est toujours la '#{final_tutoriel_mp4_name}')"
     else
       raise NotAnError.new("Le fichier version (*) devrait exister…\n(*) #{version_path}")
     end

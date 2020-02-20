@@ -127,10 +127,13 @@ class Operation
     @duree_estimee ||= begin
       duree_definie   = duration || 0
       duree_action = ((action_pour_comptage||'').length * COEF_DICTION  + nombre_secondes_attente_action).with_decimal(1)
-      duree_voice     = ((voice||'').length * COEF_DICTION).with_decimal(1)
       # On garde comme durée la durée la plus longue
       [duree_definie, duree_action, duree_voice].max
     end
+  end
+
+  def duree_voice
+    @duree_voice ||= ((voice||'').length * COEF_DICTION).with_decimal(1)
   end
 
   def formated_action

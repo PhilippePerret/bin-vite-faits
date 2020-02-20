@@ -226,8 +226,12 @@ faire ?
     when 'B'
       if yesNo("Confirmes-tu la DESTRUCTION DÉFINITIVE de l'enregistrement ?")
         IO.remove_with_care(record_operations_path,'record des opérations',false)
-        IO.remove_with_care(record_operations_mp4, 'record des opérations (.mp4)',false)
-        IO.remove_with_care(record_operations_ts,'record des opérations (.ts)',false)
+        if File.exists?(record_operations_mp4)
+          IO.remove_with_care(record_operations_mp4, 'record des opérations (.mp4)',false)
+        end
+        if File.exists?(record_operations_ts)
+          IO.remove_with_care(record_operations_ts,'record des opérations (.ts)',false)
+        end
         break
       end
     when 'Q'

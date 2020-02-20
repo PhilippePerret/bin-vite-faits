@@ -143,7 +143,7 @@ DATA_ALL_FILES = {
   final_tutoriel:{
     id:'final_tutoriel',
     hname: "Fichier vidéo du tutoriel final (à uploader)",
-    relpath: 'Exports/%{name}_completed.mp4',
+    relpath: 'Exports/montage-final.mp4',
     from_update: 'assemblage'
   },
 
