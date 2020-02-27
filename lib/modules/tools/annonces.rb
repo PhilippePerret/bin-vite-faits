@@ -207,22 +207,4 @@ Philippe Perret
     end
   end
 
-  def f_description(pour)
-    @f_description ||= begin
-      if description.nil?
-        ''
-      else
-        description_finale = description
-        if description_finale.end_with?('.')
-          description_finale = description_finale[0...-1]
-        end
-        if pour == :scrivener
-          "\n“[i]#{description_finale}[/i]”"
-        elsif pour == :facebook
-          " (#{description_finale})"
-        end
-      end
-    end
-  end
-
 end

@@ -24,7 +24,7 @@ TITRE
 \033[1;36m#{titre}\033[0m
 
 DESCRIPTION
-\033[1;36mDans la série des “vite faits”, #{description}.\033[0m
+\033[1;36mDans la série des “vite faits”, #{f_description(:youtube)}.\033[0m
 
 DATE DE PUBLICATION PRÉVUE
 \033[1;36m#{published_at}\033[0m

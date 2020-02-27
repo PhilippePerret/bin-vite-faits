@@ -825,6 +825,23 @@ plutôt, comme délimiteur, le caractère '››' qui se fait avec ALT-MAJ-w
     @description ||= informations[:description]
   end
 
+  def f_description(pour)
+    if description.nil?
+      ''
+    else
+      description_finale = description
+      if description_finale.end_with?('.')
+        description_finale = description_finale[0...-1]
+      end
+      case pour
+      when :scrivener then "\n“[i]#{description_finale}[/i]”"
+      when :facebook  then " (#{description_finale})"
+      when :youtube   then "#{description_finale}\n\nDes questions ? Rejoignez vite-fait le groupe Facebook « Scrivener en français » : https://www.facebook.com/groups/1893652697386562/\n"
+      end
+    end
+  end
+
+
   def published_at
     @published_at ||= informations[:published_at]
   end

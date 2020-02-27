@@ -155,6 +155,14 @@ class Operation
 
   def calc_reel_action_et_secondes_attente
     @nombre_secondes_attente_action = 0
+
+    # Nouveau format : quand on rencontre « menu 'item, item, item'», on
+    # remplace par « menu 'item' [2]. 'item' [2]. 'item [2].' »
+    @action_pour_comptage.gsub!(/ menu '(.*?)'/){
+      items = $1.strip
+      " menu#{items.collect{|item| " '#{item}' [2]."}}"
+    }
+
     @action_pour_comptage = (action||'').gsub(/ ?Attendre ([0-9]+) secondes?\./){
       nombre_secondes = $1.to_i
       @nombre_secondes_attente_action += nombre_secondes
