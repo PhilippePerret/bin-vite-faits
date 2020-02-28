@@ -43,6 +43,8 @@ when 'open'
   ViteFait.open(COMMAND.folder)
 when 'open-captures'
   ViteFait.open('captures')
+when 'open-youtube', 'chaine-youtube'
+  vitefait.chaine_youtube
 when /^open[\-_](.*)$/
   vitefait.is_required && vitefait.open_something($1)
 when /^record[\-_](.*)$/
@@ -101,8 +103,6 @@ when 'annonces'
   vitefait.is_required && vitefait.annonce(:both)
 when 'remove', 'destroy', 'detruire', 'supprimer', 'delete'
   vitefait.is_required && vitefait.destroy
-when 'chaine-youtube', 'open-youtube'
-  vitefait.chaine_youtube
 when 'groupe-facebook'
   vitefait.groupe_facebook
 when 'forum-scrivener'
