@@ -27,6 +27,14 @@ class ViteFait
 
     File.exists?(from_lieu_path) || raise(ERRORS_MOVE[:no_source])
 
+    # Pour demander s'il faudra faire un backup de sécurité
+    if File.exists?(VITEFAIT_FOLDERS[:backup])
+      COMMAND.options[:backup] ||= yesNo("Dois-je faire un backup de sécurité du tutoriel ?")
+    else
+      warn("Si un dossier backup était défini (dans config.rb), je pourrais faire un backup de sécurité.".colonnize)
+    end
+
+
     # OK, on peut procéder à l'opération
     notice <<-EOT
 Déplacement :
@@ -41,14 +49,9 @@ Déplacement :
        if new_lieu == :published
          # <= Déplacement vers le dossier publié
          # => On fait un backup automatique
-         if File.exists?(VITEFAIT_FOLDERS[:backup])
-           COMMAND.options[:backup] ||= yesNo("Dois-je faire un backup de sécurité du tutoriel ?")
-           if COMMAND.options[:backup]
-             require_module('folder/backup')
-             proceed_backup
-           end
-         else
-           warn("Si un dossier backup était défini (dans config.rb), je pourrais faire un backup de sécurité.".colonnize)
+         if COMMAND.options[:backup]
+           require_module('folder/backup')
+           proceed_backup
          end
        end
      else
