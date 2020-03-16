@@ -137,8 +137,12 @@ class Operation
   end
 
   def formated_action
-    @formated_action ||= begin
-      ft = action.to_s
+    # @formated_action ||= begin
+    puts "\n\n=== FORMATED ACTION ==="
+    puts "action = #{action.inspect}\n\n\n"
+
+      ft = real_action
+      puts "--- ft au départ : #{ft.inspect}"
       ft = ft.gsub(/"/, '\\"')
       # Traiter les "Attendre x secondes."
       ft.gsub!(/Attendre ([0-9]+) secondes?\./){
@@ -148,22 +152,65 @@ class Operation
         ". [[slnc #{1000 * $1.to_i}]]"
       }
 
-      # puts "formated_action: '#{ft}'"
+      puts "formated_action: '#{ft}'"
       ft # le texte de l'action formaté
-    end
+    # end
+  end
+
+
+  def analyse_action
+    acts = action.to_s
+    # Nouveau format : quand on rencontre « menu 'item, item, item'», on
+    # remplace par « menu 'item' [2]. 'item' [2]. 'item [2].' »
+    acts.gsub!(/ menu '(.*?)'\.?/){
+      items = $1.strip.split(',').collect{|s|s.strip}
+      " menu #{items.collect{|item| "'#{item}' [1]."}.join(' ')}"
+    }
+
+    # Nouveau format : quand on rencontre « panneau 'item, item, item'», on
+    # remplace par « menu 'item' [2]. 'item' [2]. 'item [2].' »
+    acts.gsub!(/ panneau '(.*?)'\.?/){
+      items = $1.strip.split(',').collect{|s| s.strip}
+      puts "items panneau = #{items.inspect}"
+      " panneau #{items.collect{|item| "'#{item}' [1]."}.join(' ')}"
+    }
+
+    # On rajoute une seconde par point tout seul, sans crochet avant
+    # TODO Plus tard, il faudrait pouvoir décider combient de temps
+    # on attend avant chaque point.
+    acts.gsub!(/([^\]]\.)/){
+      "#{$1} [1]." # TODO Remplacer le '1' par une valeur définissable
+    }
+
+    return acts
+  end
+
+  def real_action
+    @real_action ||= analyse_action.to_s
   end
 
   def calc_reel_action_et_secondes_attente
     @nombre_secondes_attente_action = 0
 
-    # Nouveau format : quand on rencontre « menu 'item, item, item'», on
-    # remplace par « menu 'item' [2]. 'item' [2]. 'item [2].' »
-    @action_pour_comptage.gsub!(/ menu '(.*?)'/){
-      items = $1.strip
-      " menu#{items.collect{|item| " '#{item}' [2]."}}"
+    @action_pour_comptage = (String.new(action.to_s)).to_s
+    # Attention, c'est tout pourri, ça supprime toutes les marques
+    # d'arrêt si on ne s'assure pas, ici, d'avoir une vraie putain
+    # de copie !!!
+
+    @action_pour_comptage.gsub!(/ menu '(.*?)'\.?/){
+      items = $1.strip.split(',').collect{|s|s.strip}
+      " menu #{items.collect{|item| "'#{item}' [1]."}.join(' ')}"
     }
 
-    @action_pour_comptage = (action||'').gsub(/ ?Attendre ([0-9]+) secondes?\./){
+    # Nouveau format : quand on rencontre « panneau 'item, item, item'», on
+    # remplace par « menu 'item' [2]. 'item' [2]. 'item [2].' »
+    @action_pour_comptage.gsub!(/ panneau '(.*?)'\.?/){
+      items = $1.strip.split(',').collect{|s| s.strip}
+      " panneau #{items.collect{|item| "'#{item}' [1]."}.join(' ')}"
+    }
+
+
+    @action_pour_comptage.gsub!(/ ?Attendre ([0-9]+) secondes?\./){
       nombre_secondes = $1.to_i
       @nombre_secondes_attente_action += nombre_secondes
       ''
@@ -173,9 +220,21 @@ class Operation
       @nombre_secondes_attente_action += nombre_secondes
       ''
     }
+
+    # On rajoute une seconde par point tout seuls, sans crochet avant
+    @action_pour_comptage.gsub!(/([^\]]\.)/){
+      @nombre_secondes_attente_action += 1
+      $1
+    }
+
   end
-  def action_pour_comptage; @action_pour_comptage end
-  def nombre_secondes_attente_action; @nombre_secondes_attente_action end
+
+  def action_pour_comptage
+    @action_pour_comptage
+  end
+  def nombre_secondes_attente_action
+    @nombre_secondes_attente_action
+  end
 
   # Découper la phrase pour avoir des bonnes découpes en mots, sans que
   # le mot soit coupé comme par défaut ou avec fmt

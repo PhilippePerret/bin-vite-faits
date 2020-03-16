@@ -46,7 +46,7 @@ class Informations
         error "La date de publication (#{date}) est mal formatée (attendu : 'JJ MM AAAA') : #{e.message}."
         return false
       end
-      if inst < Date.today
+      if inst < Date.today && !COMMAND.options[:force]
         error "La date de publication doit être dans le futur, voyons…"
         return false
       end
