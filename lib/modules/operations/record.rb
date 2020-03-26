@@ -145,8 +145,13 @@ Choisis le rang des opérations à jouer :
       played_operations.each do |operation|
         notice "-> operation #{operation.titre}"
         op_start_time = Time.now.to_i
+
         # Calcul du temps de fin
-        end_sleep_time = op_start_time + operation.duree_estimee
+        # Quand on fait les opérations seules, on prend juste la durée
+        # de cette opération
+        # end_sleep_time = op_start_time + operation.duree_estimee
+        end_sleep_time = op_start_time + operation.duree_action
+
         `say -v Thomas -r 140 "#{operation.formated_action}"`
         sleep_reste = end_sleep_time - Time.now.to_i
         sleep_reste < 0 && sleep_reste = 0
