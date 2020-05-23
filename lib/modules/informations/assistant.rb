@@ -89,7 +89,7 @@ Au format : JJ MM AAAA
       return true
     else
       if Informations.published_date_valid?(date)
-        @published_at = res
+        @published_at = date
         return true
       end
     end

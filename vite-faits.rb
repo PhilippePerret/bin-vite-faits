@@ -29,6 +29,8 @@ when 'try'
   end
 when 'help', 'manuel', 'aide'
   ViteFait.open_help
+when 'get_home_data' # essai pour HOME
+  puts ViteFait.list.items.inspect
 when 'idees'
   ViteFait.open_idee_file
 when 'conception'
